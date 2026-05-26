@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: noeve-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: noeve
+      POSTGRES_PASSWORD: noeve
+      POSTGRES_DB: noeve
+    # Host 5433 — 5432 is often taken by system PostgreSQL
+    ports:
+      - '${NOEVE_POSTGRES_PORT:-5433}:5432'
+    volumes:
+      - noeve_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U noeve -d noeve']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: noeve-redis
+    restart: unless-stopped
+    # Host 6380 — 6379 is often taken by a system/local Redis
+    ports:
+      - '${NOEVE_REDIS_PORT:-6380}:6379'
+    volumes:
+      - noeve_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: noeve-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: noeve
+      MINIO_ROOT_PASSWORD: noeve-secret
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - noeve_minio_data:/data
+
+volumes:
+  noeve_pg_data:
+  noeve_redis_data:
+  noeve_minio_data:

@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Noeve Admin",
+    "slug": "noeve-admin",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "noeve-admin",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.noeve.admin"
+    },
+    "android": {
+      "package": "com.noeve.admin"
+    },
+    "plugins": ["expo-router"],
+    "extra": {
+      "apiUrl": "http://localhost:3001/v1"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Noeve",
+    "slug": "noeve-store",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "noeve",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.noeve.store"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1a1a2e"
+      },
+      "package": "com.noeve.store"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "http://localhost:3001/v1"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@noeve/config-typescript",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "exports": {
+    "./base.json": "./base.json",
+    "./nestjs.json": "./nestjs.json",
+    "./nextjs.json": "./nextjs.json",
+    "./react-native.json": "./react-native.json"
+  }
+}

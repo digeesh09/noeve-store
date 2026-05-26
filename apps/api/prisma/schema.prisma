@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  FULFILLMENT
+  SUPPORT
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  PROCESSING
+  PICKED
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  firstName    String?  @map("first_name")
+  lastName     String?  @map("last_name")
+  role         UserRole @default(CUSTOMER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  orders Order[]
+  cart   Cart?
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?   @map("image_url")
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id               String        @id @default(uuid())
+  name             String
+  slug             String        @unique
+  description      String?
+  status           ProductStatus @default(DRAFT)
+  categoryId       String        @map("category_id")
+  basePriceCents   Int           @map("base_price_cents")
+  currency         String        @default("INR")
+  material         String?
+  purity           String?
+  gemstone         String?
+  weightGrams      Float?        @map("weight_grams")
+  careInstructions String?       @map("care_instructions")
+  certificateUrl   String?       @map("certificate_url")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  category Category       @relation(fields: [categoryId], references: [id])
+  images   ProductImage[]
+  variants ProductVariant[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String  @map("product_id")
+  url       String
+  alt       String?
+  sortOrder Int     @default(0) @map("sort_order")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id            String @id @default(uuid())
+  productId     String @map("product_id")
+  sku           String @unique
+  name          String
+  priceCents    Int    @map("price_cents")
+  stockQuantity Int    @default(0) @map("stock_quantity")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_variants")
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique @map("user_id")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lines CartLine[]
+
+  @@map("carts")
+}
+
+model CartLine {
+  id        String @id @default(uuid())
+  cartId    String @map("cart_id")
+  productId String @map("product_id")
+  variantId String? @map("variant_id")
+  quantity  Int    @default(1)
+
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId, variantId])
+  @@map("cart_lines")
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  orderNumber    String      @unique @map("order_number")
+  userId         String      @map("user_id")
+  status         OrderStatus @default(PENDING_PAYMENT)
+  subtotalCents  Int         @map("subtotal_cents")
+  shippingCents  Int         @default(0) @map("shipping_cents")
+  taxCents       Int         @default(0) @map("tax_cents")
+  totalCents     Int         @map("total_cents")
+  currency       String      @default("INR")
+  trackingNumber String?     @map("tracking_number")
+  carrier        String?
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  user   User                 @relation(fields: [userId], references: [id])
+  lines  OrderLine[]
+  statusHistory OrderStatusHistory[]
+
+  @@map("orders")
+}
+
+model OrderLine {
+  id              String @id @default(uuid())
+  orderId         String @map("order_id")
+  productId       String @map("product_id")
+  variantId       String? @map("variant_id")
+  productName     String @map("product_name")
+  sku             String
+  quantity        Int
+  unitPriceCents  Int    @map("unit_price_cents")
+  lineTotalCents  Int    @map("line_total_cents")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_lines")
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(uuid())
+  orderId   String      @map("order_id")
+  status    OrderStatus
+  note      String?
+  createdBy String?     @map("created_by")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_status_history")
+}
