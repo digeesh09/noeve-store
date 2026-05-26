@@ -43,6 +43,18 @@ pnpm dev
 | Mobile store | `@noeve/mobile-store` | Expo dev tools | Customer mobile |
 | Mobile admin | `@noeve/mobile-admin` | Expo dev tools | Fulfillment mobile |
 
+## HTTPS (production)
+
+Local development uses **http://localhost**. In production:
+
+- **Web store & admin** — `middleware.ts` redirects HTTP → HTTPS when `NODE_ENV=production` and `x-forwarded-proto: http` (set by your load balancer or [nginx](./infrastructure/nginx/nginx.conf)).
+- **API** — redirects when `FORCE_HTTPS=true` or `NODE_ENV=production`; set `trust proxy` for `x-forwarded-proto`.
+- Set `NEXT_PUBLIC_API_URL` and `CORS_ORIGINS` to **https://** URLs in production `.env` files.
+
+## Brand theme
+
+Purple & gold tokens live in `@noeve/ui-tokens` (primary `#4A148C`, accent `#D4AF37`).
+
 ## Scripts
 
 ```bash

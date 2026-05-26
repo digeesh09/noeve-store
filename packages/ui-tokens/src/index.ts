@@ -1,9 +1,11 @@
-/** Noeve brand design tokens — shared across web and mobile */
+/** Noeve brand design tokens — purple & gold theme */
 export const colors = {
   brand: {
-    primary: '#1a1a2e',
-    accent: '#c9a227',
-    accentLight: '#e8d5a3',
+    primary: '#4A148C',
+    primaryDark: '#311B92',
+    accent: '#D4AF37',
+    accentLight: '#F3E8FF',
+    accentGold: '#F5E6B8',
   },
   neutral: {
     50: '#fafafa',

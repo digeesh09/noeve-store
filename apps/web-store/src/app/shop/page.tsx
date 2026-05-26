@@ -1,50 +1,40 @@
-import Link from 'next/link';
-import { getProducts } from '@/lib/api';
+import { CategoryNav } from '@/components/store/category-nav';
+import { ProductGrid } from '@/components/store/product-grid';
+import { filterByCategory, getCategories, getProducts } from '@/lib/api';
 
-export default async function ShopPage() {
-  const { data: products } = await getProducts();
+interface ShopPageProps {
+  searchParams: Promise<{ category?: string }>;
+}
+
+export default async function ShopPage({ searchParams }: ShopPageProps) {
+  const { category: categorySlug } = await searchParams;
+  const [categories, products] = await Promise.all([getCategories(), getProducts()]);
+  const filtered = filterByCategory(products, categorySlug);
+  const activeCategory = categories.find((c) => c.slug === categorySlug);
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="font-serif text-3xl font-semibold text-brand-primary">Shop</h1>
-      <p className="mt-2 text-neutral-600">Jewellery, pendants, and care accessories</p>
-
-      {products.length === 0 ? (
-        <p className="mt-12 text-neutral-500">
-          No products yet. Start the API and run{' '}
-          <code className="rounded bg-neutral-100 px-1">pnpm db:seed</code>.
+    <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
+      <div className="max-w-2xl">
+        <p className="text-xs font-semibold uppercase tracking-widest text-brand-accent">Catalogue</p>
+        <h1 className="mt-2 font-serif text-3xl font-semibold text-brand-primary md:text-4xl">
+          {activeCategory ? activeCategory.name : 'All pieces'}
+        </h1>
+        <p className="mt-2 text-neutral-600">
+          {activeCategory?.description ??
+            'Fine jewellery, elegant pendants, and ladies care accessories.'}
         </p>
-      ) : (
-        <ul className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((product) => {
-            const image = product.images?.[0];
-            const price = (product.basePriceCents / 100).toLocaleString('en-IN', {
-              style: 'currency',
-              currency: product.currency,
-            });
-            return (
-              <li key={product.id}>
-                <Link href={`/shop/${product.slug}`} className="group block">
-                  <div className="aspect-square overflow-hidden rounded-lg bg-brand-accent-light/30">
-                    {image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={image.url}
-                        alt={image.alt ?? product.name}
-                        className="h-full w-full object-cover transition group-hover:scale-105"
-                      />
-                    ) : null}
-                  </div>
-                  <h2 className="mt-3 font-medium text-brand-primary group-hover:text-brand-accent">
-                    {product.name}
-                  </h2>
-                  <p className="text-sm text-neutral-600">{price}</p>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </section>
+      </div>
+
+      <div className="mt-8">
+        <CategoryNav categories={categories} activeSlug={categorySlug} />
+      </div>
+
+      <div className="mt-8">
+        <p className="mb-4 text-sm text-neutral-500">
+          {filtered.length} {filtered.length === 1 ? 'piece' : 'pieces'}
+        </p>
+        <ProductGrid products={filtered} />
+      </div>
+    </div>
   );
 }

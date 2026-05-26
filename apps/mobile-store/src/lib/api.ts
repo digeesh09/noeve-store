@@ -1,10 +1,15 @@
+import Constants from 'expo-constants';
 import type { Category, Product } from './types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/v1';
+function getApiUrl() {
+  return (
+    (Constants.expoConfig?.extra as { apiUrl?: string })?.apiUrl ?? 'http://localhost:3001/v1'
+  );
+}
 
-async function storeFetch<T>(path: string, revalidate = 60): Promise<T | null> {
+async function fetchJson<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_URL}${path}`, { next: { revalidate } });
+    const res = await fetch(`${getApiUrl()}${path}`);
     if (!res.ok) return null;
     const json = await res.json();
     return json.data as T;
@@ -14,16 +19,16 @@ async function storeFetch<T>(path: string, revalidate = 60): Promise<T | null> {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  return (await storeFetch<Category[]>('/store/categories')) ?? [];
+  return (await fetchJson<Category[]>('/store/categories')) ?? [];
 }
 
 export async function getProducts(): Promise<Product[]> {
-  return (await storeFetch<Product[]>('/store/products')) ?? [];
+  return (await fetchJson<Product[]>('/store/products')) ?? [];
 }
 
 export async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const res = await fetch(`${API_URL}/store/products/${slug}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${getApiUrl()}/store/products/${slug}`);
     if (!res.ok) return null;
     const json = await res.json();
     return json.data as Product;

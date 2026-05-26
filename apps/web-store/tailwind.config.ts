@@ -6,9 +6,11 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          primary: '#1a1a2e',
-          accent: '#c9a227',
-          'accent-light': '#e8d5a3',
+          primary: '#4A148C',
+          'primary-dark': '#311B92',
+          accent: '#D4AF37',
+          'accent-light': '#F3E8FF',
+          'accent-gold': '#F5E6B8',
         },
       },
       fontFamily: {

@@ -5,7 +5,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: { primary: '#1a1a2e', accent: '#c9a227' },
+        brand: {
+          primary: '#4A148C',
+          'primary-dark': '#311B92',
+          accent: '#D4AF37',
+          'accent-light': '#F3E8FF',
+          'accent-gold': '#F5E6B8',
+        },
       },
     },
   },

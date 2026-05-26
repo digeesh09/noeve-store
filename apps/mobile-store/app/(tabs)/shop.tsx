@@ -1,77 +1,93 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
-import Constants from 'expo-constants';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { CategoryChips } from '../../src/components/CategoryChips';
+import { ProductCard } from '../../src/components/ProductCard';
+import { ScreenHeader } from '../../src/components/ScreenHeader';
+import { filterByCategory, getCategories, getProducts } from '../../src/lib/api';
+import type { Category, Product } from '../../src/lib/types';
 import { colors, spacing } from '@noeve/ui-tokens';
-
-interface Product {
-  id: string;
-  name: string;
-  basePriceCents: number;
-  currency: string;
-}
 
 export default function ShopScreen() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategory, setActiveCategory] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const apiUrl =
-    (Constants.expoConfig?.extra as { apiUrl?: string })?.apiUrl ??
-    'http://localhost:3001/v1';
+  const load = useCallback(async () => {
+    const [p, c] = await Promise.all([getProducts(), getCategories()]);
+    setProducts(p);
+    setCategories(c);
+  }, []);
 
   useEffect(() => {
-    fetch(`${apiUrl}/store/products`)
-      .then((r) => r.json())
-      .then((json) => setProducts(json.data ?? []))
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
-  }, [apiUrl]);
+    load().finally(() => setLoading(false));
+  }, [load]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  };
+
+  const filtered = filterByCategory(products, activeCategory || undefined);
+  const categoryName = categories.find((c) => c.slug === activeCategory)?.name;
 
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.brand.accent} />
+        <ActivityIndicator color={colors.brand.accent} size="large" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Shop</Text>
-      <FlatList
-        data={products}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: spacing.xl }}
-        ListEmptyComponent={
-          <Text style={styles.empty}>No products. Start API and run db:seed.</Text>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.price}>
-              {(item.basePriceCents / 100).toLocaleString('en-IN', {
-                style: 'currency',
-                currency: item.currency,
-              })}
-            </Text>
-          </View>
-        )}
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.content}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    >
+      <ScreenHeader
+        eyebrow="Catalogue"
+        title={categoryName ?? 'All pieces'}
+        subtitle="Fine jewellery, pendants & care accessories"
       />
-    </View>
+
+      <CategoryChips
+        categories={categories}
+        activeSlug={activeCategory}
+        onSelect={setActiveCategory}
+      />
+
+      <Text style={styles.count}>
+        {filtered.length} {filtered.length === 1 ? 'piece' : 'pieces'}
+      </Text>
+
+      {filtered.length === 0 ? (
+        <Text style={styles.empty}>No pieces in this collection yet.</Text>
+      ) : (
+        <View style={styles.grid}>
+          {filtered.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, backgroundColor: '#fff' },
+  scroll: { flex: 1 },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxl },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  heading: { fontSize: 24, fontWeight: '600', color: colors.brand.primary, marginBottom: spacing.md },
-  card: {
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.neutral[200],
-    borderRadius: 8,
-    marginBottom: spacing.sm,
-  },
-  name: { fontWeight: '500' },
-  price: { marginTop: 4, color: colors.neutral[800] },
-  empty: { color: colors.neutral[800], marginTop: spacing.lg },
+  count: { marginTop: spacing.sm, marginBottom: spacing.md, fontSize: 13, color: colors.neutral[800] },
+  empty: { textAlign: 'center', color: colors.neutral[800], marginTop: spacing.xl },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
 });

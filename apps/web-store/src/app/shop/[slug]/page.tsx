@@ -1,5 +1,7 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { formatPrice } from '@/lib/format';
 import { getProduct } from '@/lib/api';
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -7,58 +9,104 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const product = await getProduct(slug);
   if (!product) notFound();
 
-  const price = (product.basePriceCents / 100).toLocaleString('en-IN', {
-    style: 'currency',
-    currency: product.currency,
-  });
   const image = product.images?.[0];
+  const specs = [
+    { label: 'Material', value: product.material },
+    { label: 'Purity', value: product.purity },
+    { label: 'Gemstone', value: product.gemstone },
+    { label: 'Weight', value: product.weightGrams ? `${product.weightGrams} g` : null },
+  ].filter((s) => s.value);
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-12">
-      <Link href="/shop" className="text-sm text-brand-accent hover:underline">
-        ← Back to shop
-      </Link>
-      <div className="mt-8 grid gap-12 md:grid-cols-2">
-        <div className="aspect-square overflow-hidden rounded-lg bg-brand-accent-light/30">
+    <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
+      <nav className="text-sm text-neutral-500">
+        <Link href="/" className="hover:text-brand-accent">
+          Home
+        </Link>
+        <span className="mx-2">/</span>
+        <Link href="/shop" className="hover:text-brand-accent">
+          Shop
+        </Link>
+        {product.category ? (
+          <>
+            <span className="mx-2">/</span>
+            <Link
+              href={`/shop?category=${product.category.slug}`}
+              className="hover:text-brand-accent"
+            >
+              {product.category.name}
+            </Link>
+          </>
+        ) : null}
+      </nav>
+
+      <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-brand-accent-light/30">
           {image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={image.url} alt={image.alt ?? product.name} className="h-full w-full object-cover" />
+            <Image
+              src={image.url}
+              alt={image.alt ?? product.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
           ) : null}
         </div>
-        <div>
-          <h1 className="font-serif text-3xl font-semibold text-brand-primary">{product.name}</h1>
-          <p className="mt-4 text-2xl">{price}</p>
-          {product.description ? (
-            <p className="mt-6 text-neutral-600">{product.description}</p>
+
+        <div className="flex flex-col">
+          {product.category ? (
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand-accent">
+              {product.category.name}
+            </p>
           ) : null}
-          <dl className="mt-8 space-y-2 text-sm">
-            {product.material ? (
-              <div className="flex gap-2">
-                <dt className="font-medium">Material</dt>
-                <dd>{product.material}</dd>
-              </div>
-            ) : null}
-            {product.purity ? (
-              <div className="flex gap-2">
-                <dt className="font-medium">Purity</dt>
-                <dd>{product.purity}</dd>
-              </div>
-            ) : null}
-            {product.weightGrams ? (
-              <div className="flex gap-2">
-                <dt className="font-medium">Weight</dt>
-                <dd>{product.weightGrams} g</dd>
-              </div>
-            ) : null}
-          </dl>
-          <button
-            type="button"
-            className="mt-10 rounded-full bg-brand-primary px-8 py-3 text-sm font-medium text-white"
-          >
-            Add to cart
-          </button>
+          <h1 className="mt-2 font-serif text-3xl font-semibold text-brand-primary md:text-4xl">
+            {product.name}
+          </h1>
+          <p className="mt-4 text-2xl font-semibold text-neutral-800">
+            {formatPrice(product.basePriceCents, product.currency)}
+          </p>
+
+          {product.description ? (
+            <p className="mt-6 leading-relaxed text-neutral-600">{product.description}</p>
+          ) : null}
+
+          {specs.length > 0 ? (
+            <dl className="mt-8 grid gap-3 border-y border-neutral-200 py-6 sm:grid-cols-2">
+              {specs.map((s) => (
+                <div key={s.label}>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                    {s.label}
+                  </dt>
+                  <dd className="mt-0.5 font-medium text-brand-primary">{s.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+
+          {product.careInstructions ? (
+            <div className="mt-4 rounded-lg bg-brand-accent-light/30 p-4 text-sm text-neutral-700">
+              <p className="font-semibold text-brand-primary">Care</p>
+              <p className="mt-1">{product.careInstructions}</p>
+            </div>
+          ) : null}
+
+          <div className="mt-auto flex flex-wrap gap-3 pt-8">
+            <button
+              type="button"
+              className="flex-1 rounded-full bg-brand-primary px-8 py-3.5 text-sm font-semibold text-white transition hover:opacity-90 sm:flex-none"
+            >
+              Add to bag
+            </button>
+            <Link
+              href="/cart"
+              className="rounded-full border border-neutral-300 px-8 py-3.5 text-center text-sm font-medium transition hover:border-brand-primary"
+            >
+              View bag
+            </Link>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
