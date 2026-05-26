@@ -11,6 +11,13 @@ export interface ProductImage {
   alt: string | null;
 }
 
+export interface ProductVariant {
+  id: string;
+  sku: string;
+  name: string;
+  priceCents: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -24,5 +31,6 @@ export interface Product {
   weightGrams: number | null;
   careInstructions: string | null;
   images?: ProductImage[];
+  variants?: ProductVariant[];
   category?: Category;
 }

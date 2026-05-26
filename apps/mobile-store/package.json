@@ -14,6 +14,7 @@
     "@noeve/api-client": "workspace:*",
     "@noeve/shared-types": "workspace:*",
     "@noeve/ui-tokens": "workspace:*",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "expo": "~52.0.23",
     "expo-constants": "~17.0.3",
     "expo-linking": "~7.0.3",

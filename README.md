@@ -28,6 +28,8 @@ cp .env.example apps/api/.env
 # Database
 pnpm db:generate
 pnpm db:migrate
+# If guest-cart schema changed, also run: pnpm --filter @noeve/api exec prisma db push
+pnpm db:seed
 
 # Run all apps (or individually)
 pnpm dev

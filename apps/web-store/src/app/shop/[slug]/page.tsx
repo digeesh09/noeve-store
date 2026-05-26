@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { AddToCartSection } from './add-to-cart-section';
 import { formatPrice } from '@/lib/format';
 import { getProduct } from '@/lib/api';
 
@@ -91,20 +92,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             </div>
           ) : null}
 
-          <div className="mt-auto flex flex-wrap gap-3 pt-8">
-            <button
-              type="button"
-              className="flex-1 rounded-full bg-brand-primary px-8 py-3.5 text-sm font-semibold text-white transition hover:opacity-90 sm:flex-none"
-            >
-              Add to bag
-            </button>
-            <Link
-              href="/cart"
-              className="rounded-full border border-neutral-300 px-8 py-3.5 text-center text-sm font-medium transition hover:border-brand-primary"
-            >
-              View bag
-            </Link>
-          </div>
+          <AddToCartSection
+            productId={product.id}
+            variantId={product.variants?.[0]?.id}
+          />
         </div>
       </div>
     </div>

@@ -17,7 +17,7 @@ export interface ProductVariant {
   sku: string;
   name: string;
   priceCents: number;
-  stockQuantity: number;
+  stockQuantity?: number;
 }
 
 export interface Product {

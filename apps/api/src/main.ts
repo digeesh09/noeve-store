@@ -29,6 +29,7 @@ async function bootstrap() {
   app.enableCors({
     origin: corsOrigins,
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Cart-Session'],
   });
   app.useGlobalPipes(
     new ValidationPipe({

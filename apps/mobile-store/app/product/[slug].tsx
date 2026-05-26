@@ -8,7 +8,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCart } from '../../src/context/cart-context';
 import { getProduct } from '../../src/lib/api';
 import { formatPrice } from '../../src/lib/format';
 import type { Product } from '../../src/lib/types';
@@ -16,8 +17,12 @@ import { colors, spacing, typography } from '@noeve/ui-tokens';
 
 export default function ProductDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
+  const router = useRouter();
+  const { addItem } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -26,6 +31,20 @@ export default function ProductDetailScreen() {
       setLoading(false);
     });
   }, [slug]);
+
+  const handleAdd = async () => {
+    if (!product) return;
+    setAdding(true);
+    try {
+      await addItem(product.id, product.variants?.[0]?.id);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch {
+      // ignore
+    } finally {
+      setAdding(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -69,9 +88,7 @@ export default function ProductDetailScreen() {
       <Text style={styles.name}>{product.name}</Text>
       <Text style={styles.price}>{formatPrice(product.basePriceCents, product.currency)}</Text>
 
-      {product.description ? (
-        <Text style={styles.desc}>{product.description}</Text>
-      ) : null}
+      {product.description ? <Text style={styles.desc}>{product.description}</Text> : null}
 
       {specs.length > 0 ? (
         <View style={styles.specs}>
@@ -91,8 +108,17 @@ export default function ProductDetailScreen() {
         </View>
       ) : null}
 
-      <Pressable style={styles.addBtn}>
-        <Text style={styles.addBtnText}>Add to bag</Text>
+      <Pressable
+        style={[styles.addBtn, adding && styles.addBtnDisabled]}
+        onPress={handleAdd}
+        disabled={adding}
+      >
+        <Text style={styles.addBtnText}>
+          {adding ? 'Adding…' : added ? 'Added ✓' : 'Add to bag'}
+        </Text>
+      </Pressable>
+      <Pressable style={styles.viewBag} onPress={() => router.push('/(tabs)/cart')}>
+        <Text style={styles.viewBagText}>View bag</Text>
       </Pressable>
     </ScrollView>
   );
@@ -103,10 +129,7 @@ const styles = StyleSheet.create({
   content: { paddingBottom: spacing.xxl },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   error: { color: colors.semantic.error },
-  imageWrap: {
-    aspectRatio: 4 / 5,
-    backgroundColor: colors.brand.accentLight,
-  },
+  imageWrap: { aspectRatio: 4 / 5, backgroundColor: colors.brand.accentLight },
   image: { width: '100%', height: '100%' },
   placeholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   placeholderText: { opacity: 0.3, fontSize: 24, color: colors.brand.primary },
@@ -153,7 +176,7 @@ const styles = StyleSheet.create({
   care: {
     marginTop: spacing.md,
     marginHorizontal: spacing.lg,
-    backgroundColor: colors.brand.accentLight + '99',
+    backgroundColor: colors.brand.accentLight,
     borderRadius: 12,
     padding: spacing.md,
   },
@@ -167,5 +190,16 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md + 2,
     alignItems: 'center',
   },
+  addBtnDisabled: { opacity: 0.6 },
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  viewBag: {
+    marginTop: spacing.sm,
+    marginHorizontal: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+    borderRadius: 28,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  viewBagText: { fontWeight: '600', color: colors.brand.primary },
 });

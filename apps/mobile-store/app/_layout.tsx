@@ -1,10 +1,11 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '@noeve/ui-tokens';
+import { CartProvider } from '../src/context/cart-context';
 
 export default function RootLayout() {
   return (
-    <>
+    <CartProvider>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -20,6 +21,6 @@ export default function RootLayout() {
           options={{ title: 'Product', headerBackTitle: 'Back' }}
         />
       </Stack>
-    </>
+    </CartProvider>
   );
 }
