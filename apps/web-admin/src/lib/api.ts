@@ -69,3 +69,66 @@ export async function updateOrderStatus(
   const json = await res.json();
   return json.data as Order;
 }
+
+export interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  basePriceCents: number;
+  currency: string;
+  categoryId: string;
+  material: string | null;
+  purity: string | null;
+  gemstone: string | null;
+  weightGrams: number | null;
+  createdAt: string;
+}
+
+export async function fetchProducts(): Promise<Product[]> {
+  const res = await fetch(`${API_URL}/admin/products`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message ?? 'Could not load products');
+  }
+  const json = await res.json();
+  return json.data as Product[];
+}
+
+export async function createProduct(payload: any): Promise<Product> {
+  const res = await fetch(`${API_URL}/admin/products`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message ?? 'Could not create product');
+  }
+  const json = await res.json();
+  return json.data as Product;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  const res = await fetch(`${API_URL}/store/categories`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message ?? 'Could not load categories');
+  }
+  const json = await res.json();
+  return json.data as Category[];
+}

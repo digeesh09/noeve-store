@@ -13,7 +13,7 @@ const nav = [
   { href: '/dashboard/fulfillment', label: 'Fulfillment' },
 ];
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }): React.JSX.Element {
+export default function DashboardLayout({ children }: { children: any }) {
   const router = useRouter();
 
   const handleLogout = () => {

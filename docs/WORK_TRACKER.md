@@ -78,7 +78,7 @@ Living document for project progress. Update this file at the end of each work s
 | Login page | ✅ | Wired to `POST /admin/auth/login` |
 | Auth guard (dashboard) | ✅ | Client-side redirect to `/login` |
 | Orders list + status updates | ✅ | Table with fulfillment transition buttons |
-| Products CRUD UI | ⬜ | Stub page |
+| Products CRUD UI | ✅ | List + create implemented (`/dashboard/products`) |
 | Fulfillment queue UI | ⬜ | Stub page |
 | Inventory, customers, promotions, settings | ⬜ | Routes not created |
 | Auth guard / JWT middleware | ⬜ | `middleware.ts` is HTTPS-only |
@@ -151,7 +151,7 @@ Working tree is clean. All previous UI redesign and API changes have been commit
 2. ~~**Wire customer auth (web-store)**~~ ✅ Done  
 3. ~~**Web admin — orders & fulfillment**~~ ✅ Done  
 4. ~~**Checkout UI (web-store)**~~ ✅ Done  
-5. **Web admin — products** — List + create/edit via `GET/POST /admin/products`  
+5. ~~**Web admin — products**~~ ✅ Done  
 6. **Mobile store** — Wire auth, checkout, variant selection → cart API  
 7. **Payments** (Stripe/Razorpay) + webhooks
 
@@ -182,6 +182,7 @@ Working tree is clean. All previous UI redesign and API changes have been commit
 |------|-------|-----------|---------|
 | 2026-06-14 | Project analysis + work tracker | Analyzed README, ARCHITECTURE, UI_DESIGN_LAYOUT vs codebase; created `docs/WORK_TRACKER.md` | Commit UI redesign; start checkout API + wire admin orders |
 | 2026-06-14 | Fix errors + checkout MVP | Fixed Prisma client + mobile/web TS errors; `POST /store/orders`; web-store auth/checkout; web-admin login + orders table | Admin products CRUD; mobile auth/checkout; payments |
+| 2026-06-14 | Web admin products | Implemented Web Admin Products page with List and Create forms using API endpoints. Fixed layout typing error. | Mobile auth/checkout; payments |
 
 ---
 
