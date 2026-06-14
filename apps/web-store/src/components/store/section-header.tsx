@@ -1,3 +1,4 @@
+import React from 'react';
 import Link from 'next/link';
 
 interface SectionHeaderProps {
@@ -7,7 +8,12 @@ interface SectionHeaderProps {
   linkLabel?: string;
 }
 
-export function SectionHeader({ title, subtitle, href, linkLabel = 'View all' }: SectionHeaderProps) {
+export function SectionHeader({
+  title,
+  subtitle,
+  href,
+  linkLabel = 'View all',
+}: SectionHeaderProps): React.JSX.Element {
   return (
     <div className="flex items-end justify-between gap-4">
       <div>

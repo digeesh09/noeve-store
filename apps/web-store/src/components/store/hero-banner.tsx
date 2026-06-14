@@ -4,42 +4,42 @@ interface HeroBannerProps {
   compact?: boolean;
 }
 
-export function HeroBanner({ compact }: HeroBannerProps) {
+export function HeroBanner({ compact }: HeroBannerProps): React.JSX.Element {
   return (
     <section
-      className={`relative overflow-hidden rounded-2xl bg-brand-primary text-white ${
+      className={`relative overflow-hidden rounded-2xl bg-brand-primary text-white border border-brand-accent/20 shadow-[0_4px_30px_rgba(212,175,55,0.08)] ${
         compact ? 'px-6 py-10 md:py-12' : 'px-6 py-16 md:px-12 md:py-24'
       }`}
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-30"
+        className="pointer-events-none absolute inset-0 opacity-45"
         style={{
           background:
-            'radial-gradient(ellipse 80% 60% at 70% 20%, #D4AF37 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 10% 80%, #F5E6B8 0%, transparent 50%)',
+            'radial-gradient(ellipse 80% 60% at 75% 15%, #D4AF37 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 10% 85%, #F5E6B8 0%, transparent 55%)',
         }}
       />
       <div className="relative max-w-xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brand-accent">Noeve</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brand-accent">Noeve Collections</p>
         <h1
-          className={`mt-3 font-serif font-semibold leading-tight ${
+          className={`mt-4 font-serif font-semibold leading-tight text-white ${
             compact ? 'text-3xl md:text-4xl' : 'text-4xl md:text-5xl lg:text-6xl'
           }`}
         >
           Jewellery that speaks quietly, shines boldly
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-neutral-300 md:text-base">
-          Pendants, fine gold pieces, and curated care accessories — designed for everyday elegance.
+          Fine gold pieces, diamond pendants, and curated ladies accessories — crafted for everyday elegance and lifetime warranty.
         </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap gap-4">
           <Link
             href="/shop"
-            className="rounded-full bg-brand-accent px-6 py-2.5 text-sm font-semibold text-brand-primary transition hover:bg-brand-accent-light"
+            className="rounded-full bg-brand-accent px-8 py-3 text-sm font-semibold text-brand-primary transition-all duration-300 hover:scale-[1.03] hover:bg-brand-accent-gold hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
           >
             Shop collection
           </Link>
           <Link
             href="/shop?category=pendants"
-            className="rounded-full border border-white/40 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10"
+            className="rounded-full border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium transition-all duration-300 hover:scale-[1.03] hover:bg-white/15"
           >
             Explore pendants
           </Link>
@@ -48,3 +48,4 @@ export function HeroBanner({ compact }: HeroBannerProps) {
     </section>
   );
 }
+

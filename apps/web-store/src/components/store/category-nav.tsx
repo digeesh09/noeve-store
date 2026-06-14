@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Category } from '@/lib/types';
-
+import React from 'react';
 interface CategoryNavProps {
   categories: Category[];
   activeSlug?: string;
@@ -11,7 +11,7 @@ export function CategoryNav({
   categories,
   activeSlug,
   basePath = '/shop',
-}: CategoryNavProps) {
+}: CategoryNavProps): React.JSX.Element {
   const items = [{ slug: '', name: 'All' }, ...categories.map((c) => ({ slug: c.slug, name: c.name }))];
 
   return (

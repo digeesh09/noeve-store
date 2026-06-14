@@ -1,6 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
-import { colors, spacing, typography } from '@noeve/ui-tokens';
+import { colors, spacing } from '@noeve/ui-tokens';
 import { formatPrice } from '../lib/format';
 import type { Product } from '../lib/types';
 
@@ -45,12 +45,12 @@ export function ProductCard({ product, width = '48%' }: ProductCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { marginBottom: spacing.md },
+  card: { marginBottom: spacing.md, padding: 6, backgroundColor: '#2d144a', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.1)' },
   imageWrap: {
     aspectRatio: 4 / 5,
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: colors.brand.accentLight,
+    backgroundColor: '#311456',
   },
   image: { width: '100%', height: '100%' },
   placeholder: {
@@ -58,23 +58,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  placeholderText: { color: colors.brand.primary, opacity: 0.4 },
+  placeholderText: { color: colors.brand.accent, opacity: 0.4 },
   badge: {
     position: 'absolute',
     top: 8,
     left: 8,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: colors.brand.accent,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 10,
   },
-  badgeText: { fontSize: 10, fontWeight: '600', color: colors.brand.primary },
+  badgeText: { fontSize: 9, fontWeight: '700', color: colors.brand.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   name: {
     marginTop: spacing.sm,
-    fontSize: typography.fontSize.sm,
+    fontSize: 13,
     fontWeight: '600',
-    color: colors.brand.primary,
+    color: '#fff',
+    paddingHorizontal: 4,
   },
-  meta: { marginTop: 2, fontSize: 11, color: colors.neutral[800] },
-  price: { marginTop: 4, fontSize: typography.fontSize.sm, fontWeight: '700' },
+  meta: { marginTop: 2, fontSize: 10, color: '#bfb5cc', paddingHorizontal: 4 },
+  price: { marginTop: 4, fontSize: 13, fontWeight: '700', color: colors.brand.accent, paddingHorizontal: 4 },
 });
+

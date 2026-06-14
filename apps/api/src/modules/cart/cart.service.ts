@@ -72,7 +72,6 @@ export class CartService {
     }
 
     let variantId: string | null = data.variantId ?? null;
-    let unitPrice = product.basePriceCents;
 
     if (variantId) {
       const variant = product.variants.find((v) => v.id === variantId);
@@ -82,11 +81,9 @@ export class CartService {
       if (variant.stockQuantity < data.quantity) {
         throw new BadRequestException('Insufficient stock');
       }
-      unitPrice = variant.priceCents;
     } else if (product.variants.length === 1) {
       const variant = product.variants[0];
       variantId = variant.id;
-      unitPrice = variant.priceCents;
       if (variant.stockQuantity < data.quantity) {
         throw new BadRequestException('Insufficient stock');
       }
@@ -156,6 +153,68 @@ export class CartService {
     const cart = await this.resolveCart(ctx);
     await this.prisma.cartLine.deleteMany({ where: { cartId: cart.id } });
     return this.formatCart(cart.id);
+  }
+
+  /** Merge guest session cart lines into the authenticated user's cart. */
+  async mergeSessionToUser(userId: string, sessionId: string) {
+    const sessionCart = await this.prisma.cart.findUnique({
+      where: { sessionId },
+      include: { lines: true },
+    });
+    if (!sessionCart || sessionCart.lines.length === 0) {
+      return;
+    }
+
+    const userCart = await this.resolveCart({ userId });
+
+    for (const line of sessionCart.lines) {
+      const existing = await this.prisma.cartLine.findFirst({
+        where: {
+          cartId: userCart.id,
+          productId: line.productId,
+          variantId: line.variantId,
+        },
+      });
+
+      if (existing) {
+        await this.prisma.cartLine.update({
+          where: { id: existing.id },
+          data: { quantity: existing.quantity + line.quantity },
+        });
+      } else {
+        await this.prisma.cartLine.create({
+          data: {
+            cartId: userCart.id,
+            productId: line.productId,
+            variantId: line.variantId,
+            quantity: line.quantity,
+          },
+        });
+      }
+    }
+
+    await this.prisma.cartLine.deleteMany({ where: { cartId: sessionCart.id } });
+    await this.prisma.cart.delete({ where: { id: sessionCart.id } });
+  }
+
+  async getCartForCheckout(userId: string) {
+    const cart = await this.prisma.cart.findUnique({
+      where: { userId },
+      include: {
+        lines: {
+          include: {
+            product: true,
+            variant: true,
+          },
+        },
+      },
+    });
+
+    if (!cart || cart.lines.length === 0) {
+      return null;
+    }
+
+    return cart;
   }
 
   private async formatCart(cartId: string) {

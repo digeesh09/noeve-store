@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 import {
   createContext,
   useCallback,
@@ -37,7 +39,7 @@ const empty: Cart = {
   currency: 'INR',
 };
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({ children }: { children: ReactNode }): React.JSX.Element {
   const [cart, setCart] = useState<Cart>(empty);
   const [loading, setLoading] = useState(true);
 

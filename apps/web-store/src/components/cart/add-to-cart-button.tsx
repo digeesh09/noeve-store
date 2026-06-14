@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from './cart-provider';
@@ -10,7 +11,7 @@ interface AddToCartButtonProps {
   className?: string;
 }
 
-export function AddToCartButton({ productId, variantId, className }: AddToCartButtonProps) {
+export function AddToCartButton({ productId, variantId, className }: AddToCartButtonProps): React.JSX.Element {
   const { addItem } = useCart();
   const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');

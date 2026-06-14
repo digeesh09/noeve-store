@@ -5,7 +5,9 @@ import { SectionHeader } from '@/components/store/section-header';
 import { TrustBadges } from '@/components/store/trust-badges';
 import { getCategories, getProducts } from '@/lib/api';
 
-export default async function HomePage() {
+import React from 'react';
+
+export default async function HomePage(): Promise<React.JSX.Element> {
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
   const featured = products.slice(0, 4);
 

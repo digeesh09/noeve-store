@@ -1,3 +1,4 @@
+import React from 'react';
 import { ProductCard } from './product-card';
 import type { Product } from '@/lib/types';
 
@@ -5,7 +6,7 @@ interface ProductGridProps {
   products: Product[];
 }
 
-export function ProductGrid({ products }: ProductGridProps) {
+export function ProductGrid({ products }: ProductGridProps): React.JSX.Element {
   if (products.length === 0) {
     return (
       <p className="py-16 text-center text-neutral-500">

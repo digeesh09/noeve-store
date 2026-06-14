@@ -1,3 +1,4 @@
+import React from 'react';
 import Link from 'next/link';
 
 const links = [
@@ -7,7 +8,7 @@ const links = [
   { href: '/cart', label: 'Bag' },
 ];
 
-export function SiteFooter() {
+export function SiteFooter(): React.JSX.Element {
   return (
     <footer className="mt-auto border-t border-neutral-200 bg-brand-primary text-neutral-300">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-3">

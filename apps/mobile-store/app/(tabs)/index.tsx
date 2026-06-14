@@ -101,9 +101,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.neutral[50] },
+  scroll: { flex: 1, backgroundColor: '#210b38' },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#210b38' },
   brandRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     paddingTop: spacing.sm,
   },
-  logo: { fontSize: 28, fontWeight: '700', color: colors.brand.primary },
+  logo: { fontSize: 28, fontWeight: '700', color: colors.brand.accent, letterSpacing: 0.5 },
   bagLink: { fontSize: 14, fontWeight: '600', color: colors.brand.accent },
   section: { marginTop: spacing.xl },
   sectionHead: {
@@ -120,18 +120,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: colors.brand.primary },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#fff' },
   sectionLink: { fontSize: 13, fontWeight: '600', color: colors.brand.accent },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   collectionCard: {
     width: 140,
     marginRight: spacing.sm,
-    backgroundColor: colors.brand.accentLight,
+    backgroundColor: '#2d144a',
     borderRadius: 12,
     padding: spacing.md,
     minHeight: 100,
     justifyContent: 'flex-end',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.15)',
   },
-  collectionLabel: { fontSize: 10, fontWeight: '600', color: colors.brand.primary, opacity: 0.6 },
-  collectionName: { fontSize: 16, fontWeight: '700', color: colors.brand.primary, marginTop: 4 },
+  collectionLabel: { fontSize: 10, fontWeight: '600', color: colors.brand.accent, opacity: 0.75 },
+  collectionName: { fontSize: 16, fontWeight: '700', color: '#fff', marginTop: 4 },
 });
+

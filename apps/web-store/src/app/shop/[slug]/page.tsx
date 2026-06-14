@@ -1,3 +1,4 @@
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -5,7 +6,7 @@ import { AddToCartSection } from './add-to-cart-section';
 import { formatPrice } from '@/lib/format';
 import { getProduct } from '@/lib/api';
 
-export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }): Promise<React.JSX.Element> {
   const { slug } = await params;
   const product = await getProduct(slug);
   if (!product) notFound();

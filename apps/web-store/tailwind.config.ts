@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import { colors } from '@noeve/ui-tokens';
 
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
@@ -6,11 +7,18 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          primary: '#4A148C',
-          'primary-dark': '#311B92',
-          accent: '#D4AF37',
-          'accent-light': '#F3E8FF',
-          'accent-gold': '#F5E6B8',
+          primary: colors.brand.primary,
+          'primary-dark': colors.brand.primaryDark,
+          accent: colors.brand.accent,
+          'accent-light': colors.brand.accentLight,
+          'accent-gold': colors.brand.accentGold,
+        },
+        neutral: {
+          50: colors.neutral[50],
+          100: colors.neutral[100],
+          200: colors.neutral[200],
+          800: colors.neutral[800],
+          900: colors.neutral[900],
         },
       },
       fontFamily: {
@@ -23,3 +31,4 @@ const config: Config = {
 };
 
 export default config;
+

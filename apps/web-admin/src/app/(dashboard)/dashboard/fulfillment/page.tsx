@@ -1,4 +1,6 @@
-export default function FulfillmentPage() {
+import React from 'react';
+
+export default function FulfillmentPage(): React.JSX.Element {
   return (
     <div>
       <h1 className="text-2xl font-semibold">Fulfillment</h1>

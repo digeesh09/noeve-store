@@ -6,7 +6,9 @@ export const metadata: Metadata = {
   description: 'Manage orders, products, and fulfillment',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import React from 'react';
+
+export default function RootLayout({ children }: any): React.JSX.Element {
   return (
     <html lang="en">
       <body>{children}</body>

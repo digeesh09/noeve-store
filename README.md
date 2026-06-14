@@ -70,4 +70,6 @@ pnpm typecheck        # Typecheck all packages
 
 ## Documentation
 
-See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for system design and folder layout.
+- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — system design and folder layout
+- [docs/UI_DESIGN_LAYOUT.md](./docs/UI_DESIGN_LAYOUT.md) — storefront UI/UX spec
+- [docs/WORK_TRACKER.md](./docs/WORK_TRACKER.md) — progress tracker (done / pending)

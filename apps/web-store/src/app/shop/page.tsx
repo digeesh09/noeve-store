@@ -1,12 +1,13 @@
 import { CategoryNav } from '@/components/store/category-nav';
 import { ProductGrid } from '@/components/store/product-grid';
+import React from 'react';
 import { filterByCategory, getCategories, getProducts } from '@/lib/api';
 
 interface ShopPageProps {
   searchParams: Promise<{ category?: string }>;
 }
 
-export default async function ShopPage({ searchParams }: ShopPageProps) {
+export default async function ShopPage({ searchParams }: ShopPageProps): Promise<React.JSX.Element> {
   const { category: categorySlug } = await searchParams;
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
   const filtered = filterByCategory(products, categorySlug);

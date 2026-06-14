@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import type { PlaceOrderInput } from '@noeve/validation';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { OrdersService } from './orders.service';
 
@@ -6,6 +7,15 @@ import { OrdersService } from './orders.service';
 @UseGuards(JwtAuthGuard)
 export class StoreOrdersController {
   constructor(private orders: OrdersService) {}
+
+  @Post()
+  create(
+    @Req() req: { user: { id: string } },
+    @Headers('x-cart-session') session: string | undefined,
+    @Body() body: PlaceOrderInput,
+  ) {
+    return this.orders.createFromCart(req.user.id, session, body);
+  }
 
   @Get()
   list(@Req() req: { user: { id: string } }, @Query() query: Record<string, unknown>) {

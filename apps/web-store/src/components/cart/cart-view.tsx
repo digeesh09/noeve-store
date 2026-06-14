@@ -1,12 +1,13 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { formatPrice } from '@/lib/format';
 import { useCart } from './cart-provider';
 
-export function CartView() {
+export function CartView(): React.JSX.Element {
   const { cart, loading, updateQuantity, removeItem } = useCart();
   const [updating, setUpdating] = useState<string | null>(null);
 
@@ -120,13 +121,13 @@ export function CartView() {
           <span>Estimated total</span>
           <span>{formatPrice(cart.subtotalCents, cart.currency)}</span>
         </div>
-        <button
-          type="button"
-          className="mt-6 w-full rounded-full bg-brand-accent py-3 text-sm font-bold text-brand-primary hover:opacity-90"
+        <Link
+          href={cart.lines.length > 0 ? '/checkout' : '/shop'}
+          className="mt-6 block w-full rounded-full bg-brand-accent py-3 text-center text-sm font-bold text-brand-primary hover:opacity-90"
         >
           Proceed to checkout
-        </button>
-        <p className="mt-3 text-center text-xs text-neutral-500">Checkout & payments coming soon</p>
+        </Link>
+        <p className="mt-3 text-center text-xs text-neutral-500">Sign in required at checkout</p>
       </aside>
     </div>
   );
