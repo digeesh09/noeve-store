@@ -1,0 +1,15 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "FinCalm API",
+    "version": "1.0.0",
+    "description": "Auto-generated minimal Swagger documentation for FinCalm backend."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {}
+}
