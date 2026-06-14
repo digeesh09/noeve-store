@@ -139,18 +139,7 @@ Living document for project progress. Update this file at the end of each work s
 
 ## Uncommitted work (git snapshot 2026-06-14)
 
-These changes exist locally but are **not committed**:
-
-| Area | Files (summary) |
-|------|-----------------|
-| API | `cart.service.ts`, `orders.service.ts` — stock validation, fulfillment transitions |
-| Web store | Full UI redesign — layout, header/footer, hero, product cards, cart, shop pages, tailwind |
-| Mobile store | Tab layout, home, product detail, `ProductCard` |
-| Web admin | Login styling, dashboard shell pages, layout |
-| Docs | `UI_DESIGN_LAYOUT.md`, mockup PNGs (new) |
-| Lockfile | `pnpm-lock.yaml` |
-
-**Suggested action:** Review and commit the storefront UI redesign as one logical commit when ready.
+Working tree is clean. All previous UI redesign and API changes have been committed and pushed.
 
 ---
 
