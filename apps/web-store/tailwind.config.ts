@@ -23,7 +23,9 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-cormorant)', 'Georgia', 'serif'],
+        serif: ['var(--font-cinzel)', 'Georgia', 'serif'],
+        cinzel: ['var(--font-cinzel)', 'serif'],
+        montserrat: ['var(--font-montserrat)', 'sans-serif'],
       },
     },
   },

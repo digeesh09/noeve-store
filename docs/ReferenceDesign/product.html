@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Silk Column Shirt — NOEVE</title>
+<meta name="description" content="The Silk Column Shirt in mulberry silk — considered apparel from NOEVE.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&family=Public+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bone:#E9E3D8;
+    --stone:#DCD3C2;
+    --ink:#211D19;
+    --oxblood:#6B2230;
+    --champagne:#B89B6E;
+    --cream:#F6F1E8;
+
+    --display:'Libre Caslon Display', serif;
+    --serif:'Libre Caslon Text', serif;
+    --sans:'Public Sans', sans-serif;
+    --mono:'JetBrains Mono', monospace;
+
+    --container: 1280px;
+    --edge: clamp(1.5rem, 5vw, 4.5rem);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bone); color:var(--ink); font-family:var(--sans);
+    font-weight:400; line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+  ul{ list-style:none; }
+  input{ font-family:inherit; }
+
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:999;
+    opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap{ max-width:var(--container); margin:0 auto; padding-left:var(--edge); padding-right:var(--edge); }
+  .eyebrow{ font-family:var(--mono); font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--oxblood); }
+
+  /* tag component */
+  .tag{
+    position:relative; display:inline-flex; align-items:center; gap:.5em;
+    padding:.4em .85em .4em 1.7em; background:var(--cream); border:1px solid var(--champagne);
+    color:var(--ink); font-family:var(--mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+    transform:rotate(-3deg); transition:transform .35s cubic-bezier(.2,.8,.2,1); white-space:nowrap;
+  }
+  .tag::before{
+    content:""; position:absolute; left:.6em; top:50%; width:.5em; height:.5em; border-radius:50%;
+    background:var(--bone); border:1px solid var(--ink); transform:translateY(-50%);
+  }
+  .tag:hover{ transform:rotate(0deg); }
+  .tag--accent{ background:var(--oxblood); border-color:var(--oxblood); color:var(--cream); }
+  .tag--accent::before{ background:var(--oxblood); border-color:var(--cream); }
+  .tag--price{ position:absolute; top:1rem; right:1rem; z-index:2; }
+
+  /* buttons */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.6em;
+    font-family:var(--sans); font-weight:500; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase;
+    padding:.95em 1.9em; border-radius:1px;
+    transition:transform .3s ease, background .3s ease, color .3s ease, border-color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn--primary{ background:var(--oxblood); color:var(--cream); }
+  .btn--primary:hover{ background:var(--ink); }
+  .btn--outline{ border:1px solid var(--ink); color:var(--ink); }
+  .btn--outline:hover{ background:var(--ink); color:var(--cream); }
+
+  /* marquee */
+  .marquee{ background:var(--ink); color:var(--cream); overflow:hidden; white-space:nowrap; border-bottom:1px solid var(--champagne); }
+  .marquee__track{ display:inline-flex; animation:scroll-marquee 28s linear infinite; padding:.6em 0; }
+  .marquee__track span{ font-family:var(--mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; padding:0 1.6em; }
+  @keyframes scroll-marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  .marquee:hover .marquee__track{ animation-play-state:paused; }
+
+  /* header */
+  .site-header{ position:sticky; top:0; z-index:200; background:rgba(233,227,216,.92); backdrop-filter:blur(6px); border-bottom:1px solid rgba(33,29,25,.12); }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:1.1rem 0; }
+  .nav__logo{ font-family:var(--display); font-size:1.45rem; letter-spacing:.04em; }
+  .nav__links{ display:flex; gap:2.1rem; align-items:center; }
+  .nav__link{ font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; font-weight:500; position:relative; padding-bottom:.3em; }
+  .nav__link::after{ content:""; position:absolute; left:0; bottom:0; height:1px; width:0; background:var(--oxblood); transition:width .3s ease; }
+  .nav__link:hover::after{ width:100%; }
+  .nav__actions{ display:flex; align-items:center; gap:1.3rem; }
+  .nav__icon-btn{ width:20px; height:20px; position:relative; display:inline-flex; }
+  .nav__bag-count{ position:absolute; top:-7px; right:-9px; width:16px; height:16px; border-radius:50%; background:var(--oxblood); color:var(--cream); font-family:var(--mono); font-size:.6rem; font-weight:600; display:flex; align-items:center; justify-content:center; }
+  .nav__burger{ display:none; flex-direction:column; gap:5px; width:24px; }
+  .nav__burger span{ height:1px; background:var(--ink); width:100%; transition:transform .25s ease, opacity .25s ease; }
+
+  .mobile-nav{ position:fixed; inset:0; z-index:300; background:var(--bone); transform:translateY(-100%); transition:transform .4s cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column; padding:1.5rem var(--edge) 2rem; }
+  .mobile-nav.is-open{ transform:translateY(0); }
+  .mobile-nav__top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem; }
+  .mobile-nav__links{ display:flex; flex-direction:column; gap:1.6rem; }
+  .mobile-nav__links a{ font-family:var(--display); font-size:1.9rem; }
+
+  /* breadcrumb */
+  .breadcrumb{ font-family:var(--mono); font-size:.7rem; letter-spacing:.07em; text-transform:uppercase; color:rgba(33,29,25,.5); display:flex; gap:.5em; align-items:center; padding:1.6rem 0 0; flex-wrap:wrap; }
+  .breadcrumb a:hover{ color:var(--oxblood); }
+  .breadcrumb span{ opacity:.5; }
+
+  /* PDP */
+  .pdp{ display:grid; grid-template-columns:1fr 1fr; gap:3.5rem; padding:1.5rem 0 5rem; }
+  .pdp__gallery{ position:relative; }
+  .pdp__main-image{ height:560px; border-radius:2px; border:1px solid rgba(33,29,25,.08); position:relative; transition:background .4s ease; background:linear-gradient(135deg,#DCD3C2,#B89B6E); }
+  .pdp__main-image .tag{ position:absolute; top:1.2rem; left:1.2rem; }
+  .pdp__thumbs{ display:flex; gap:.8rem; margin-top:1rem; }
+  .pdp__thumb{ width:64px; height:64px; border-radius:2px; border:1px solid rgba(33,29,25,.15); cursor:pointer; transition:border-color .25s ease, transform .25s ease; }
+  .pdp__thumb.is-active{ border-color:var(--oxblood); }
+  .pdp__thumb:hover{ transform:translateY(-2px); }
+
+  .pdp__info{ display:flex; flex-direction:column; }
+  .pdp__title{ font-family:var(--display); font-size:clamp(2rem,4vw,2.8rem); margin:.7rem 0 .8rem; }
+  .pdp__rating{ display:flex; align-items:center; gap:.6em; margin-bottom:1.3rem; }
+  .pdp__rating .stars{ color:var(--champagne); font-size:.95rem; letter-spacing:.1em; }
+  .pdp__rating a{ font-family:var(--mono); font-size:.74rem; text-decoration:underline; color:rgba(33,29,25,.6); }
+  .pdp__price{ font-family:var(--mono); font-weight:600; font-size:1.7rem; margin-bottom:1.3rem; }
+  .pdp__desc{ color:rgba(33,29,25,.78); margin-bottom:1.8rem; max-width:46ch; }
+
+  .pdp__option{ margin-bottom:1.7rem; }
+  .pdp__option-label{ font-family:var(--mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; display:flex; justify-content:space-between; margin-bottom:.8rem; color:rgba(33,29,25,.65); }
+  .pdp__option-label b{ color:var(--ink); font-weight:600; }
+  .swatches{ display:flex; gap:.8rem; }
+  .swatch{ width:32px; height:32px; border-radius:50%; border:1px solid rgba(33,29,25,.2); cursor:pointer; position:relative; padding:0; }
+  .swatch.is-active::after{ content:""; position:absolute; inset:-5px; border:1px solid var(--ink); border-radius:50%; }
+  .sizes{ display:flex; gap:.6rem; flex-wrap:wrap; }
+  .size-pill{ padding:.55em 1.15em; border:1px solid rgba(33,29,25,.25); border-radius:1px; font-family:var(--mono); font-size:.78rem; transition:all .25s ease; }
+  .size-pill.is-active{ background:var(--ink); color:var(--cream); border-color:var(--ink); }
+  .size-pill:hover{ border-color:var(--ink); }
+
+  .qty{ display:inline-flex; align-items:center; border:1px solid rgba(33,29,25,.25); }
+  .qty button{ width:38px; height:38px; font-size:1.05rem; }
+  .qty span{ width:42px; text-align:center; font-family:var(--mono); font-size:.9rem; }
+
+  .pdp__add-row{ display:flex; gap:1rem; align-items:center; margin-bottom:.7rem; }
+  .pdp__add-row .btn{ flex:1; }
+  .pdp__added-msg{ font-family:var(--mono); font-size:.74rem; color:var(--oxblood); opacity:0; transition:opacity .3s ease; margin-bottom:1.2rem; height:1em; }
+  .pdp__added-msg.is-visible{ opacity:1; }
+  .pdp__note{ display:flex; gap:.6em; align-items:center; font-size:.82rem; color:rgba(33,29,25,.65); margin:.4rem 0 2rem; }
+  .pdp__note svg{ width:16px; height:16px; flex-shrink:0; color:var(--champagne); }
+
+  /* accordion */
+  .accordion{ border-top:1px solid rgba(33,29,25,.12); }
+  .accordion__item{ border-bottom:1px solid rgba(33,29,25,.12); }
+  .accordion__trigger{ width:100%; display:flex; justify-content:space-between; align-items:center; padding:1.1rem 0; font-family:var(--sans); font-weight:500; font-size:.92rem; text-align:left; }
+  .accordion__trigger svg{ width:16px; height:16px; transition:transform .3s ease; }
+  .accordion__item.is-open .accordion__trigger svg{ transform:rotate(45deg); }
+  .accordion__panel{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .accordion__panel-inner{ padding:0 0 1.3rem; color:rgba(33,29,25,.72); font-size:.92rem; line-height:1.6; }
+
+  /* related */
+  .related{ padding:1rem 0 5rem; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:2.2rem; gap:1rem; flex-wrap:wrap; }
+  .section-head h2{ font-family:var(--display); font-size:clamp(1.8rem,3.2vw,2.4rem); }
+  .related__grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.4rem; }
+  .card{ display:flex; flex-direction:column; }
+  .card__media{ position:relative; height:260px; border-radius:2px; margin-bottom:1rem; border:1px solid rgba(33,29,25,.08); transition:transform .4s cubic-bezier(.2,.8,.2,1); }
+  .card:hover .card__media{ transform:translateY(-5px); }
+  .card__name{ font-family:var(--serif); font-style:italic; font-size:1.05rem; margin-bottom:.25rem; }
+  .card__meta{ font-size:.8rem; color:rgba(33,29,25,.6); }
+  .card__rating{ display:flex; align-items:center; gap:.5em; margin-top:.4em; }
+  .card__stars{ color:var(--champagne); font-size:.78rem; letter-spacing:.08em; }
+  .card__rating-text{ font-family:var(--mono); font-size:.68rem; color:rgba(33,29,25,.5); }
+
+  /* reviews */
+  .reviews{ padding:1rem 0 6rem; border-top:1px solid rgba(33,29,25,.12); }
+  .reviews__summary{ display:flex; gap:3rem; margin-bottom:2.6rem; flex-wrap:wrap; align-items:center; }
+  .reviews__score{ text-align:center; }
+  .reviews__score .big{ font-family:var(--display); font-size:3rem; line-height:1; }
+  .reviews__score .stars{ color:var(--champagne); font-size:1rem; letter-spacing:.1em; display:block; margin:.4rem 0; }
+  .reviews__score .count{ font-family:var(--mono); font-size:.7rem; color:rgba(33,29,25,.55); }
+  .reviews__bars{ flex:1; display:flex; flex-direction:column; gap:.55rem; min-width:240px; }
+  .reviews__bar-row{ display:flex; align-items:center; gap:.7rem; font-family:var(--mono); font-size:.7rem; color:rgba(33,29,25,.6); }
+  .reviews__bar-track{ flex:1; height:6px; background:rgba(33,29,25,.1); border-radius:3px; overflow:hidden; }
+  .reviews__bar-fill{ height:100%; background:var(--champagne); }
+  .testimonials__grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .testimonial{ background:var(--cream); border:1px solid rgba(33,29,25,.1); border-radius:2px; padding:2rem 1.8rem; display:flex; flex-direction:column; gap:1.2rem; }
+  .testimonial__stars{ color:var(--champagne); font-size:.95rem; letter-spacing:.12em; }
+  .testimonial__quote{ font-family:var(--serif); font-style:italic; font-size:1.02rem; line-height:1.55; flex:1; }
+  .testimonial__byline{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
+  .testimonial__name{ font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(33,29,25,.55); }
+
+  /* footer */
+  .site-footer{ background:var(--ink); color:var(--cream); padding:5rem 0 2rem; }
+  .footer__top{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:2.5rem; padding-bottom:3.5rem; border-bottom:1px solid rgba(246,241,232,.15); }
+  .footer__brand .nav__logo{ color:var(--cream); }
+  .footer__tagline{ color:rgba(246,241,232,.65); margin:1rem 0 1.4rem; max-width:26ch; }
+  .footer__social{ display:flex; gap:1rem; }
+  .footer__social a{ width:34px; height:34px; border:1px solid rgba(246,241,232,.3); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .3s ease, border-color .3s ease; }
+  .footer__social a:hover{ background:var(--champagne); border-color:var(--champagne); }
+  .footer__social svg{ width:15px; height:15px; }
+  .footer__col h4{ font-family:var(--mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--champagne); margin-bottom:1.2rem; }
+  .footer__col ul{ display:flex; flex-direction:column; gap:.8rem; }
+  .footer__col a{ font-size:.92rem; color:rgba(246,241,232,.78); transition:color .25s ease; }
+  .footer__col a:hover{ color:var(--cream); }
+  .footer__bottom{ display:flex; justify-content:space-between; align-items:center; padding-top:1.8rem; flex-wrap:wrap; gap:1rem; }
+  .footer__bottom p{ font-size:.78rem; color:rgba(246,241,232,.55); }
+  .footer__legal{ display:flex; gap:1.5rem; }
+  .footer__legal a{ font-size:.78rem; color:rgba(246,241,232,.55); }
+  .footer__legal a:hover{ color:var(--cream); }
+
+  @media (max-width:980px){
+    .pdp{ grid-template-columns:1fr; }
+    .pdp__main-image{ height:440px; }
+    .related__grid{ grid-template-columns:repeat(2,1fr); }
+    .testimonials__grid{ grid-template-columns:1fr; }
+    .footer__top{ grid-template-columns:1fr 1fr; row-gap:2.5rem; }
+  }
+  @media (max-width:680px){
+    .nav__links{ display:none; }
+    .nav__burger{ display:flex; }
+    .related__grid{ grid-template-columns:1fr 1fr; }
+    .reviews__summary{ flex-direction:column; align-items:flex-start; gap:1.4rem; }
+  }
+  @media (max-width:480px){
+    .footer__top{ grid-template-columns:1fr; }
+    .related__grid{ grid-template-columns:1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="marquee">
+    <div class="marquee__track">
+      <span>FREE SHIPPING ON ORDERS OVER $150</span><span>○</span>
+      <span>THE NEW EDIT IS NOW LIVE</span><span>○</span>
+      <span>EARLY ACCESS FOR LIST MEMBERS</span><span>○</span>
+      <span>FREE SHIPPING ON ORDERS OVER $150</span><span>○</span>
+      <span>THE NEW EDIT IS NOW LIVE</span><span>○</span>
+      <span>EARLY ACCESS FOR LIST MEMBERS</span><span>○</span>
+    </div>
+  </div>
+
+  <header class="site-header" id="siteHeader">
+    <div class="wrap nav">
+      <a href="index.html" class="nav__logo">NOEVE</a>
+      <nav class="nav__links">
+        <a class="nav__link" href="index.html#edit">New</a>
+        <a class="nav__link" href="index.html#pillars">Apparel</a>
+        <a class="nav__link" href="index.html#pillars">Beauty</a>
+        <a class="nav__link" href="index.html#pillars">Lifestyle</a>
+        <a class="nav__link" href="index.html#newsletter">Journal</a>
+      </nav>
+      <div class="nav__actions">
+        <button class="nav__icon-btn" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
+        <a class="nav__icon-btn" href="login.html" aria-label="Sign in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+        </a>
+        <a class="nav__icon-btn" href="cart.html" aria-label="Your bag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
+          <span class="nav__bag-count" id="bagCount">3</span>
+        </a>
+        <button class="nav__burger" id="burgerBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav">
+    <div class="mobile-nav__top">
+      <span class="nav__logo">NOEVE</span>
+      <button class="nav__burger" id="closeBtn" aria-label="Close menu">
+        <span style="transform:rotate(45deg) translate(1px,1px)"></span>
+        <span style="opacity:0"></span>
+        <span style="transform:rotate(-45deg) translate(1px,-1px)"></span>
+      </button>
+    </div>
+    <div class="mobile-nav__links">
+      <a href="index.html#edit">New</a>
+      <a href="index.html#pillars">Apparel</a>
+      <a href="index.html#pillars">Beauty</a>
+      <a href="index.html#pillars">Lifestyle</a>
+      <a href="cart.html">Bag (3)</a>
+      <a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <main class="wrap">
+
+    <nav class="breadcrumb">
+      <a href="index.html">Home</a><span>/</span>
+      <a href="index.html#pillars">Apparel</a><span>/</span>
+      <a href="#" style="color:var(--ink)">The Silk Column Shirt</a>
+    </nav>
+
+    <section class="pdp">
+      <div class="pdp__gallery">
+        <div class="pdp__main-image" id="mainImage">
+          <span class="tag tag--accent">New Season</span>
+        </div>
+        <div class="pdp__thumbs">
+          <button class="pdp__thumb is-active" data-bg="linear-gradient(135deg,#DCD3C2,#B89B6E)" aria-label="View image 1"></button>
+          <button class="pdp__thumb" data-bg="linear-gradient(200deg,#F6F1E8,#DCD3C2)" aria-label="View image 2"></button>
+          <button class="pdp__thumb" data-bg="radial-gradient(circle at 30% 30%,#F6F1E8,#B89B6E 80%)" aria-label="View image 3"></button>
+          <button class="pdp__thumb" data-bg="repeating-linear-gradient(100deg,#DCD3C2 0 8px,#EDE7DB 8px 16px)" aria-label="View image 4"></button>
+        </div>
+      </div>
+
+      <div class="pdp__info">
+        <p class="eyebrow">Apparel — Mulberry Silk</p>
+        <h1 class="pdp__title">The Silk Column Shirt</h1>
+        <div class="pdp__rating">
+          <span class="stars">★★★★★</span>
+          <a href="#reviews">4.9 (184 reviews)</a>
+        </div>
+        <p class="pdp__price">$185.00</p>
+        <p class="pdp__desc">A weighted, fluid silk shirt cut for a clean vertical line. Mother-of-pearl buttons, a single chest pleat for movement, and a hem made to be worn untucked or tied. Made in small batches; once a colour sells through, it does not return.</p>
+
+        <div class="pdp__option">
+          <div class="pdp__option-label"><span>Colour</span> <b id="colorLabel">Ivory</b></div>
+          <div class="swatches">
+            <button class="swatch is-active" style="background:#F6F1E8" data-color="Ivory" aria-label="Ivory"></button>
+            <button class="swatch" style="background:#211D19" data-color="Black" aria-label="Black"></button>
+            <button class="swatch" style="background:#B89B6E" data-color="Clay" aria-label="Clay"></button>
+          </div>
+        </div>
+
+        <div class="pdp__option">
+          <div class="pdp__option-label"><span>Size</span> <a href="#" style="text-decoration:underline; color:rgba(33,29,25,.6)">Size guide</a></div>
+          <div class="sizes" id="sizeGroup">
+            <button class="size-pill">XS</button>
+            <button class="size-pill is-active">S</button>
+            <button class="size-pill">M</button>
+            <button class="size-pill">L</button>
+            <button class="size-pill">XL</button>
+          </div>
+        </div>
+
+        <div class="pdp__option">
+          <div class="pdp__option-label"><span>Quantity</span></div>
+          <div class="qty">
+            <button id="qtyMinus" aria-label="Decrease quantity">−</button>
+            <span id="qtyValue">1</span>
+            <button id="qtyPlus" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <div class="pdp__add-row">
+          <button class="btn btn--primary" id="addToBagBtn">Add to Bag — $185.00</button>
+        </div>
+        <p class="pdp__added-msg" id="addedMsg">Added to your bag.</p>
+
+        <p class="pdp__note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M16 3v8M8 3v8"/></svg>
+          Free shipping on orders over $150 · 30-day returns
+        </p>
+
+        <div class="accordion">
+          <div class="accordion__item is-open">
+            <button class="accordion__trigger">
+              Composition &amp; care
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="accordion__panel">
+              <div class="accordion__panel-inner">100% mulberry silk, 19 momme weight. Dry clean, or hand wash cold and lay flat to dry. Cool iron on the reverse only.</div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger">
+              Fit &amp; sizing
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="accordion__panel">
+              <div class="accordion__panel-inner">Relaxed through the body, true to size. Our model is 5'9" wearing a size S. Size up for an oversized drape.</div>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__trigger">
+              Shipping &amp; returns
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="accordion__panel">
+              <div class="accordion__panel-inner">Dispatched within 1–2 business days. Free standard shipping on orders over $150. Unworn items may be returned within 30 days for a full refund.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- related -->
+    <section class="related">
+      <div class="section-head">
+        <h2>You may also like</h2>
+        <p class="eyebrow">From the current edit</p>
+      </div>
+      <div class="related__grid">
+        <a class="card" href="product.html">
+          <div class="card__media" style="background:linear-gradient(150deg,#F6F1E8,#C9B89A)"></div>
+          <h3 class="card__name">The Cashmere Wrap Coat</h3>
+          <p class="card__meta">Apparel — Italian Cashmere — $420</p>
+          <div class="card__rating"><span class="card__stars">★★★★★</span><span class="card__rating-text">5.0 (96)</span></div>
+        </a>
+        <a class="card" href="product.html">
+          <div class="card__media" style="background:radial-gradient(circle at 35% 30%, #F6F1E8, #B89B6E 75%)"></div>
+          <h3 class="card__name">Overnight Repair Serum</h3>
+          <p class="card__meta">Beauty — Bakuchiol &amp; Peptide — $96</p>
+          <div class="card__rating"><span class="card__stars">★★★★★</span><span class="card__rating-text">4.8 (312)</span></div>
+        </a>
+        <a class="card" href="product.html">
+          <div class="card__media" style="background:linear-gradient(160deg,#EDE7DB,#C9B89A)"></div>
+          <h3 class="card__name">The Tailored Wide-Leg Trouser</h3>
+          <p class="card__meta">Apparel — Wool Blend — $210</p>
+          <div class="card__rating"><span class="card__stars">★★★★☆</span><span class="card__rating-text">4.8 (156)</span></div>
+        </a>
+        <a class="card" href="product.html">
+          <div class="card__media" style="background:radial-gradient(circle at 60% 35%, #F6F1E8, #DCD3C2 55%, #B89B6E 100%)"></div>
+          <h3 class="card__name">Hand-Poured Ceramic Candle</h3>
+          <p class="card__meta">Lifestyle — Vetiver &amp; Oak — $58</p>
+          <div class="card__rating"><span class="card__stars">★★★★★</span><span class="card__rating-text">4.9 (88)</span></div>
+        </a>
+      </div>
+    </section>
+
+    <!-- reviews -->
+    <section class="reviews" id="reviews">
+      <div class="section-head">
+        <h2>Customer reviews</h2>
+      </div>
+      <div class="reviews__summary">
+        <div class="reviews__score">
+          <span class="big">4.9</span>
+          <span class="stars">★★★★★</span>
+          <span class="count">184 reviews</span>
+        </div>
+        <div class="reviews__bars">
+          <div class="reviews__bar-row"><span>5★</span><div class="reviews__bar-track"><div class="reviews__bar-fill" style="width:82%"></div></div><span>82%</span></div>
+          <div class="reviews__bar-row"><span>4★</span><div class="reviews__bar-track"><div class="reviews__bar-fill" style="width:13%"></div></div><span>13%</span></div>
+          <div class="reviews__bar-row"><span>3★</span><div class="reviews__bar-track"><div class="reviews__bar-fill" style="width:3%"></div></div><span>3%</span></div>
+          <div class="reviews__bar-row"><span>2★</span><div class="reviews__bar-track"><div class="reviews__bar-fill" style="width:1%"></div></div><span>1%</span></div>
+          <div class="reviews__bar-row"><span>1★</span><div class="reviews__bar-track"><div class="reviews__bar-fill" style="width:1%"></div></div><span>1%</span></div>
+        </div>
+      </div>
+      <div class="testimonials__grid">
+        <div class="testimonial">
+          <span class="testimonial__stars">★★★★★</span>
+          <p class="testimonial__quote">Heavier than I expected in the best way — it drapes instead of clinging. Runs true to size.</p>
+          <div class="testimonial__byline"><span class="testimonial__name">Anjali R. — Singapore</span><span class="tag">Verified Buyer</span></div>
+        </div>
+        <div class="testimonial">
+          <span class="testimonial__stars">★★★★★</span>
+          <p class="testimonial__quote">Wore it to a wedding tied at the waist and again the next day buttoned up for work. One shirt, two completely different looks.</p>
+          <div class="testimonial__byline"><span class="testimonial__name">Beatriz F. — Lisbon, PT</span><span class="tag">Verified Buyer</span></div>
+        </div>
+        <div class="testimonial">
+          <span class="testimonial__stars">★★★★☆</span>
+          <p class="testimonial__quote">Beautiful fabric and stitching. Only note is the ivory marks easily, so I'd dry clean rather than hand wash.</p>
+          <div class="testimonial__byline"><span class="testimonial__name">Sofia M. — Toronto, CA</span><span class="tag">Verified Buyer</span></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <span class="nav__logo">NOEVE</span>
+          <p class="footer__tagline">Considered fashion, beauty and lifestyle, made to outlast the season.</p>
+          <div class="footer__social">
+            <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+            <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9.5 17l1.6-7.3M12 9.5c2 0 3.3 1.1 3 2.8-.3 1.7-1.6 2.4-2.7 2.2-1-.2-1.3-.9-1-1.9"/></svg></a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="index.html#pillars">Apparel</a></li>
+            <li><a href="index.html#pillars">Beauty</a></li>
+            <li><a href="index.html#pillars">Lifestyle</a></li>
+            <li><a href="#">Gift Cards</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="orders.html">Order Status</a></li>
+            <li><a href="#">Shipping &amp; Returns</a></li>
+            <li><a href="#">Size Guide</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Studio</h4>
+          <ul>
+            <li><a href="#">About Noeve</a></li>
+            <li><a href="index.html#newsletter">Journal</a></li>
+            <li><a href="#">Sustainability</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 NOEVE. All rights reserved. — www.noeve.store</p>
+        <div class="footer__legal"><a href="#">Privacy</a><a href="#">Terms</a></div>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  // mobile nav
+  const mobileNav = document.getElementById('mobileNav');
+  document.getElementById('burgerBtn').addEventListener('click', () => mobileNav.classList.add('is-open'));
+  document.getElementById('closeBtn').addEventListener('click', () => mobileNav.classList.remove('is-open'));
+  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileNav.classList.remove('is-open')));
+
+  // gallery thumbnails
+  const mainImage = document.getElementById('mainImage');
+  document.querySelectorAll('.pdp__thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      document.querySelectorAll('.pdp__thumb').forEach(t => t.classList.remove('is-active'));
+      thumb.classList.add('is-active');
+      mainImage.style.background = thumb.dataset.bg;
+    });
+  });
+
+  // colour swatches
+  const colorLabel = document.getElementById('colorLabel');
+  document.querySelectorAll('.swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('is-active'));
+      sw.classList.add('is-active');
+      colorLabel.textContent = sw.dataset.color;
+    });
+  });
+
+  // size pills
+  document.querySelectorAll('.size-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.size-pill').forEach(p => p.classList.remove('is-active'));
+      pill.classList.add('is-active');
+    });
+  });
+
+  // quantity stepper
+  const unitPrice = 185.00;
+  let qty = 1;
+  const qtyValue = document.getElementById('qtyValue');
+  const addBtn = document.getElementById('addToBagBtn');
+  function refreshAddLabel(){ addBtn.textContent = 'Add to Bag — $' + (unitPrice * qty).toFixed(2); }
+  document.getElementById('qtyMinus').addEventListener('click', () => { if (qty > 1) qty--; qtyValue.textContent = qty; refreshAddLabel(); });
+  document.getElementById('qtyPlus').addEventListener('click', () => { if (qty < 10) qty++; qtyValue.textContent = qty; refreshAddLabel(); });
+
+  // add to bag feedback (in-memory only — demo, not connected to cart.html)
+  const addedMsg = document.getElementById('addedMsg');
+  const bagCount = document.getElementById('bagCount');
+  let bagTotal = 3;
+  addBtn.addEventListener('click', () => {
+    bagTotal += qty;
+    bagCount.textContent = bagTotal;
+    addedMsg.classList.add('is-visible');
+    clearTimeout(window._addedTimer);
+    window._addedTimer = setTimeout(() => addedMsg.classList.remove('is-visible'), 2400);
+  });
+
+  // accordion
+  document.querySelectorAll('.accordion__item').forEach(item => {
+    const trigger = item.querySelector('.accordion__trigger');
+    const panel = item.querySelector('.accordion__panel');
+    if (item.classList.contains('is-open')) panel.style.maxHeight = panel.scrollHeight + 'px';
+    trigger.addEventListener('click', () => {
+      const isOpen = item.classList.contains('is-open');
+      document.querySelectorAll('.accordion__item').forEach(i => { i.classList.remove('is-open'); i.querySelector('.accordion__panel').style.maxHeight = 0; });
+      if (!isOpen) { item.classList.add('is-open'); panel.style.maxHeight = panel.scrollHeight + 'px'; }
+    });
+  });
+</script>
+
+</body>
+</html>

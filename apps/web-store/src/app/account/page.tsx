@@ -9,9 +9,9 @@ export default function AccountPage(): React.JSX.Element {
         <AccountPanel />
 
         <div className="space-y-6">
-          <div className="rounded-2xl bg-brand-primary p-6 text-white">
-            <h2 className="font-serif text-xl font-semibold">Your orders</h2>
-            <p className="mt-2 text-sm text-neutral-300">
+          <div className="rounded-2xl border border-brand-accent/30 bg-neutral-50 p-6">
+            <h2 className="font-cinzel text-xl font-semibold text-brand-primary">Your orders</h2>
+            <p className="mt-2 text-sm text-neutral-600">
               View order history and delivery status after signing in.
             </p>
             <Link

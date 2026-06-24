@@ -53,13 +53,13 @@ export default function CheckoutPage(): React.JSX.Element {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/account"
-            className="rounded-full bg-brand-primary px-8 py-3 text-sm font-semibold text-white hover:opacity-90"
+            className="rounded-full border-2 border-brand-accent bg-transparent px-8 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent/10"
           >
             View orders
           </Link>
           <Link
             href="/shop"
-            className="rounded-full border border-neutral-300 px-8 py-3 text-sm font-semibold hover:border-brand-primary"
+            className="rounded-full border-2 border-brand-accent px-8 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent/10"
           >
             Continue shopping
           </Link>
@@ -79,7 +79,7 @@ export default function CheckoutPage(): React.JSX.Element {
         <p className="mt-2 text-neutral-600">Add items before checking out.</p>
         <Link
           href="/shop"
-          className="mt-6 inline-block rounded-full bg-brand-primary px-8 py-3 text-sm font-semibold text-white"
+          className="mt-6 inline-block rounded-full border-2 border-brand-accent bg-transparent px-8 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent/10"
         >
           Browse collection
         </Link>

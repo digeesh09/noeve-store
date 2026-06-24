@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — NOEVE</title>
+<meta name="description" content="Sign in to your NOEVE account.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&family=Public+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bone:#E9E3D8; --stone:#DCD3C2; --ink:#211D19; --oxblood:#6B2230; --champagne:#B89B6E; --cream:#F6F1E8;
+    --display:'Libre Caslon Display', serif; --serif:'Libre Caslon Text', serif;
+    --sans:'Public Sans', sans-serif; --mono:'JetBrains Mono', monospace;
+    --container: 1280px; --edge: clamp(1.5rem, 5vw, 4.5rem);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--bone); color:var(--ink); font-family:var(--sans); font-weight:400; line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+  ul{ list-style:none; }
+  input{ font-family:inherit; }
+
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:999; opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap{ max-width:var(--container); margin:0 auto; padding-left:var(--edge); padding-right:var(--edge); }
+  .eyebrow{ font-family:var(--mono); font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--oxblood); }
+  .eyebrow--light{ color:var(--champagne); }
+
+  .tag{
+    position:relative; display:inline-flex; align-items:center; gap:.5em; padding:.4em .85em .4em 1.7em;
+    background:var(--cream); border:1px solid var(--champagne); color:var(--ink); font-family:var(--mono);
+    font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; transform:rotate(-3deg);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1); white-space:nowrap;
+  }
+  .tag::before{ content:""; position:absolute; left:.6em; top:50%; width:.5em; height:.5em; border-radius:50%; background:var(--bone); border:1px solid var(--ink); transform:translateY(-50%); }
+  .tag:hover{ transform:rotate(0deg); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.6em; font-family:var(--sans); font-weight:500;
+    font-size:.85rem; letter-spacing:.05em; text-transform:uppercase; padding:.95em 1.9em; border-radius:1px; width:100%;
+    transition:transform .3s ease, background .3s ease, color .3s ease, border-color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn--primary{ background:var(--oxblood); color:var(--cream); }
+  .btn--primary:hover{ background:var(--ink); }
+  .btn--outline{ border:1px solid var(--ink); color:var(--ink); }
+  .btn--outline:hover{ background:var(--ink); color:var(--cream); }
+
+  .marquee{ background:var(--ink); color:var(--cream); overflow:hidden; white-space:nowrap; border-bottom:1px solid var(--champagne); }
+  .marquee__track{ display:inline-flex; animation:scroll-marquee 28s linear infinite; padding:.6em 0; }
+  .marquee__track span{ font-family:var(--mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; padding:0 1.6em; }
+  @keyframes scroll-marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  .marquee:hover .marquee__track{ animation-play-state:paused; }
+
+  .site-header{ position:sticky; top:0; z-index:200; background:rgba(233,227,216,.92); backdrop-filter:blur(6px); border-bottom:1px solid rgba(33,29,25,.12); }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:1.1rem 0; }
+  .nav__logo{ font-family:var(--display); font-size:1.45rem; letter-spacing:.04em; }
+  .nav__links{ display:flex; gap:2.1rem; align-items:center; }
+  .nav__link{ font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; font-weight:500; position:relative; padding-bottom:.3em; }
+  .nav__link::after{ content:""; position:absolute; left:0; bottom:0; height:1px; width:0; background:var(--oxblood); transition:width .3s ease; }
+  .nav__link:hover::after{ width:100%; }
+  .nav__actions{ display:flex; align-items:center; gap:1.3rem; }
+  .nav__icon-btn{ width:20px; height:20px; position:relative; display:inline-flex; }
+  .nav__bag-count{ position:absolute; top:-7px; right:-9px; width:16px; height:16px; border-radius:50%; background:var(--oxblood); color:var(--cream); font-family:var(--mono); font-size:.6rem; font-weight:600; display:flex; align-items:center; justify-content:center; }
+  .nav__burger{ display:none; flex-direction:column; gap:5px; width:24px; }
+  .nav__burger span{ height:1px; background:var(--ink); width:100%; transition:transform .25s ease, opacity .25s ease; }
+
+  .mobile-nav{ position:fixed; inset:0; z-index:300; background:var(--bone); transform:translateY(-100%); transition:transform .4s cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column; padding:1.5rem var(--edge) 2rem; }
+  .mobile-nav.is-open{ transform:translateY(0); }
+  .mobile-nav__top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem; }
+  .mobile-nav__links{ display:flex; flex-direction:column; gap:1.6rem; }
+  .mobile-nav__links a{ font-family:var(--display); font-size:1.9rem; }
+
+  .breadcrumb{ font-family:var(--mono); font-size:.7rem; letter-spacing:.07em; text-transform:uppercase; color:rgba(33,29,25,.5); display:flex; gap:.5em; align-items:center; padding:1.6rem 0 0; }
+  .breadcrumb a:hover{ color:var(--oxblood); }
+  .breadcrumb span{ opacity:.5; }
+
+  /* ---------- shared form components ---------- */
+  .form-field{ margin-bottom:1.4rem; }
+  .form-field label{ display:block; font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:rgba(33,29,25,.6); margin-bottom:.6rem; }
+  .form-field .label-row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.6rem; }
+  .form-field .label-row a{ font-family:var(--sans); font-size:.78rem; text-decoration:underline; color:rgba(33,29,25,.6); text-transform:none; letter-spacing:0; }
+  .form-field .label-row label{ margin-bottom:0; }
+  .input-group{ position:relative; }
+  .form-field input{ width:100%; border:1px solid rgba(33,29,25,.25); background:transparent; padding:.85em 1em; font-size:.95rem; font-family:var(--sans); color:var(--ink); transition:border-color .25s ease; }
+  .form-field input:focus{ outline:none; border-color:var(--oxblood); }
+  .toggle-pw{ position:absolute; right:.9rem; top:50%; transform:translateY(-50%); width:20px; height:20px; color:rgba(33,29,25,.45); }
+  .toggle-pw:hover{ color:var(--ink); }
+  .form-error{ font-size:.76rem; color:var(--oxblood); margin-top:.5rem; display:none; }
+  .form-field.has-error input{ border-color:var(--oxblood); }
+  .form-field.has-error .form-error{ display:block; }
+  .checkbox-row{ display:flex; align-items:flex-start; gap:.7rem; margin-bottom:1.2rem; }
+  .checkbox-row input[type=checkbox]{ width:17px; height:17px; margin-top:.18rem; accent-color:var(--oxblood); flex-shrink:0; }
+  .checkbox-row label{ font-size:.85rem; color:rgba(33,29,25,.75); line-height:1.45; }
+
+  /* ---------- auth layout ---------- */
+  .auth{ display:grid; grid-template-columns:1fr 1fr; min-height:74vh; align-items:center; gap:4rem; padding:2.5rem 0 5rem; }
+  .auth__visual{ background:var(--ink); border-radius:2px; padding:3rem; min-height:560px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
+  .auth__visual svg.bg-art{ position:absolute; inset:0; width:100%; height:100%; opacity:.16; }
+  .auth__visual-top{ position:relative; z-index:2; }
+  .auth__visual h2{ font-family:var(--serif); font-style:italic; color:var(--cream); font-size:clamp(1.6rem,3vw,2.1rem); line-height:1.32; max-width:20ch; position:relative; z-index:2; }
+  .auth__visual .quote-byline{ font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--champagne); position:relative; z-index:2; margin-top:1.2rem; display:block; }
+  .auth__visual-hairline{ width:40px; height:1px; background:var(--champagne); margin-bottom:1.6rem; position:relative; z-index:2; }
+
+  .auth__form-card h1{ font-family:var(--display); font-size:clamp(2rem,4vw,2.6rem); margin-bottom:.6rem; }
+  .auth__form-card .sub{ color:rgba(33,29,25,.65); margin-bottom:2.2rem; }
+  .auth__divider{ display:flex; align-items:center; gap:1rem; margin:1.7rem 0; color:rgba(33,29,25,.4); font-family:var(--mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; }
+  .auth__divider::before,.auth__divider::after{ content:""; flex:1; height:1px; background:rgba(33,29,25,.15); }
+  .auth__switch{ text-align:center; margin-top:1.8rem; font-size:.88rem; color:rgba(33,29,25,.7); }
+  .auth__switch a{ text-decoration:underline; color:var(--ink); font-weight:500; }
+
+  .auth__success{ display:none; text-align:center; padding:1.5rem 0; }
+  .auth__success.is-visible{ display:block; }
+  .auth__success-icon{ width:54px; height:54px; border-radius:50%; background:var(--cream); border:1px solid var(--champagne); display:flex; align-items:center; justify-content:center; margin:0 auto 1.4rem; }
+  .auth__success-icon svg{ width:24px; height:24px; color:var(--oxblood); }
+  .auth__success h2{ font-family:var(--display); font-size:1.9rem; margin-bottom:.6rem; }
+  .auth__success p{ color:rgba(33,29,25,.7); margin-bottom:1.8rem; }
+  .auth__success-actions{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+  .auth__success-actions .btn{ width:auto; }
+
+  .site-footer{ background:var(--ink); color:var(--cream); padding:5rem 0 2rem; }
+  .footer__top{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:2.5rem; padding-bottom:3.5rem; border-bottom:1px solid rgba(246,241,232,.15); }
+  .footer__brand .nav__logo{ color:var(--cream); }
+  .footer__tagline{ color:rgba(246,241,232,.65); margin:1rem 0 1.4rem; max-width:26ch; }
+  .footer__social{ display:flex; gap:1rem; }
+  .footer__social a{ width:34px; height:34px; border:1px solid rgba(246,241,232,.3); border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .footer__social svg{ width:15px; height:15px; }
+  .footer__col h4{ font-family:var(--mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--champagne); margin-bottom:1.2rem; }
+  .footer__col ul{ display:flex; flex-direction:column; gap:.8rem; }
+  .footer__col a{ font-size:.92rem; color:rgba(246,241,232,.78); }
+  .footer__bottom{ display:flex; justify-content:space-between; align-items:center; padding-top:1.8rem; flex-wrap:wrap; gap:1rem; }
+  .footer__bottom p{ font-size:.78rem; color:rgba(246,241,232,.55); }
+  .footer__legal{ display:flex; gap:1.5rem; }
+  .footer__legal a{ font-size:.78rem; color:rgba(246,241,232,.55); }
+
+  @media (max-width:980px){
+    .auth{ grid-template-columns:1fr; padding:1.5rem 0 4rem; }
+    .auth__visual{ display:none; }
+    .footer__top{ grid-template-columns:1fr 1fr; row-gap:2.5rem; }
+  }
+  @media (max-width:680px){
+    .nav__links{ display:none; }
+    .nav__burger{ display:flex; }
+  }
+  @media (max-width:480px){
+    .footer__top{ grid-template-columns:1fr; }
+    .auth__success-actions{ flex-direction:column; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="marquee">
+    <div class="marquee__track">
+      <span>FREE SHIPPING ON ORDERS OVER $150</span><span>○</span>
+      <span>THE NEW EDIT IS NOW LIVE</span><span>○</span>
+      <span>EARLY ACCESS FOR LIST MEMBERS</span><span>○</span>
+      <span>FREE SHIPPING ON ORDERS OVER $150</span><span>○</span>
+      <span>THE NEW EDIT IS NOW LIVE</span><span>○</span>
+      <span>EARLY ACCESS FOR LIST MEMBERS</span><span>○</span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="wrap nav">
+      <a href="index.html" class="nav__logo">NOEVE</a>
+      <nav class="nav__links">
+        <a class="nav__link" href="index.html#edit">New</a>
+        <a class="nav__link" href="index.html#pillars">Apparel</a>
+        <a class="nav__link" href="index.html#pillars">Beauty</a>
+        <a class="nav__link" href="index.html#pillars">Lifestyle</a>
+        <a class="nav__link" href="index.html#newsletter">Journal</a>
+      </nav>
+      <div class="nav__actions">
+        <button class="nav__icon-btn" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
+        <a class="nav__icon-btn" href="login.html" aria-label="Sign in" style="color:var(--oxblood)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+        </a>
+        <a class="nav__icon-btn" href="cart.html" aria-label="Your bag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
+          <span class="nav__bag-count">3</span>
+        </a>
+        <button class="nav__burger" id="burgerBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav">
+    <div class="mobile-nav__top">
+      <span class="nav__logo">NOEVE</span>
+      <button class="nav__burger" id="closeBtn" aria-label="Close menu">
+        <span style="transform:rotate(45deg) translate(1px,1px)"></span>
+        <span style="opacity:0"></span>
+        <span style="transform:rotate(-45deg) translate(1px,-1px)"></span>
+      </button>
+    </div>
+    <div class="mobile-nav__links">
+      <a href="index.html#edit">New</a>
+      <a href="index.html#pillars">Apparel</a>
+      <a href="cart.html">Bag (3)</a>
+      <a href="register.html">Create Account</a>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <nav class="breadcrumb">
+      <a href="index.html">Home</a><span>/</span>
+      <a href="#" style="color:var(--ink)">Sign In</a>
+    </nav>
+
+    <section class="auth">
+      <div class="auth__visual">
+        <svg class="bg-art" viewBox="0 0 560 660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="fold1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#DCD3C2"/><stop offset="100%" stop-color="#B89B6E"/>
+            </linearGradient>
+          </defs>
+          <path d="M60 40 C200 10, 380 90, 420 230 C460 370, 320 420, 260 540 C220 620, 140 640, 90 600 C30 555, 80 470, 150 420 C230 365, 250 280, 190 210 C130 140, 20 120, 60 40 Z" fill="url(#fold1)"/>
+        </svg>
+        <div class="auth__visual-top">
+          <span class="tag">Member Access</span>
+        </div>
+        <div>
+          <div class="auth__visual-hairline"></div>
+          <h2>"We don't chase seasons. We build the pieces that outlast them."</h2>
+          <span class="quote-byline">— The Noeve Studio</span>
+        </div>
+      </div>
+
+      <div class="auth__form-card">
+        <div id="loginFormWrap">
+          <p class="eyebrow">Welcome Back</p>
+          <h1>Sign in</h1>
+          <p class="sub">Access your orders, saved details and early drop access.</p>
+
+          <form id="loginForm" novalidate>
+            <div class="form-field" id="emailField">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+              <p class="form-error">Enter a valid email address.</p>
+            </div>
+
+            <div class="form-field" id="passwordField">
+              <div class="label-row">
+                <label for="password">Password</label>
+                <a href="#">Forgot password?</a>
+              </div>
+              <div class="input-group">
+                <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+                <button type="button" class="toggle-pw" data-target="password" aria-label="Show password">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <p class="form-error">Enter your password.</p>
+            </div>
+
+            <button type="submit" class="btn btn--primary">Sign In</button>
+          </form>
+
+          <div class="auth__divider">or</div>
+          <a href="index.html" class="btn btn--outline">Continue as Guest</a>
+
+          <p class="auth__switch">New to Noeve? <a href="register.html">Create an account</a></p>
+        </div>
+
+        <div class="auth__success" id="loginSuccess">
+          <div class="auth__success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h2>Welcome back.</h2>
+          <p>You're signed in — this is a demo session, so nothing here is saved between visits.</p>
+          <div class="auth__success-actions">
+            <a href="orders.html" class="btn btn--primary">View My Orders</a>
+            <a href="profile.html" class="btn btn--outline">Go to Account</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <span class="nav__logo">NOEVE</span>
+          <p class="footer__tagline">Considered fashion, beauty and lifestyle, made to outlast the season.</p>
+          <div class="footer__social">
+            <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+            <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9.5 17l1.6-7.3M12 9.5c2 0 3.3 1.1 3 2.8-.3 1.7-1.6 2.4-2.7 2.2-1-.2-1.3-.9-1-1.9"/></svg></a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="index.html#pillars">Apparel</a></li>
+            <li><a href="index.html#pillars">Beauty</a></li>
+            <li><a href="index.html#pillars">Lifestyle</a></li>
+            <li><a href="#">Gift Cards</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="orders.html">Order Status</a></li>
+            <li><a href="#">Shipping &amp; Returns</a></li>
+            <li><a href="#">Size Guide</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Studio</h4>
+          <ul>
+            <li><a href="#">About Noeve</a></li>
+            <li><a href="index.html#newsletter">Journal</a></li>
+            <li><a href="#">Sustainability</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 NOEVE. All rights reserved. — www.noeve.store</p>
+        <div class="footer__legal"><a href="#">Privacy</a><a href="#">Terms</a></div>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  const mobileNav = document.getElementById('mobileNav');
+  document.getElementById('burgerBtn').addEventListener('click', () => mobileNav.classList.add('is-open'));
+  document.getElementById('closeBtn').addEventListener('click', () => mobileNav.classList.remove('is-open'));
+  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileNav.classList.remove('is-open')));
+
+  // show/hide password
+  document.querySelectorAll('.toggle-pw').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      const isPw = input.type === 'password';
+      input.type = isPw ? 'text' : 'password';
+      btn.style.color = isPw ? 'var(--ink)' : '';
+    });
+  });
+
+  // validation + fake sign-in
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const emailField = document.getElementById('emailField');
+    const passwordField = document.getElementById('passwordField');
+
+    let valid = true;
+    emailField.classList.toggle('has-error', !emailPattern.test(email.value.trim()));
+    if (!emailPattern.test(email.value.trim())) valid = false;
+    passwordField.classList.toggle('has-error', password.value.length === 0);
+    if (password.value.length === 0) valid = false;
+
+    if (!valid) return;
+
+    document.getElementById('loginFormWrap').style.display = 'none';
+    document.getElementById('loginSuccess').classList.add('is-visible');
+  });
+</script>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { CartBadge } from '@/components/cart/cart-badge';
 
 const nav = [
@@ -11,10 +12,13 @@ const nav = [
 
 export function SiteHeader(): React.JSX.Element {
   return (
-    <header className="sticky top-0 z-50 border-b border-brand-accent/20 bg-brand-primary/95 text-white backdrop-blur-md transition-all duration-300">
+    <header className="sticky top-0 z-50 border-b border-brand-accent/20 bg-neutral-50/95 text-neutral-900 backdrop-blur-md transition-all duration-300">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
-        <Link href="/" className="font-serif text-3xl font-semibold tracking-wide text-brand-accent hover:text-brand-accent-gold transition-colors duration-300">
-          Noeve
+        <Link href="/" className="flex items-center gap-3 group">
+          <Image src="/Logo.png" alt="Noeve" width={48} height={48} className="object-contain" />
+          <span className="font-cinzel text-3xl font-semibold tracking-wide text-brand-primary transition-colors duration-300 group-hover:text-brand-primaryDark">
+            Noeve
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium tracking-wider md:flex">
@@ -29,7 +33,7 @@ export function SiteHeader(): React.JSX.Element {
         <div className="flex items-center gap-4 text-sm font-medium">
           <Link
             href="/account"
-            className="hidden rounded-full border border-brand-accent/30 px-4 py-2 text-neutral-200 transition-all duration-300 hover:bg-brand-accent/10 hover:text-brand-accent sm:inline"
+            className="hidden rounded-full border border-brand-accent px-4 py-2 text-neutral-900 transition-all duration-300 hover:bg-brand-accent/10 hover:text-brand-primary sm:inline"
           >
             Account
           </Link>

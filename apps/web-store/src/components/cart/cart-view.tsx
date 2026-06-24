@@ -27,7 +27,7 @@ export function CartView(): React.JSX.Element {
         </p>
         <Link
           href="/shop"
-          className="mt-8 rounded-full bg-brand-primary px-8 py-3 text-sm font-semibold text-white hover:opacity-90"
+          className="mt-8 rounded-full border-2 border-brand-accent bg-transparent px-8 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent/10"
         >
           Continue shopping
         </Link>
@@ -78,7 +78,7 @@ export function CartView(): React.JSX.Element {
                     type="button"
                     disabled={updating === line.id || line.quantity <= 1}
                     onClick={() => handleQty(line.id, line.quantity - 1)}
-                    className="h-8 w-8 rounded-full border border-neutral-300 text-sm hover:border-brand-primary disabled:opacity-40"
+                    className="h-8 w-8 rounded-full border border-brand-accent/40 text-sm hover:border-brand-accent disabled:opacity-40"
                   >
                     −
                   </button>
@@ -87,7 +87,7 @@ export function CartView(): React.JSX.Element {
                     type="button"
                     disabled={updating === line.id}
                     onClick={() => handleQty(line.id, line.quantity + 1)}
-                    className="h-8 w-8 rounded-full border border-neutral-300 text-sm hover:border-brand-primary disabled:opacity-40"
+                    className="h-8 w-8 rounded-full border border-brand-accent/40 text-sm hover:border-brand-accent disabled:opacity-40"
                   >
                     +
                   </button>

@@ -45,7 +45,7 @@ export function AddToCartButton({ productId, variantId, className }: AddToCartBu
         disabled={status === 'loading'}
         className={
           className ??
-          'flex-1 rounded-full bg-brand-primary px-8 py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60 sm:flex-none'
+          'flex-1 rounded-full border-2 border-brand-accent bg-transparent px-8 py-3.5 text-sm font-semibold text-brand-primary transition hover:bg-brand-accent hover:text-brand-primary disabled:opacity-60 sm:flex-none'
         }
       >
         {label}
@@ -53,7 +53,7 @@ export function AddToCartButton({ productId, variantId, className }: AddToCartBu
       <button
         type="button"
         onClick={() => router.push('/cart')}
-        className="rounded-full border border-neutral-300 px-8 py-3.5 text-sm font-medium transition hover:border-brand-primary"
+        className="rounded-full border-2 border-brand-accent px-8 py-3.5 text-sm font-medium text-brand-primary transition hover:bg-brand-accent"
       >
         View bag
       </button>

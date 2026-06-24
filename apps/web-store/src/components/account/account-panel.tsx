@@ -180,7 +180,7 @@ export function AccountPanel(): React.JSX.Element {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full bg-brand-primary py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
+          className="w-full rounded-full border-2 border-brand-accent bg-transparent py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent hover:text-brand-primary disabled:opacity-60"
         >
           {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
         </button>

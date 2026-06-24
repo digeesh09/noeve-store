@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { Cinzel, Inter, Montserrat } from 'next/font/google';
 import { CartProvider } from '@/components/cart/cart-provider';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { SiteHeader } from '@/components/layout/site-header';
@@ -7,10 +7,10 @@ import './globals.css';
 import React from 'react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const cormorant = Cormorant_Garamond({
+const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel' });
+const montserrat = Montserrat({
   subsets: ['latin'],
-  weight: ['400', '600'],
-  variable: '--font-cormorant',
+  variable: '--font-montserrat',
 });
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: any }): React.JSX.Element {
   return (
-    <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
+    <html lang="en" className={`${inter.variable} ${cinzel.variable} ${montserrat.variable}`}>
       <body className="flex min-h-screen flex-col font-sans antialiased">
         <CartProvider>
           <SiteHeader />

@@ -7,7 +7,7 @@ interface HeroBannerProps {
 export function HeroBanner({ compact }: HeroBannerProps): React.JSX.Element {
   return (
     <section
-      className={`relative overflow-hidden rounded-2xl bg-brand-primary text-white border border-brand-accent/20 shadow-[0_4px_30px_rgba(212,175,55,0.08)] ${
+      className={`relative overflow-hidden rounded-2xl bg-neutral-50 text-neutral-900 border border-brand-accent/20 shadow-[0_4px_30px_rgba(203,179,107,0.08)] ${
         compact ? 'px-6 py-10 md:py-12' : 'px-6 py-16 md:px-12 md:py-24'
       }`}
     >
@@ -21,25 +21,25 @@ export function HeroBanner({ compact }: HeroBannerProps): React.JSX.Element {
       <div className="relative max-w-xl">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brand-accent">Noeve Collections</p>
         <h1
-          className={`mt-4 font-serif font-semibold leading-tight text-white ${
+          className={`mt-4 font-montserrat font-semibold leading-tight text-brand-primary ${
             compact ? 'text-3xl md:text-4xl' : 'text-4xl md:text-5xl lg:text-6xl'
           }`}
         >
-          Jewellery that speaks quietly, shines boldly
+          Effortless Elegance in Every Piece
         </h1>
-        <p className="mt-4 text-sm leading-relaxed text-neutral-300 md:text-base">
+        <p className="mt-4 text-sm leading-relaxed text-neutral-800 md:text-base">
           Fine gold pieces, diamond pendants, and curated ladies accessories — crafted for everyday elegance and lifetime warranty.
         </p>
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
             href="/shop"
-            className="rounded-full bg-brand-accent px-8 py-3 text-sm font-semibold text-brand-primary transition-all duration-300 hover:scale-[1.03] hover:bg-brand-accent-gold hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+            className="rounded-full bg-brand-accent px-8 py-3 text-sm font-semibold text-brand-primary transition-all duration-300 hover:scale-[1.03] hover:bg-brand-accent-gold hover:shadow-[0_0_15px_rgba(203,179,107,0.4)]"
           >
             Shop collection
           </Link>
           <Link
             href="/shop?category=pendants"
-            className="rounded-full border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium transition-all duration-300 hover:scale-[1.03] hover:bg-white/15"
+            className="rounded-full border border-brand-accent bg-transparent px-8 py-3 text-sm font-medium text-brand-primary transition-all duration-300 hover:scale-[1.03] hover:bg-brand-accent/10"
           >
             Explore pendants
           </Link>

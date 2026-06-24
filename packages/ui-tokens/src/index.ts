@@ -1,18 +1,18 @@
 /** Noeve brand design tokens — purple & gold theme */
 export const colors = {
   brand: {
-    primary: '#4A148C',
-    primaryDark: '#311B92',
-    accent: '#D4AF37',
-    accentLight: '#F3E8FF',
-    accentGold: '#F5E6B8',
+    primary: '#5a0014',
+    primaryDark: '#36000c',
+    accent: '#cbb36b',
+    accentLight: '#e4d6a7',
+    accentGold: '#cbb36b',
   },
   neutral: {
-    50: '#fafafa',
-    100: '#f5f5f5',
-    200: '#e5e5e5',
+    50: '#fdfbf4',
+    100: '#f5f0df',
+    200: '#ebdcc0',
     800: '#262626',
-    900: '#171717',
+    900: '#000000',
   },
   semantic: {
     success: '#16a34a',

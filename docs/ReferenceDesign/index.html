@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOEVE — Considered Fashion, Beauty & Lifestyle</title>
+<meta name="description" content="NOEVE — fewer pieces, finer ones. Considered apparel, beauty and lifestyle objects designed to outlast the season.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital@0;1&family=Public+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bone:#E9E3D8;
+    --stone:#DCD3C2;
+    --ink:#211D19;
+    --oxblood:#6B2230;
+    --champagne:#B89B6E;
+    --cream:#F6F1E8;
+
+    --display:'Libre Caslon Display', serif;
+    --serif:'Libre Caslon Text', serif;
+    --sans:'Public Sans', sans-serif;
+    --mono:'JetBrains Mono', monospace;
+
+    --container: 1280px;
+    --edge: clamp(1.5rem, 5vw, 4.5rem);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bone);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:400;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+  ul{ list-style:none; }
+  input{ font-family:inherit; }
+
+  /* grain overlay */
+  body::after{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:999;
+    opacity:.05;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap{ max-width:var(--container); margin:0 auto; padding-left:var(--edge); padding-right:var(--edge); }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--oxblood);
+  }
+  .eyebrow--light{ color:var(--champagne); }
+
+  /* ---------- shared tag component ---------- */
+  .tag{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:.5em;
+    padding:.4em .85em .4em 1.7em;
+    background:var(--cream);
+    border:1px solid var(--champagne);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:.7rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    transform:rotate(-3deg);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1);
+    white-space:nowrap;
+  }
+  .tag::before{
+    content:"";
+    position:absolute;
+    left:.6em; top:50%;
+    width:.5em; height:.5em;
+    border-radius:50%;
+    background:var(--bone);
+    border:1px solid var(--ink);
+    transform:translateY(-50%);
+  }
+  .tag:hover{ transform:rotate(0deg); }
+  .tag--accent{ background:var(--oxblood); border-color:var(--oxblood); color:var(--cream); }
+  .tag--accent::before{ background:var(--oxblood); border-color:var(--cream); }
+  .tag--price{ position:absolute; top:1rem; right:1rem; z-index:2; }
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; gap:.6em;
+    font-family:var(--sans); font-weight:500; font-size:.85rem;
+    letter-spacing:.05em; text-transform:uppercase;
+    padding:.95em 1.9em;
+    border-radius:1px;
+    transition:transform .3s ease, background .3s ease, color .3s ease, border-color .3s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn--primary{ background:var(--oxblood); color:var(--cream); }
+  .btn--primary:hover{ background:var(--ink); }
+  .btn--outline{ border:1px solid var(--ink); color:var(--ink); }
+  .btn--outline:hover{ background:var(--ink); color:var(--cream); }
+  .btn--ghost-light{ border:1px solid var(--champagne); color:var(--cream); }
+  .btn--ghost-light:hover{ background:var(--champagne); color:var(--ink); }
+
+  /* ---------- marquee ---------- */
+  .marquee{
+    background:var(--ink); color:var(--cream);
+    overflow:hidden; white-space:nowrap;
+    border-bottom:1px solid var(--champagne);
+  }
+  .marquee__track{
+    display:inline-flex;
+    animation:scroll-marquee 28s linear infinite;
+    padding:.6em 0;
+  }
+  .marquee__track span{
+    font-family:var(--mono); font-size:.72rem;
+    letter-spacing:.16em; text-transform:uppercase;
+    padding:0 1.6em;
+  }
+  @keyframes scroll-marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  .marquee:hover .marquee__track{ animation-play-state:paused; }
+
+  /* ---------- header ---------- */
+  .site-header{
+    position:sticky; top:0; z-index:200;
+    background:rgba(233,227,216,.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid rgba(33,29,25,.12);
+    transition:box-shadow .3s ease, background .3s ease;
+  }
+  .site-header.is-scrolled{ box-shadow:0 6px 18px rgba(33,29,25,.08); }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.1rem 0;
+  }
+  .nav__logo{
+    font-family:var(--display); font-size:1.45rem; letter-spacing:.04em;
+  }
+  .nav__links{ display:flex; gap:2.1rem; align-items:center; }
+  .nav__link{
+    font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; font-weight:500;
+    position:relative; padding-bottom:.3em;
+  }
+  .nav__link::after{
+    content:""; position:absolute; left:0; bottom:0; height:1px; width:0;
+    background:var(--oxblood); transition:width .3s ease;
+  }
+  .nav__link:hover::after{ width:100%; }
+  .nav__actions{ display:flex; align-items:center; gap:1.3rem; }
+  .nav__icon-btn{ width:20px; height:20px; position:relative; display:inline-flex; }
+  .nav__bag-count{
+    position:absolute; top:-7px; right:-9px;
+    width:16px; height:16px; border-radius:50%;
+    background:var(--oxblood); color:var(--cream);
+    font-family:var(--mono); font-size:.6rem; font-weight:600;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+  }
+  .nav__shop-btn{ display:none; padding:.7em 1.4em; }
+  .nav__shop-btn.is-visible{ display:inline-flex; }
+  @media (max-width:680px){ .nav__shop-btn{ display:none !important; } }
+  .nav__burger{ display:none; flex-direction:column; gap:5px; width:24px; }
+  .nav__burger span{ height:1px; background:var(--ink); width:100%; transition:transform .25s ease, opacity .25s ease; }
+
+  .mobile-nav{
+    position:fixed; inset:0; z-index:300;
+    background:var(--bone);
+    transform:translateY(-100%);
+    transition:transform .4s cubic-bezier(.2,.8,.2,1);
+    display:flex; flex-direction:column;
+    padding:1.5rem var(--edge) 2rem;
+  }
+  .mobile-nav.is-open{ transform:translateY(0); }
+  .mobile-nav__top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem; }
+  .mobile-nav__links{ display:flex; flex-direction:column; gap:1.6rem; }
+  .mobile-nav__links a{ font-family:var(--display); font-size:1.9rem; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:3rem;
+    padding:5rem 0 6rem;
+    min-height:78vh;
+  }
+  .hero__title{
+    font-family:var(--display);
+    font-size:clamp(2.6rem, 6.2vw, 5.1rem);
+    line-height:1.04;
+    letter-spacing:-.01em;
+    margin:1rem 0 1.6rem;
+  }
+  .hero__title em{ font-style:italic; color:var(--oxblood); }
+  .hero__sub{
+    max-width:34ch; font-size:1.08rem; color:rgba(33,29,25,.78); margin-bottom:2.2rem;
+  }
+  .hero__ctas{ display:flex; gap:1rem; flex-wrap:wrap; }
+  .hero__art{ position:relative; }
+  .hero__art .tag{ position:absolute; top:6%; left:-6%; z-index:3; }
+  .hero__art .tag--two{ top:auto; bottom:8%; right:-4%; left:auto; }
+
+  /* ---------- reveal ---------- */
+  [data-reveal]{ opacity:0; transform:translateY(22px); transition:opacity .8s ease, transform .8s ease; }
+  [data-reveal].is-visible{ opacity:1; transform:translateY(0); }
+
+  /* ---------- pillars ---------- */
+  .pillars{ padding:2rem 0 6rem; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:2.4rem; gap:1rem; flex-wrap:wrap; }
+  .section-head h2{ font-family:var(--display); font-size:clamp(1.9rem,3.4vw,2.6rem); }
+  .pillars__grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .pillar{
+    position:relative; border-radius:2px; padding:2.2rem 1.8rem;
+    min-height:380px; display:flex; flex-direction:column; justify-content:flex-end;
+    overflow:hidden; isolation:isolate;
+  }
+  .pillar::before{ content:""; position:absolute; inset:0; z-index:0; }
+  .pillar--apparel::before{
+    background:
+      repeating-linear-gradient(45deg, rgba(33,29,25,.07) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(-45deg, rgba(33,29,25,.05) 0 2px, transparent 2px 7px),
+      linear-gradient(160deg, var(--stone), var(--bone));
+  }
+  .pillar--beauty::before{
+    background:radial-gradient(circle at 30% 25%, var(--cream), var(--champagne) 65%, var(--stone) 100%);
+  }
+  .pillar--lifestyle::before{
+    background-image:radial-gradient(rgba(33,29,25,.55) 1px, transparent 1.6px);
+    background-size:14px 14px;
+    background-color:var(--stone);
+  }
+  .pillar__tag{ position:absolute; top:1.4rem; left:1.4rem; z-index:2; }
+  .pillar__title{ font-family:var(--display); font-size:1.9rem; position:relative; z-index:2; margin-bottom:.4rem; }
+  .pillar__desc{ position:relative; z-index:2; color:rgba(33,29,25,.75); margin-bottom:1.1rem; max-width:24ch; }
+  .pillar__link{ position:relative; z-index:2; font-family:var(--mono); font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; display:inline-flex; gap:.4em; align-items:center; }
+  .pillar__link svg{ width:13px; height:13px; transition:transform .3s ease; }
+  .pillar:hover .pillar__link svg{ transform:translateX(5px); }
+
+  /* ---------- edit / product strip ---------- */
+  .edit{ padding:2rem 0 6.5rem; }
+  .edit__track{
+    display:flex; gap:1.4rem; overflow-x:auto; scroll-snap-type:x mandatory;
+    padding-bottom:1rem; margin:0 calc(var(--edge) * -1); padding-left:var(--edge); padding-right:var(--edge);
+    scrollbar-width:none;
+  }
+  .edit__track::-webkit-scrollbar{ display:none; }
+  .card{
+    flex:0 0 260px; scroll-snap-align:start;
+    display:flex; flex-direction:column;
+  }
+  .card__media{
+    position:relative; height:330px; border-radius:2px; margin-bottom:1rem;
+    border:1px solid rgba(33,29,25,.08);
+    transition:transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .card:hover .card__media{ transform:translateY(-5px); }
+  .card__name{ font-family:var(--serif); font-style:italic; font-size:1.18rem; margin-bottom:.25rem; }
+  .card__meta{ font-size:.82rem; color:rgba(33,29,25,.6); }
+  .card__rating{ display:flex; align-items:center; gap:.5em; margin-top:.45em; }
+  .card__stars{ color:var(--champagne); font-size:.82rem; letter-spacing:.08em; }
+  .card__rating-text{ font-family:var(--mono); font-size:.7rem; color:rgba(33,29,25,.5); }
+  .edit__nav{ display:flex; gap:.7rem; margin-top:1.6rem; }
+  .edit__nav button{
+    width:42px; height:42px; border:1px solid var(--ink); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; transition:background .3s ease, color .3s ease;
+  }
+  .edit__nav button:hover{ background:var(--ink); color:var(--cream); }
+  .edit__nav svg{ width:16px; height:16px; }
+
+  /* ---------- testimonials ---------- */
+  .testimonials{ padding:1rem 0 6.5rem; }
+  .testimonials__grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .testimonial{
+    background:var(--cream); border:1px solid rgba(33,29,25,.1); border-radius:2px;
+    padding:2.1rem 1.9rem; display:flex; flex-direction:column; gap:1.3rem;
+  }
+  .testimonial__stars{ color:var(--champagne); font-size:.95rem; letter-spacing:.12em; }
+  .testimonial__quote{ font-family:var(--serif); font-style:italic; font-size:1.06rem; line-height:1.55; flex:1; }
+  .testimonial__byline{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; }
+  .testimonial__name{ font-family:var(--mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(33,29,25,.55); }
+
+  /* ---------- quote ---------- */
+  .quote{ background:var(--ink); color:var(--cream); padding:6.5rem 0; }
+  .quote__hairline{ width:48px; height:1px; background:var(--champagne); margin-bottom:2rem; }
+  .quote__text{
+    font-family:var(--serif); font-style:italic; font-size:clamp(1.6rem,3.6vw,2.6rem);
+    line-height:1.32; max-width:18ch; margin-bottom:1.8rem;
+  }
+  .quote__byline{ font-family:var(--mono); font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; color:var(--champagne); }
+
+  /* ---------- newsletter ---------- */
+  .newsletter{ padding:7rem 0; text-align:center; }
+  .newsletter h2{ font-family:var(--display); font-size:clamp(2rem,4vw,3rem); margin:.9rem 0 1rem; }
+  .newsletter p{ max-width:42ch; margin:0 auto 2.2rem; color:rgba(33,29,25,.75); }
+  .newsletter__form{ display:flex; justify-content:center; gap:.7rem; flex-wrap:wrap; max-width:460px; margin:0 auto; }
+  .newsletter__form input[type="email"]{
+    flex:1 1 240px; background:transparent; border:none; border-bottom:1px solid var(--ink);
+    padding:.8em .2em; font-size:1rem; color:var(--ink);
+  }
+  .newsletter__form input[type="email"]::placeholder{ color:rgba(33,29,25,.45); }
+  .newsletter__form input[type="email"]:focus{ outline:none; border-color:var(--oxblood); }
+  .newsletter__fine{ font-size:.74rem; color:rgba(33,29,25,.5); margin-top:1.2rem; }
+  .newsletter__success{ font-family:var(--serif); font-style:italic; font-size:1.2rem; display:none; }
+
+  /* ---------- footer ---------- */
+  .site-footer{ background:var(--ink); color:var(--cream); padding:5rem 0 2rem; }
+  .footer__top{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:2.5rem; padding-bottom:3.5rem; border-bottom:1px solid rgba(246,241,232,.15); }
+  .footer__brand .nav__logo{ color:var(--cream); }
+  .footer__tagline{ color:rgba(246,241,232,.65); margin:1rem 0 1.4rem; max-width:26ch; }
+  .footer__social{ display:flex; gap:1rem; }
+  .footer__social a{ width:34px; height:34px; border:1px solid rgba(246,241,232,.3); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .3s ease, border-color .3s ease; }
+  .footer__social a:hover{ background:var(--champagne); border-color:var(--champagne); }
+  .footer__social svg{ width:15px; height:15px; }
+  .footer__col h4{ font-family:var(--mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--champagne); margin-bottom:1.2rem; }
+  .footer__col ul{ display:flex; flex-direction:column; gap:.8rem; }
+  .footer__col a{ font-size:.92rem; color:rgba(246,241,232,.78); transition:color .25s ease; }
+  .footer__col a:hover{ color:var(--cream); }
+  .footer__bottom{ display:flex; justify-content:space-between; align-items:center; padding-top:1.8rem; flex-wrap:wrap; gap:1rem; }
+  .footer__bottom p{ font-size:.78rem; color:rgba(246,241,232,.55); }
+  .footer__legal{ display:flex; gap:1.5rem; }
+  .footer__legal a{ font-size:.78rem; color:rgba(246,241,232,.55); }
+  .footer__legal a:hover{ color:var(--cream); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:980px){
+    .hero{ grid-template-columns:1fr; min-height:auto; padding:3rem 0 4rem; text-align:left; }
+    .hero__art{ order:-1; max-width:380px; }
+    .pillars__grid{ grid-template-columns:1fr; }
+    .testimonials__grid{ grid-template-columns:1fr; }
+    .footer__top{ grid-template-columns:1fr 1fr; row-gap:2.5rem; }
+  }
+  @media (max-width:680px){
+    .nav__links{ display:none; }
+    .nav__burger{ display:flex; }
+    .footer__top{ grid-template-columns:1fr 1fr; }
+    .quote__text{ max-width:none; }
+  }
+  @media (max-width:480px){
+    .footer__top{ grid-template-columns:1fr; }
+    .hero__art .tag{ left:0; }
+    .hero__art .tag--two{ right:0; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+    [data-reveal]{ opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- marquee -->
+  <div class="marquee">
+    <div class="marquee__track">
+      <span>FREE SHIPPING ON ORDERS OVER $150</span>
+      <span>○</span>
+      <span>THE NEW EDIT IS NOW LIVE</span>
+      <span>○</span>
+      <span>EARLY ACCESS FOR LIST MEMBERS</span>
+      <span>○</span>
+      <span>FREE SHIPPING ON ORDERS OVER $150</span>
+      <span>○</span>
+      <span>THE NEW EDIT IS NOW LIVE</span>
+      <span>○</span>
+      <span>EARLY ACCESS FOR LIST MEMBERS</span>
+      <span>○</span>
+    </div>
+  </div>
+
+  <!-- header -->
+  <header class="site-header" id="siteHeader">
+    <div class="wrap nav">
+      <a href="#" class="nav__logo">NOEVE</a>
+      <nav class="nav__links">
+        <a class="nav__link" href="#edit">New</a>
+        <a class="nav__link" href="#pillars">Apparel</a>
+        <a class="nav__link" href="#pillars">Beauty</a>
+        <a class="nav__link" href="#pillars">Lifestyle</a>
+        <a class="nav__link" href="#newsletter">Journal</a>
+      </nav>
+      <div class="nav__actions">
+        <button class="nav__icon-btn" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
+        <a class="nav__icon-btn" href="login.html" aria-label="Sign in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/></svg>
+        </a>
+        <a class="nav__icon-btn" href="cart.html" aria-label="Your bag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
+          <span class="nav__bag-count">3</span>
+        </a>
+        <a href="#edit" class="btn btn--primary nav__shop-btn" id="navShopBtn">Shop Now</a>
+        <button class="nav__burger" id="burgerBtn" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- mobile nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <div class="mobile-nav__top">
+      <span class="nav__logo">NOEVE</span>
+      <button class="nav__burger" id="closeBtn" aria-label="Close menu">
+        <span style="transform:rotate(45deg) translate(1px,1px)"></span>
+        <span style="opacity:0"></span>
+        <span style="transform:rotate(-45deg) translate(1px,-1px)"></span>
+      </button>
+    </div>
+    <div class="mobile-nav__links">
+      <a href="#edit">New</a>
+      <a href="#pillars">Apparel</a>
+      <a href="#pillars">Beauty</a>
+      <a href="#pillars">Lifestyle</a>
+      <a href="#newsletter">Journal</a>
+      <a href="cart.html">Bag (3)</a>
+      <a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <main class="wrap">
+
+    <!-- hero -->
+    <section class="hero">
+      <div>
+        <span class="tag">New Season</span>
+        <h1 class="hero__title">Fewer pieces.<br>Finer <em>ones.</em></h1>
+        <p class="hero__sub">Considered apparel, beauty and home objects — for the woman who buys once, and buys well.</p>
+        <div class="hero__ctas">
+          <a href="#edit" class="btn btn--primary">Shop The Edit</a>
+          <a href="#pillars" class="btn btn--outline">Explore Categories</a>
+        </div>
+      </div>
+      <div class="hero__art">
+        <span class="tag tag--two">No. 026 — Drop One</span>
+        <svg viewBox="0 0 560 660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="fold1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#DCD3C2"/>
+              <stop offset="100%" stop-color="#B89B6E"/>
+            </linearGradient>
+            <linearGradient id="fold2" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#F6F1E8"/>
+              <stop offset="100%" stop-color="#DCD3C2"/>
+            </linearGradient>
+            <linearGradient id="fold3" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0%" stop-color="#6B2230"/>
+              <stop offset="100%" stop-color="#8a3744"/>
+            </linearGradient>
+          </defs>
+          <path d="M60 40 C200 10, 380 90, 420 230 C460 370, 320 420, 260 540 C220 620, 140 640, 90 600 C30 555, 80 470, 150 420 C230 365, 250 280, 190 210 C130 140, 20 120, 60 40 Z" fill="url(#fold1)"/>
+          <path d="M340 20 C440 60, 520 180, 480 300 C440 420, 320 400, 300 500 C285 575, 360 620, 440 600 L520 640 L540 80 Z" fill="url(#fold2)" opacity="0.9"/>
+          <path d="M120 480 C160 440, 230 450, 250 510 C268 565, 210 610, 160 600 C112 590, 90 515, 120 480 Z" fill="url(#fold3)"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- pillars -->
+    <section class="pillars" id="pillars">
+      <div class="section-head" data-reveal>
+        <h2>Three worlds, one edit</h2>
+        <p class="eyebrow">Apparel · Beauty · Lifestyle</p>
+      </div>
+      <div class="pillars__grid">
+        <div class="pillar pillar--apparel" data-reveal>
+          <span class="pillar__tag tag">Apparel</span>
+          <h3 class="pillar__title">Cut to move,<br>built to keep.</h3>
+          <p class="pillar__desc">Silk, wool and linen pieces made for daily wear, not one season.</p>
+          <a href="#" class="pillar__link">Shop Apparel <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="pillar pillar--beauty" data-reveal>
+          <span class="pillar__tag tag">Beauty</span>
+          <h3 class="pillar__title">Skincare that<br>does less, better.</h3>
+          <p class="pillar__desc">Short formulas, fewer steps, results you can actually see.</p>
+          <a href="#" class="pillar__link">Shop Beauty <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        <div class="pillar pillar--lifestyle" data-reveal>
+          <span class="pillar__tag tag">Lifestyle</span>
+          <h3 class="pillar__title">Objects worth<br>living with.</h3>
+          <p class="pillar__desc">Ceramics, candles and small things that earn their shelf space.</p>
+          <a href="#" class="pillar__link">Shop Lifestyle <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- edit / products -->
+    <section class="edit" id="edit">
+      <div class="section-head" data-reveal>
+        <h2>The current edit</h2>
+        <p class="eyebrow">Five pieces, right now</p>
+      </div>
+
+      <div class="edit__track" id="editTrack">
+        <a class="card" href="product.html" data-reveal>
+          <div class="card__media" style="background:linear-gradient(135deg,#DCD3C2,#B89B6E)">
+            <span class="tag tag--accent tag--price">New · $185</span>
+          </div>
+          <h3 class="card__name">The Silk Column Shirt</h3>
+          <p class="card__meta">Apparel — Mulberry Silk</p>
+          <div class="card__rating"><span class="card__stars">★★★★★</span><span class="card__rating-text">4.9 (184)</span></div>
+        </a>
+
+        <a class="card" href="product.html" data-reveal>
+          <div class="card__media" style="background:linear-gradient(150deg,#F6F1E8,#C9B89A)">
+            <span class="tag tag--price">$420</span>
+          </div>
+          <h3 class="card__name">The Cashmere Wrap Coat</h3>
+          <p class="card__meta">Apparel — Italian Cashmere</p>
+          <div class="card__rating"><span class="card__stars">★★★★★</span><span class="card__rating-text">5.0 (96)</span></div>
+        </a>
+
+        <a class="card" href="product.html" data-reveal>
+          <div class="card__media" style="background:radial-gradient(circle at 35% 30%, #F6F1E8, #B89B6E 75%)">
+            <span class="tag tag--price">$96</span>
+          </div>
+          <h3 class="card__name">Overnight Repair Serum</h3>
+          <p class="card__meta">Beauty — Bakuchiol &amp; Peptide</p>
+          <div class="card__rating"><span class="card__stars">★★★★★</span><span class="card__rating-text">4.8 (312)</span></div>
+        </a>
+
+        <a class="card" href="product.html" data-reveal>
+          <div class="card__media" style="background:repeating-linear-gradient(100deg,#DCD3C2 0 10px,#EDE7DB 10px 20px)">
+            <span class="tag tag--price">$165</span>
+          </div>
+          <h3 class="card__name">The Washed Linen Robe</h3>
+          <p class="card__meta">Loungewear — Stonewashed Linen</p>
+          <div class="card__rating"><span class="card__stars">★★★★☆</span><span class="card__rating-text">4.7 (140)</span></div>
+        </a>
+
+        <a class="card" href="product.html" data-reveal>
+          <div class="card__media" style="background:radial-gradient(circle at 60% 35%, #F6F1E8, #DCD3C2 55%, #B89B6E 100%)">
+            <span class="tag tag--price">$58</span>
+          </div>
+          <h3 class="card__name">Hand-Poured Ceramic Candle</h3>
+          <p class="card__meta">Lifestyle — Vetiver &amp; Oak</p>
+          <div class="card__rating"><span class="card__stars">★★★★★</span><span class="card__rating-text">4.9 (88)</span></div>
+        </a>
+
+        <a class="card" href="product.html" data-reveal>
+          <div class="card__media" style="background:linear-gradient(160deg,#EDE7DB,#C9B89A)">
+            <span class="tag tag--price">$210</span>
+          </div>
+          <h3 class="card__name">The Tailored Wide-Leg Trouser</h3>
+          <p class="card__meta">Apparel — Wool Blend</p>
+          <div class="card__rating"><span class="card__stars">★★★★☆</span><span class="card__rating-text">4.8 (156)</span></div>
+        </a>
+
+        <a class="card" href="product.html" data-reveal>
+          <div class="card__media" style="background:radial-gradient(circle at 40% 25%, #F6F1E8, #DCD3C2 70%)">
+            <span class="tag tag--price">$68</span>
+          </div>
+          <h3 class="card__name">Vitamin C Brightening Drops</h3>
+          <p class="card__meta">Beauty — Botanical Vitamin C</p>
+          <div class="card__rating"><span class="card__stars">★★★★☆</span><span class="card__rating-text">4.7 (201)</span></div>
+        </a>
+
+        <a class="card" href="product.html" data-reveal>
+          <div class="card__media" style="background:repeating-linear-gradient(60deg,#E9E3D8 0 12px,#DCD3C2 12px 24px)">
+            <span class="tag tag--price">$86</span>
+          </div>
+          <h3 class="card__name">The Cotton Knit Throw</h3>
+          <p class="card__meta">Lifestyle — Brushed Cotton</p>
+          <div class="card__rating"><span class="card__stars">★★★★★</span><span class="card__rating-text">4.9 (64)</span></div>
+        </a>
+      </div>
+
+      <div class="edit__nav">
+        <button id="prevBtn" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button id="nextBtn" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- testimonials -->
+  <section class="testimonials wrap">
+    <div class="section-head" data-reveal>
+      <h2>Loved, in their words</h2>
+      <p class="eyebrow">From verified buyers</p>
+    </div>
+    <div class="testimonials__grid">
+      <div class="testimonial" data-reveal>
+        <span class="testimonial__stars">★★★★★</span>
+        <p class="testimonial__quote">I bought one shirt to test the brand. I now own four — the fabric only gets better with washing.</p>
+        <div class="testimonial__byline">
+          <span class="testimonial__name">Maren K. — Copenhagen, DK</span>
+          <span class="tag">Verified Buyer</span>
+        </div>
+      </div>
+      <div class="testimonial" data-reveal>
+        <span class="testimonial__stars">★★★★★</span>
+        <p class="testimonial__quote">The repair serum cleared up texture I'd been fighting for two years, in about six weeks.</p>
+        <div class="testimonial__byline">
+          <span class="testimonial__name">Priya S. — London, UK</span>
+          <span class="tag">Verified Buyer</span>
+        </div>
+      </div>
+      <div class="testimonial" data-reveal>
+        <span class="testimonial__stars">★★★★☆</span>
+        <p class="testimonial__quote">Everything arrives wrapped like it matters. The wrap coat alone earns the price tag.</p>
+        <div class="testimonial__byline">
+          <span class="testimonial__name">Helena O. — New York, US</span>
+          <span class="tag">Verified Buyer</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- quote -->
+  <section class="quote">
+    <div class="wrap" data-reveal>
+      <div class="quote__hairline"></div>
+      <p class="quote__text">We don't chase seasons. We build the pieces that outlast them.</p>
+      <p class="quote__byline">— The Noeve Studio</p>
+    </div>
+  </section>
+
+  <!-- newsletter -->
+  <section class="newsletter" id="newsletter">
+    <div class="wrap" data-reveal>
+      <span class="eyebrow">Stay Close</span>
+      <h2>Join the list</h2>
+      <p>First access to new drops, early entry to sales, and a short note from the studio — once a month, never more.</p>
+      <form class="newsletter__form" id="newsletterForm">
+        <input type="email" placeholder="Your email address" required>
+        <button type="submit" class="btn btn--primary">Subscribe</button>
+      </form>
+      <p class="newsletter__success" id="newsletterSuccess">You're on the list — welcome to Noeve.</p>
+      <p class="newsletter__fine">By joining, you agree to receive marketing emails. Unsubscribe anytime.</p>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <span class="nav__logo">NOEVE</span>
+          <p class="footer__tagline">Considered fashion, beauty and lifestyle, made to outlast the season.</p>
+          <div class="footer__social">
+            <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+            <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9.5 17l1.6-7.3M12 9.5c2 0 3.3 1.1 3 2.8-.3 1.7-1.6 2.4-2.7 2.2-1-.2-1.3-.9-1-1.9"/></svg></a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="#pillars">Apparel</a></li>
+            <li><a href="#pillars">Beauty</a></li>
+            <li><a href="#pillars">Lifestyle</a></li>
+            <li><a href="#">Gift Cards</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="orders.html">Order Status</a></li>
+            <li><a href="#">Shipping &amp; Returns</a></li>
+            <li><a href="#">Size Guide</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Studio</h4>
+          <ul>
+            <li><a href="#">About Noeve</a></li>
+            <li><a href="#newsletter">Journal</a></li>
+            <li><a href="#">Sustainability</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 NOEVE. All rights reserved. — www.noeve.store</p>
+        <div class="footer__legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  // header shrink shadow + sticky shop CTA on scroll
+  const header = document.getElementById('siteHeader');
+  const navShopBtn = document.getElementById('navShopBtn');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('is-scrolled', window.scrollY > 12);
+    navShopBtn.classList.toggle('is-visible', window.scrollY > 480);
+  });
+
+  // mobile nav toggle
+  const mobileNav = document.getElementById('mobileNav');
+  document.getElementById('burgerBtn').addEventListener('click', () => mobileNav.classList.add('is-open'));
+  document.getElementById('closeBtn').addEventListener('click', () => mobileNav.classList.remove('is-open'));
+  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileNav.classList.remove('is-open')));
+
+  // scroll reveal
+  const revealEls = document.querySelectorAll('[data-reveal]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) {
+    revealEls.forEach(el => el.classList.add('is-visible'));
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(el => io.observe(el));
+  }
+
+  // product strip arrows
+  const track = document.getElementById('editTrack');
+  document.getElementById('prevBtn').addEventListener('click', () => track.scrollBy({ left: -300, behavior: 'smooth' }));
+  document.getElementById('nextBtn').addEventListener('click', () => track.scrollBy({ left: 300, behavior: 'smooth' }));
+
+  // newsletter fake submit
+  const form = document.getElementById('newsletterForm');
+  const success = document.getElementById('newsletterSuccess');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    form.style.display = 'none';
+    success.style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
