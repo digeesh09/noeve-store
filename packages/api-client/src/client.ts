@@ -1,8 +1,9 @@
-import type { ApiErrorBody, ApiResponse, AuthTokens, LoginRequest, RegisterRequest } from '@noeve/shared-types';
+import type { ApiErrorBody, ApiResponse, AuthTokens, LoginRequest, RegisterRequest, Category, Product, Cart, Order } from '@noeve/shared-types';
 
 export interface ApiClientConfig {
   baseUrl: string;
   getAccessToken?: () => string | null;
+  getSessionId?: () => string | null;
   onUnauthorized?: () => void;
 }
 
@@ -21,6 +22,11 @@ export class NoeveApiClient {
     const token = this.config.getAccessToken?.();
     if (token) {
       (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    }
+
+    const sessionId = this.config.getSessionId?.();
+    if (sessionId) {
+      (headers as Record<string, string>)['X-Cart-Session'] = sessionId;
     }
 
     const res = await fetch(`${this.config.baseUrl}${path}`, {
@@ -53,6 +59,25 @@ export class NoeveApiClient {
         method: 'POST',
         body: JSON.stringify(body),
       }),
+
+    getCategories: (options?: RequestInit) => this.request<Category[]>('/store/categories', options),
+    getProducts: (options?: RequestInit) => this.request<Product[]>('/store/products', options),
+    getProduct: (slug: string, options?: RequestInit) => this.request<Product>(`/store/products/${slug}`, options),
+
+    getCartSession: () => this.request<{ sessionId: string }>('/store/cart/session'),
+    getCart: (options?: RequestInit) => this.request<Cart>('/store/cart', options),
+    addToCart: (body: { productId: string; variantId?: string; quantity: number }, options?: RequestInit) =>
+      this.request<Cart>('/store/cart/items', { ...options, method: 'POST', body: JSON.stringify(body) }),
+    updateCartLine: (lineId: string, body: { quantity: number }, options?: RequestInit) =>
+      this.request<Cart>(`/store/cart/items/${lineId}`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+    removeCartLine: (lineId: string, options?: RequestInit) =>
+      this.request<Cart>(`/store/cart/items/${lineId}`, { ...options, method: 'DELETE' }),
+    clearCart: (options?: RequestInit) =>
+      this.request<Cart>('/store/cart', { ...options, method: 'DELETE' }),
+
+    placeOrder: (body?: { note?: string }, options?: RequestInit) =>
+      this.request<Order>('/store/orders', { ...options, method: 'POST', body: JSON.stringify(body || {}) }),
+    getOrders: (options?: RequestInit) => this.request<Order[]>('/store/orders', options),
   };
 
   admin = {

@@ -1,37 +1,65 @@
 import Constants from 'expo-constants';
-import type { Category, Product } from './types';
+import { NoeveApiClient } from '@noeve/api-client';
+import type { Category, Product } from '@noeve/shared-types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function getApiUrl() {
+export const SESSION_KEY = 'noeve_cart_session';
+export const TOKEN_KEY = 'noeve_access_token';
+
+let currentSessionId: string | null = null;
+let currentAccessToken: string | null = null;
+
+AsyncStorage.getItem(SESSION_KEY).then(val => { currentSessionId = val; });
+AsyncStorage.getItem(TOKEN_KEY).then(val => { currentAccessToken = val; });
+
+export function getApiUrl() {
   return (
     (Constants.expoConfig?.extra as { apiUrl?: string })?.apiUrl ?? 'http://localhost:3001/v1'
   );
 }
 
-async function fetchJson<T>(path: string): Promise<T | null> {
-  try {
-    const res = await fetch(`${getApiUrl()}${path}`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data as T;
-  } catch {
-    return null;
+export const apiClient = new NoeveApiClient({
+  baseUrl: getApiUrl(),
+  getSessionId: () => currentSessionId,
+  getAccessToken: () => currentAccessToken,
+});
+
+export async function setApiSessionId(id: string) {
+  currentSessionId = id;
+  await AsyncStorage.setItem(SESSION_KEY, id);
+}
+
+export async function setApiAccessToken(token: string | null) {
+  currentAccessToken = token;
+  if (token) {
+    await AsyncStorage.setItem(TOKEN_KEY, token);
+  } else {
+    await AsyncStorage.removeItem(TOKEN_KEY);
   }
 }
 
 export async function getCategories(): Promise<Category[]> {
-  return (await fetchJson<Category[]>('/store/categories')) ?? [];
+  try {
+    const res = await apiClient.store.getCategories();
+    return res.data;
+  } catch {
+    return [];
+  }
 }
 
 export async function getProducts(): Promise<Product[]> {
-  return (await fetchJson<Product[]>('/store/products')) ?? [];
+  try {
+    const res = await apiClient.store.getProducts();
+    return res.data;
+  } catch {
+    return [];
+  }
 }
 
 export async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const res = await fetch(`${getApiUrl()}/store/products/${slug}`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data as Product;
+    const res = await apiClient.store.getProduct(slug);
+    return res.data;
   } catch {
     return null;
   }

@@ -81,10 +81,11 @@ export default function CartScreen() {
           <Text style={styles.summaryLabel}>Subtotal</Text>
           <Text style={styles.summaryValue}>{formatPrice(cart.subtotalCents, cart.currency)}</Text>
         </View>
-        <Pressable style={styles.checkout}>
-          <Text style={styles.checkoutText}>Proceed to checkout</Text>
-        </Pressable>
-        <Text style={styles.hint}>Checkout coming soon</Text>
+        <Link href="/checkout" asChild>
+          <Pressable style={styles.checkout}>
+            <Text style={styles.checkoutText}>Proceed to checkout</Text>
+          </Pressable>
+        </Link>
       </View>
     </ScrollView>
   );

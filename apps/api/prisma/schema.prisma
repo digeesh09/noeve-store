@@ -26,6 +26,13 @@ enum OrderStatus {
   REFUNDED
 }
 
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
 enum ProductStatus {
   DRAFT
   ACTIVE
@@ -160,6 +167,7 @@ model Order {
   user   User                 @relation(fields: [userId], references: [id])
   lines  OrderLine[]
   statusHistory OrderStatusHistory[]
+  payment Payment?
 
   @@map("orders")
 }
@@ -191,4 +199,21 @@ model OrderStatusHistory {
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("order_status_history")
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  orderId         String        @unique @map("order_id")
+  amountCents     Int           @map("amount_cents")
+  currency        String        @default("INR")
+  status          PaymentStatus @default(PENDING)
+  provider        String        @default("RAZORPAY")
+  providerOrderId String?       @map("provider_order_id")
+  providerPaymentId String?     @map("provider_payment_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
 }

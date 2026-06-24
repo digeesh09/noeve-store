@@ -24,6 +24,7 @@ export interface Product {
   description: string | null;
   status: ProductStatus;
   categoryId: string;
+  category?: Category;
   basePriceCents: number;
   currency: string;
   material: string | null;
@@ -74,4 +75,27 @@ export interface OrderLine {
   quantity: number;
   unitPriceCents: number;
   lineTotalCents: number;
+}
+
+export interface CartLine {
+  id: string;
+  quantity: number;
+  productId: string;
+  variantId: string | null;
+  productName: string;
+  productSlug: string;
+  sku: string;
+  imageUrl: string | null;
+  unitPriceCents: number;
+  lineTotalCents: number;
+  currency: string;
+}
+
+export interface Cart {
+  id: string | null;
+  sessionId: string | null;
+  lines: CartLine[];
+  subtotalCents: number;
+  itemCount: number;
+  currency: string;
 }

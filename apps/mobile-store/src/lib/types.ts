@@ -1,36 +1,10 @@
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  imageUrl: string | null;
-}
-
-export interface ProductImage {
-  url: string;
-  alt: string | null;
-}
-
-export interface ProductVariant {
-  id: string;
-  sku: string;
-  name: string;
-  priceCents: number;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  basePriceCents: number;
-  currency: string;
-  material: string | null;
-  purity: string | null;
-  gemstone: string | null;
-  weightGrams: number | null;
-  careInstructions: string | null;
-  images?: ProductImage[];
-  variants?: ProductVariant[];
-  category?: Category;
-}
+/**
+ * Re-export shared types from @noeve/shared-types.
+ * Prefer importing directly from @noeve/shared-types in new code.
+ */
+export type {
+  Category,
+  Product,
+  ProductImage,
+  ProductVariant,
+} from '@noeve/shared-types';
