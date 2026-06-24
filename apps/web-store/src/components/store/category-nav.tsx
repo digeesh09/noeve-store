@@ -1,6 +1,7 @@
+import React from 'react';
 import Link from 'next/link';
 import type { Category } from '@/lib/types';
-import React from 'react';
+
 interface CategoryNavProps {
   categories: Category[];
   activeSlug?: string;
@@ -23,11 +24,13 @@ export function CategoryNav({
           <Link
             key={item.slug || 'all'}
             href={href}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
-              isActive
-                ? 'bg-brand-primary text-neutral-50'
-                : 'border border-brand-accent/40 bg-neutral-50 text-neutral-700 hover:border-brand-accent hover:text-brand-primary'
-            }`}
+            className="shrink-0 px-4 py-2 text-[0.82rem] font-medium uppercase tracking-[0.06em] transition-all duration-200"
+            style={{
+              borderRadius: '1px',
+              border: `1px solid ${isActive ? 'var(--burgundy)' : 'rgba(26,26,26,0.2)'}`,
+              background: isActive ? 'var(--burgundy)' : 'transparent',
+              color: isActive ? 'var(--cream)' : 'var(--ink)',
+            }}
           >
             {item.name}
           </Link>

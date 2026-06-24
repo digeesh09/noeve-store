@@ -14,48 +14,75 @@ export function ProductCard({ product, priority }: ProductCardProps): React.JSX.
   const categoryLabel = product.category?.name;
 
   return (
-    <article className="group relative rounded-xl border border-neutral-100 bg-white p-3 transition-all duration-500 hover:border-brand-accent/30 hover:shadow-[0_8px_30px_rgba(212,175,55,0.08)]">
+    <article className="group flex flex-col">
       <Link href={`/shop/${product.slug}`} className="block">
-        <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-neutral-50">
+        {/* Card media */}
+        <div
+          className="relative mb-4 overflow-hidden"
+          style={{
+            height: '320px',
+            borderRadius: '2px',
+            border: '1px solid rgba(26,26,26,0.08)',
+            background: 'linear-gradient(135deg, var(--cream-deep), var(--gold-light, #e4d6a7))',
+            transition: 'transform 0.4s cubic-bezier(0.2,0.8,0.2,1)',
+          }}
+        >
           {image ? (
             <Image
               src={image.url}
               alt={image.alt ?? product.name}
               fill
               priority={priority}
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+              className="object-cover"
               sizes="(max-width: 768px) 50vw, 25vw"
+              style={{ transition: 'transform 0.7s ease-out' }}
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-xs text-neutral-400">No Image Available</div>
+            <div className="flex h-full items-center justify-center">
+              {/* Jewel-gradient placeholder */}
+              <svg viewBox="0 0 200 200" className="w-24 opacity-30">
+                <path d="M40 20 C100 5, 160 60, 150 120 C140 180, 80 190, 50 160 C20 130, 10 60, 40 20 Z" fill="var(--gold)"/>
+              </svg>
+            </div>
           )}
-          {categoryLabel ? (
-            <span className="absolute left-2.5 top-2.5 rounded-full bg-brand-primary/90 px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-brand-accent backdrop-blur-sm">
+
+          {/* Category tag */}
+          {categoryLabel && (
+            <span
+              className="absolute left-3 top-3 z-10 inline-block px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.1em]"
+              style={{
+                background: 'var(--burgundy)',
+                color: 'var(--cream)',
+                borderRadius: '1px',
+              }}
+            >
               {categoryLabel}
             </span>
-          ) : null}
+          )}
         </div>
-        <div className="mt-4 space-y-1 px-1 pb-1">
-          <h3 className="font-serif text-lg font-semibold tracking-wide text-brand-primary transition-colors duration-300 group-hover:text-brand-accent">
+
+        {/* Card info */}
+        <div className="space-y-1 px-0.5">
+          <h3
+            className="font-caslon italic text-[1.12rem] text-brand-primary transition-colors duration-300 group-hover:text-brand-accent"
+            style={{ fontFamily: '"Libre Caslon Text", serif' }}
+          >
             {product.name}
           </h3>
-          {product.material ? (
-            <p className="text-[11px] font-medium tracking-wide text-neutral-400">
-              {product.material}
-              {product.purity ? ` · ${product.purity}` : ''}
+          {product.material && (
+            <p className="text-[0.82rem]" style={{ color: 'rgba(26,26,26,0.6)' }}>
+              {product.material}{product.purity ? ` · ${product.purity}` : ''}
             </p>
-          ) : null}
-          <div className="pt-1 flex items-center justify-between">
-            <p className="font-sans text-sm font-bold text-brand-accent">
+          )}
+          <div className="flex items-center gap-2 pt-1">
+            <p className="font-mono text-sm font-semibold text-ink" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
               {formatPrice(product.basePriceCents, product.currency)}
             </p>
-            <span className="text-[10px] font-semibold text-brand-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              View Details ➔
-            </span>
+            {/* Gold stars placeholder */}
+            <span className="text-[0.78rem] tracking-[0.08em]" style={{ color: 'var(--gold)' }}>★★★★★</span>
           </div>
         </div>
       </Link>
     </article>
   );
 }
-

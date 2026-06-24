@@ -1,5 +1,4 @@
 import type { Config } from 'tailwindcss';
-import { colors } from '@noeve/ui-tokens';
 
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
@@ -7,25 +6,31 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          primary: colors.brand.primary,
-          'primary-dark': colors.brand.primaryDark,
-          accent: colors.brand.accent,
-          'accent-light': colors.brand.accentLight,
-          'accent-gold': colors.brand.accentGold,
+          primary: '#5a0014',
+          'primary-dark': '#36000c',
+          accent: '#cbb36b',
+          'accent-light': '#e4d6a7',
         },
-        neutral: {
-          50: colors.neutral[50],
-          100: colors.neutral[100],
-          200: colors.neutral[200],
-          800: colors.neutral[800],
-          900: colors.neutral[900],
+        cream: {
+          DEFAULT: '#fdfbf4',
+          deep: '#f5f0df',
+          darker: '#ebdcc0',
+        },
+        ink: {
+          DEFAULT: '#1a1a1a',
+          muted: 'rgba(26,26,26,0.65)',
+          faint: 'rgba(26,26,26,0.4)',
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-cinzel)', 'Georgia', 'serif'],
-        cinzel: ['var(--font-cinzel)', 'serif'],
-        montserrat: ['var(--font-montserrat)', 'sans-serif'],
+        sans:        ['Montserrat', 'system-ui', 'sans-serif'],
+        cinzel:      ['Cinzel', 'Georgia', 'serif'],
+        montserrat:  ['Montserrat', 'sans-serif'],
+        caslon:      ['"Libre Caslon Text"', 'serif'],
+        mono:        ['"JetBrains Mono"', 'monospace'],
+      },
+      maxWidth: {
+        container: '1280px',
       },
     },
   },
@@ -33,4 +38,3 @@ const config: Config = {
 };
 
 export default config;
-

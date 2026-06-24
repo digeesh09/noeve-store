@@ -35,27 +35,53 @@ export function AddToCartButton({ productId, variantId, className }: AddToCartBu
         ? 'Added ✓'
         : status === 'error'
           ? 'Try again'
-          : 'Add to bag';
+          : 'Add to Bag';
+
+  const isPrimary = !className;
 
   return (
     <div className="flex flex-wrap gap-3">
       <button
+        id="add-to-bag-btn"
         type="button"
         onClick={handleClick}
         disabled={status === 'loading'}
-        className={
-          className ??
-          'flex-1 rounded-full border-2 border-brand-accent bg-transparent px-8 py-3.5 text-sm font-semibold text-brand-primary transition hover:bg-brand-accent hover:text-brand-primary disabled:opacity-60 sm:flex-none'
-        }
+        className={className ?? 'flex-1 sm:flex-none'}
+        style={isPrimary ? {
+          background: 'var(--burgundy)',
+          color: 'var(--cream)',
+          border: 'none',
+          padding: '0.95em 1.9em',
+          fontSize: '0.85rem',
+          fontWeight: 500,
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+          borderRadius: '1px',
+          transition: 'background 0.3s ease, transform 0.3s ease',
+          cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+          opacity: status === 'loading' ? 0.7 : 1,
+        } : undefined}
       >
         {label}
       </button>
       <button
+        id="view-bag-btn"
         type="button"
         onClick={() => router.push('/cart')}
-        className="rounded-full border-2 border-brand-accent px-8 py-3.5 text-sm font-medium text-brand-primary transition hover:bg-brand-accent"
+        style={{
+          padding: '0.95em 1.9em',
+          fontSize: '0.85rem',
+          fontWeight: 500,
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+          borderRadius: '1px',
+          border: '1px solid var(--ink)',
+          color: 'var(--ink)',
+          background: 'transparent',
+          transition: 'background 0.3s ease, color 0.3s ease',
+        }}
       >
-        View bag
+        View Bag
       </button>
     </div>
   );

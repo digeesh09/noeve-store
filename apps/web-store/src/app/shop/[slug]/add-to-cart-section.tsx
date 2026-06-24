@@ -14,12 +14,18 @@ export function AddToCartSection({ productId, variantId }: AddToCartSectionProps
       <AddToCartButton productId={productId} variantId={variantId} />
       <button
         type="button"
-        className="flex w-full items-center justify-center rounded-md border-2 border-brand-accent bg-transparent px-8 py-3.5 text-sm font-semibold text-brand-primary transition-all duration-300 hover:bg-brand-accent/10"
+        className="flex w-full items-center justify-center gap-2 px-8 py-4 text-[0.85rem] font-semibold uppercase tracking-[0.05em] transition-all duration-300 hover:-translate-y-0.5"
+        style={{
+          border: '1px solid var(--gold)',
+          color: 'var(--burgundy)',
+          background: 'transparent',
+          borderRadius: '1px',
+        }}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
-        ADD TO WISHLIST
+        Add to Wishlist
       </button>
     </div>
   );
