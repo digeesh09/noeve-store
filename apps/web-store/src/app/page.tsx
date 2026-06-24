@@ -22,7 +22,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
               <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>
                 Collections
               </p>
-              <h2 className="font-cinzel text-3xl text-brand-primary md:text-4xl">Shop by Category</h2>
+              <h2 className="font-display text-3xl text-brand-primary md:text-4xl">Shop by Category</h2>
             </div>
             <Link
               href="/shop"
@@ -43,7 +43,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
             <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>
               Handpicked
             </p>
-            <h2 className="font-cinzel text-3xl text-brand-primary md:text-4xl">The Current Edit</h2>
+            <h2 className="font-display text-3xl text-brand-primary md:text-4xl">The Current Edit</h2>
           </div>
           <Link
             href="/shop"
@@ -88,7 +88,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
         <p className="mb-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>
           Stay Close
         </p>
-        <h2 className="font-cinzel mb-4 text-3xl text-brand-primary md:text-4xl">Join the list</h2>
+        <h2 className="font-display mb-4 text-3xl text-brand-primary md:text-4xl">Join the list</h2>
         <p className="mx-auto mb-8 max-w-[42ch] text-sm" style={{ color: 'rgba(26,26,26,0.72)' }}>
           First access to new drops, early entry to sales, and a short note from the studio — once a month, never more.
         </p>

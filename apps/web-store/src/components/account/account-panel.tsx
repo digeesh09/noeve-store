@@ -73,7 +73,7 @@ export function AccountPanel(): React.JSX.Element {
         <div className="flex items-center justify-between">
           <div>
             <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>Account</p>
-            <h1 className="font-cinzel text-3xl text-brand-primary">Your Account</h1>
+            <h1 className="font-display text-3xl text-brand-primary">Your Account</h1>
             <p className="mt-2 text-sm" style={{ color: 'rgba(26,26,26,0.65)' }}>Signed in as {email || 'customer'}</p>
           </div>
           <button
@@ -87,7 +87,7 @@ export function AccountPanel(): React.JSX.Element {
         </div>
 
         <div className="mt-8 p-6" style={{ background: 'var(--cream-deep)', border: '1px solid rgba(26,26,26,0.08)', borderRadius: '2px' }}>
-          <h2 className="font-cinzel mb-4 text-xl text-brand-primary">Your Orders</h2>
+          <h2 className="font-display mb-4 text-xl text-brand-primary">Your Orders</h2>
           {ordersLoading ? (
             <p className="text-sm" style={{ color: 'rgba(26,26,26,0.55)' }}>Loading orders…</p>
           ) : orders.length === 0 ? (
@@ -161,7 +161,7 @@ export function AccountPanel(): React.JSX.Element {
         <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>
           {mode === 'login' ? 'Welcome Back' : 'New Member'}
         </p>
-        <h1 className="font-cinzel mb-2 text-3xl text-brand-primary">
+        <h1 className="font-display mb-2 text-3xl text-brand-primary">
           {mode === 'login' ? 'Sign In' : 'Create Account'}
         </h1>
         <p className="mb-8 text-sm" style={{ color: 'rgba(26,26,26,0.65)' }}>

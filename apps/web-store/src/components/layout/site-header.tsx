@@ -13,7 +13,7 @@ const nav = [
 
 /** Inline SVG Logo — NOEVE in Cinzel/gold with tagline in Montserrat/gold */
 function NoeveWordmark({ dark = false }: { dark?: boolean }) {
-  const brandColor = dark ? '#cbb36b' : '#5a0014';
+  const brandColor = '#cbb36b'; // Always gold to match docs logo
   const taglineColor = '#cbb36b';
   return (
     <svg
@@ -27,7 +27,7 @@ function NoeveWordmark({ dark = false }: { dark?: boolean }) {
       <text
         x="130" y="30"
         textAnchor="middle"
-        fontFamily="Cinzel, serif"
+        fontFamily="'Libre Caslon Display', serif"
         fontSize="28"
         fontWeight="600"
         letterSpacing="4"
@@ -41,7 +41,7 @@ function NoeveWordmark({ dark = false }: { dark?: boolean }) {
       <text
         x="130" y="50"
         textAnchor="middle"
-        fontFamily="Montserrat, sans-serif"
+        fontFamily="'Public Sans', sans-serif"
         fontSize="5.5"
         fontWeight="500"
         letterSpacing="2.5"
@@ -205,14 +205,14 @@ export function SiteHeader(): React.JSX.Element {
               key={item.href}
               href={item.href}
               onClick={() => setMobileOpen(false)}
-              style={{ fontFamily: 'Cinzel, serif', fontSize: '1.9rem', color: '#5a0014' }}
+              style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: '1.9rem', color: '#5a0014' }}
             >
               {item.label}
             </Link>
           ))}
-          <Link href="/cart" onClick={() => setMobileOpen(false)} style={{ fontFamily: 'Cinzel, serif', fontSize: '1.9rem', color: '#5a0014' }}>Bag</Link>
-          <Link href="/login" onClick={() => setMobileOpen(false)} style={{ fontFamily: 'Cinzel, serif', fontSize: '1.9rem', color: '#5a0014' }}>Sign In</Link>
-          <Link href="/register" onClick={() => setMobileOpen(false)} style={{ fontFamily: 'Cinzel, serif', fontSize: '1.9rem', color: '#5a0014' }}>Create Account</Link>
+          <Link href="/cart" onClick={() => setMobileOpen(false)} style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: '1.9rem', color: '#5a0014' }}>Bag</Link>
+          <Link href="/login" onClick={() => setMobileOpen(false)} style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: '1.9rem', color: '#5a0014' }}>Sign In</Link>
+          <Link href="/register" onClick={() => setMobileOpen(false)} style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: '1.9rem', color: '#5a0014' }}>Create Account</Link>
         </div>
       </div>
     </>

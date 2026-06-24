@@ -11,7 +11,7 @@ export default function CartPage(): React.JSX.Element {
         <span style={{ color: '#1a1a1a' }}>Your Bag</span>
       </nav>
       <div style={{ padding: '1rem 0 2.5rem' }}>
-        <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 'clamp(2.2rem,4.5vw,3.1rem)', color: '#5a0014', marginTop: '0.5rem' }}>
+        <h1 style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: 'clamp(2.2rem,4.5vw,3.1rem)', color: '#5a0014', marginTop: '0.5rem' }}>
           Your Bag
         </h1>
       </div>

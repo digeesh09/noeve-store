@@ -33,7 +33,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps): Promise
         <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#5a0014', marginBottom: '0.4rem' }}>
           {filtered.length} {filtered.length === 1 ? 'piece' : 'pieces'}
         </p>
-        <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 'clamp(2.2rem,4.5vw,3.1rem)', color: '#5a0014', marginTop: '0.4rem' }}>
+        <h1 style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: 'clamp(2.2rem,4.5vw,3.1rem)', color: '#5a0014', marginTop: '0.4rem' }}>
           {activeCategory ? activeCategory.name : 'All Pieces'}
         </h1>
         <p style={{ marginTop: '0.5rem', color: 'rgba(26,26,26,0.65)', fontSize: '0.95rem' }}>

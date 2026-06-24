@@ -14,7 +14,7 @@ function NoeveWordmarkLight() {
       <text
         x="130" y="30"
         textAnchor="middle"
-        fontFamily="Cinzel, serif"
+        fontFamily="'Libre Caslon Display', serif"
         fontSize="28"
         fontWeight="600"
         letterSpacing="4"
@@ -26,7 +26,7 @@ function NoeveWordmarkLight() {
       <text
         x="130" y="50"
         textAnchor="middle"
-        fontFamily="Montserrat, sans-serif"
+        fontFamily="'Public Sans', sans-serif"
         fontSize="5.5"
         fontWeight="500"
         letterSpacing="2.5"

@@ -28,7 +28,7 @@ export function HeroBanner({ compact }: HeroBannerProps): React.JSX.Element {
         </span>
 
         <h1
-          className={`font-cinzel leading-[1.04] tracking-tight text-brand-primary ${compact ? 'text-3xl md:text-4xl' : 'text-5xl md:text-6xl lg:text-7xl'}`}
+          className={`font-display leading-[1.04] tracking-tight text-brand-primary ${compact ? 'text-3xl md:text-4xl' : 'text-5xl md:text-6xl lg:text-7xl'}`}
         >
           Fewer pieces.<br />
           <em className="not-italic" style={{ color: 'var(--gold)' }}>Finer ones.</em>

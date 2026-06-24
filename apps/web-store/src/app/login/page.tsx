@@ -44,7 +44,7 @@ export default function LoginPage(): React.JSX.Element {
             <path d="M20 6L9 17l-5-5"/>
           </svg>
         </div>
-        <h2 style={{ fontFamily: 'Cinzel, serif', fontSize: '1.9rem', color: '#5a0014', marginBottom: '0.6rem' }}>Welcome back.</h2>
+        <h2 style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: '1.9rem', color: '#5a0014', marginBottom: '0.6rem' }}>Welcome back.</h2>
         <p style={{ color: 'rgba(26,26,26,0.7)', marginBottom: '1.8rem' }}>Redirecting to your account…</p>
       </div>
     );
@@ -105,7 +105,7 @@ export default function LoginPage(): React.JSX.Element {
           <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#5a0014', marginBottom: '0.5rem' }}>
             Welcome Back
           </p>
-          <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 'clamp(2rem,4vw,2.6rem)', color: '#5a0014', marginBottom: '0.6rem' }}>Sign In</h1>
+          <h1 style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: 'clamp(2rem,4vw,2.6rem)', color: '#5a0014', marginBottom: '0.6rem' }}>Sign In</h1>
           <p style={{ color: 'rgba(26,26,26,0.65)', marginBottom: '2.2rem', fontSize: '0.95rem' }}>
             Access your orders, saved details and early drop access.
           </p>

@@ -93,7 +93,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             </p>
           )}
 
-          <h1 className="font-cinzel text-[clamp(2rem,4vw,2.8rem)] leading-tight text-brand-primary">
+          <h1 className="font-display text-[clamp(2rem,4vw,2.8rem)] leading-tight text-brand-primary">
             {product.name}
           </h1>
 

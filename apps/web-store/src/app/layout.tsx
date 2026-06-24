@@ -1,22 +1,9 @@
 import type { Metadata } from 'next';
-import { Cinzel, Montserrat } from 'next/font/google';
 import { CartProvider } from '@/components/cart/cart-provider';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { SiteHeader } from '@/components/layout/site-header';
 import './globals.css';
 import React from 'react';
-
-const cinzel = Cinzel({
-  subsets: ['latin'],
-  variable: '--font-cinzel',
-  display: 'swap',
-});
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  variable: '--font-montserrat',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'NOEVE — Fine Jewellery & Accessories',
@@ -25,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: any }): React.JSX.Element {
   return (
-    <html lang="en" className={`${cinzel.variable} ${montserrat.variable}`}>
+    <html lang="en">
       <body className="flex min-h-screen flex-col antialiased">
         <CartProvider>
           <SiteHeader />

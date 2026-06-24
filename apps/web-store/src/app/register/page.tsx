@@ -45,7 +45,7 @@ export default function RegisterPage(): React.JSX.Element {
         <div style={{ width: '54px', height: '54px', borderRadius: '50%', background: '#fdfbf4', border: '1px solid #cbb36b', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.4rem' }}>
           <svg style={{ width: '24px', height: '24px', color: '#5a0014' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
         </div>
-        <h2 style={{ fontFamily: 'Cinzel, serif', fontSize: '1.9rem', color: '#5a0014', marginBottom: '0.6rem' }}>Welcome to Noeve.</h2>
+        <h2 style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: '1.9rem', color: '#5a0014', marginBottom: '0.6rem' }}>Welcome to Noeve.</h2>
         <p style={{ color: 'rgba(26,26,26,0.7)' }}>Your account has been created. Redirecting…</p>
       </div>
     );
@@ -96,7 +96,7 @@ export default function RegisterPage(): React.JSX.Element {
           <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#5a0014', marginBottom: '0.5rem' }}>
             New Member
           </p>
-          <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 'clamp(2rem,4vw,2.6rem)', color: '#5a0014', marginBottom: '0.6rem' }}>Create Account</h1>
+          <h1 style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: 'clamp(2rem,4vw,2.6rem)', color: '#5a0014', marginBottom: '0.6rem' }}>Create Account</h1>
           <p style={{ color: 'rgba(26,26,26,0.65)', marginBottom: '2.2rem', fontSize: '0.95rem' }}>
             Join Noeve for early access to new drops and order tracking.
           </p>

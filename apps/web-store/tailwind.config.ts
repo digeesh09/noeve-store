@@ -23,10 +23,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans:        ['Montserrat', 'system-ui', 'sans-serif'],
-        cinzel:      ['Cinzel', 'Georgia', 'serif'],
-        montserrat:  ['Montserrat', 'sans-serif'],
-        caslon:      ['"Libre Caslon Text"', 'serif'],
+        sans:        ['"Public Sans"', 'sans-serif'],
+        display:     ['"Libre Caslon Display"', 'serif'],
+        serif:       ['"Libre Caslon Text"', 'serif'],
         mono:        ['"JetBrains Mono"', 'monospace'],
       },
       maxWidth: {
