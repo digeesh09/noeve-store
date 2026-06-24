@@ -14,28 +14,40 @@ export default async function ShopPage({ searchParams }: ShopPageProps): Promise
   const activeCategory = categories.find((c) => c.slug === categorySlug);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
-      <div className="max-w-2xl">
-        <p className="text-xs font-semibold uppercase tracking-widest text-brand-accent">Catalogue</p>
-        <h1 className="mt-2 font-serif text-3xl font-semibold text-brand-primary md:text-4xl">
-          {activeCategory ? activeCategory.name : 'All pieces'}
+    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(1.5rem,5vw,4.5rem)', paddingBottom: '5rem' }}>
+      {/* Breadcrumb */}
+      <nav style={{ display: 'flex', gap: '0.5em', alignItems: 'center', padding: '1.6rem 0 0', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem', letterSpacing: '0.07em', textTransform: 'uppercase', color: 'rgba(26,26,26,0.5)' }}>
+        <a href="/" style={{ color: 'inherit' }}>Home</a>
+        <span style={{ opacity: 0.5 }}>/</span>
+        <span style={{ color: '#1a1a1a' }}>Shop</span>
+        {activeCategory && (
+          <>
+            <span style={{ opacity: 0.5 }}>/</span>
+            <span style={{ color: '#1a1a1a' }}>{activeCategory.name}</span>
+          </>
+        )}
+      </nav>
+
+      {/* Page head */}
+      <div style={{ padding: '1.2rem 0 2.5rem' }}>
+        <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#5a0014', marginBottom: '0.4rem' }}>
+          {filtered.length} {filtered.length === 1 ? 'piece' : 'pieces'}
+        </p>
+        <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 'clamp(2.2rem,4.5vw,3.1rem)', color: '#5a0014', marginTop: '0.4rem' }}>
+          {activeCategory ? activeCategory.name : 'All Pieces'}
         </h1>
-        <p className="mt-2 text-neutral-600">
-          {activeCategory?.description ??
-            'Fine jewellery, elegant pendants, and ladies care accessories.'}
+        <p style={{ marginTop: '0.5rem', color: 'rgba(26,26,26,0.65)', fontSize: '0.95rem' }}>
+          {activeCategory?.description ?? 'Fine jewellery, elegant pendants, and ladies care accessories.'}
         </p>
       </div>
 
-      <div className="mt-8">
+      {/* Category nav */}
+      <div style={{ marginBottom: '2rem' }}>
         <CategoryNav categories={categories} activeSlug={categorySlug} />
       </div>
 
-      <div className="mt-8">
-        <p className="mb-4 text-sm text-neutral-500">
-          {filtered.length} {filtered.length === 1 ? 'piece' : 'pieces'}
-        </p>
-        <ProductGrid products={filtered} />
-      </div>
+      {/* Grid */}
+      <ProductGrid products={filtered} />
     </div>
   );
 }
