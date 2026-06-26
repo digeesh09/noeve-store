@@ -93,7 +93,7 @@ export default function CheckoutScreen() {
         <TextInput
           style={styles.input}
           placeholder="Gift message, delivery instructions…"
-          placeholderTextColor={colors.neutral[800]}
+          placeholderTextColor="rgba(33, 29, 25, 0.4)"
           multiline
           numberOfLines={3}
           value={note}
@@ -109,55 +109,56 @@ export default function CheckoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, justifyContent: 'center', alignItems: 'center' },
-  scroll: { flex: 1 },
+  container: { flex: 1, padding: spacing.lg, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.neutral[50] },
+  scroll: { flex: 1, backgroundColor: colors.neutral[50] },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
   title: { fontSize: 24, fontWeight: '700', color: colors.brand.primary, fontFamily: 'serif' },
-  subtitle: { marginTop: spacing.sm, fontSize: 14, color: colors.neutral[800], lineHeight: 20 },
+  subtitle: { marginTop: spacing.sm, fontSize: 14, color: 'rgba(33, 29, 25, 0.7)', lineHeight: 20 },
   summaryCard: {
     marginTop: spacing.xl,
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 4,
     padding: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: 'rgba(33, 29, 25, 0.08)',
   },
   summaryTitle: { fontSize: 16, fontWeight: '700', color: colors.brand.primary, marginBottom: spacing.md },
   lineItem: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.sm },
-  lineName: { fontSize: 14, color: colors.neutral[800] },
-  linePrice: { fontSize: 14, fontWeight: '600', color: colors.neutral[900] },
+  lineName: { fontSize: 14, color: colors.neutral.ink },
+  linePrice: { fontSize: 14, fontWeight: '600', color: colors.neutral.ink },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: spacing.md,
     marginTop: spacing.md,
     borderTopWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: 'rgba(33, 29, 25, 0.08)',
   },
   totalLabel: { fontSize: 15, fontWeight: '700', color: colors.brand.primary },
-  totalValue: { fontSize: 15, fontWeight: '700', color: colors.brand.accent },
+  totalValue: { fontSize: 15, fontWeight: '700', color: colors.brand.primary },
   noteSection: { marginTop: spacing.xl },
-  label: { fontSize: 13, fontWeight: '600', color: colors.neutral[800], marginBottom: spacing.sm },
+  label: { fontSize: 13, fontWeight: '600', color: colors.neutral.ink, marginBottom: spacing.sm },
   input: {
     borderWidth: 1,
-    borderColor: colors.neutral[200],
-    borderRadius: 10,
+    borderColor: 'rgba(33, 29, 25, 0.12)',
+    borderRadius: 4,
     padding: spacing.md,
     fontSize: 15,
-    backgroundColor: '#fff',
+    backgroundColor: colors.neutral.cream,
     textAlignVertical: 'top',
+    color: colors.neutral.ink,
   },
   btn: {
     marginTop: spacing.xl,
-    backgroundColor: colors.brand.accent,
-    borderRadius: 24,
+    backgroundColor: colors.brand.primary,
+    borderRadius: 4,
     paddingVertical: spacing.md,
     alignItems: 'center',
   },
-  btnText: { color: colors.brand.primary, fontWeight: '700', fontSize: 15 },
-  emptyText: { fontSize: 16, color: colors.neutral[800] },
-  successCard: { alignItems: 'center', padding: spacing.xl },
-  successIcon: { fontSize: 48, color: colors.brand.accent, marginBottom: spacing.md },
+  btnText: { color: colors.neutral[50], fontWeight: '700', fontSize: 15 },
+  emptyText: { fontSize: 16, color: colors.neutral.ink },
+  successCard: { alignItems: 'center', padding: spacing.xl, backgroundColor: colors.neutral.cream, borderWidth: 1, borderColor: 'rgba(33, 29, 25, 0.08)', borderRadius: 4 },
+  successIcon: { fontSize: 48, color: colors.brand.primary, marginBottom: spacing.md },
   successTitle: { fontSize: 24, fontWeight: '700', color: colors.brand.primary, fontFamily: 'serif' },
-  successText: { marginTop: spacing.sm, textAlign: 'center', color: colors.neutral[800], lineHeight: 22 },
+  successText: { marginTop: spacing.sm, textAlign: 'center', color: colors.neutral.ink, lineHeight: 22 },
 });

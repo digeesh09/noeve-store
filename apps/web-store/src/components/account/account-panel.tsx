@@ -2,254 +2,166 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { isLoggedIn, loginStore, logout, registerStore } from '@/lib/auth';
+import { isLoggedIn, loginStore, logout } from '@/lib/auth';
 import { fetchMyOrders, type Order } from '@/lib/orders';
 import { formatPrice } from '@/lib/format';
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  border: '1px solid rgba(26,26,26,0.25)',
-  background: 'transparent',
-  padding: '0.85em 1em',
-  fontSize: '0.95rem',
-  color: 'var(--ink)',
-  outline: 'none',
-  transition: 'border-color 0.25s ease',
-  borderRadius: '1px',
-};
-
 export function AccountPanel(): React.JSX.Element {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [tab, setTab] = useState<'orders'|'profile'>('orders');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string|null>(null);
   const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [openOrder, setOpenOrder] = useState<string|null>(null);
 
-  useEffect(() => {
-    setLoggedIn(isLoggedIn());
-  }, []);
-
+  useEffect(() => { setLoggedIn(isLoggedIn()); }, []);
   useEffect(() => {
     if (!loggedIn) return;
-    setOrdersLoading(true);
-    fetchMyOrders()
-      .then(setOrders)
-      .catch(() => setOrders([]))
-      .finally(() => setOrdersLoading(false));
+    fetchMyOrders().then(setOrders).catch(() => setOrders([]));
   }, [loggedIn]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      if (mode === 'login') {
-        await loginStore(email, password);
-      } else {
-        await registerStore({ email, password, firstName, lastName });
-      }
-      setLoggedIn(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); setError(null); setLoading(true);
+    try { await loginStore(email, password); setLoggedIn(true); }
+    catch (err) { setError(err instanceof Error ? err.message : 'Sign in failed.'); }
+    finally { setLoading(false); }
   };
 
-  const handleLogout = () => {
-    logout();
-    setLoggedIn(false);
-    setOrders([]);
-  };
+  const toggleOrder = (id: string) => setOpenOrder(openOrder === id ? null : id);
 
-  if (loggedIn) {
+  if (!loggedIn) {
     return (
-      <div>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>Account</p>
-            <h1 className="font-display text-3xl text-brand-primary">Your Account</h1>
-            <p className="mt-2 text-sm" style={{ color: 'rgba(26,26,26,0.65)' }}>Signed in as {email || 'customer'}</p>
+      <div className="wrap">
+        <nav className="breadcrumb"><Link href="/">Home</Link><span>/</span><span style={{color:'var(--ink)'}}>Sign In</span></nav>
+        <section className="auth">
+          <div className="auth__visual">
+            <svg className="bg-art" viewBox="0 0 560 660" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="af1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#DCD3C2"/><stop offset="100%" stopColor="#B89B6E"/></linearGradient></defs>
+              <path d="M60 40 C200 10, 380 90, 420 230 C460 370, 320 420, 260 540 C220 620, 140 640, 90 600 C30 555, 80 470, 150 420 C230 365, 250 280, 190 210 C130 140, 20 120, 60 40 Z" fill="url(#af1)"/>
+            </svg>
+            <div className="auth__visual-top"><span className="tag">Member Access</span></div>
+            <div><div className="auth__visual-hairline"/><h2>&quot;We don&apos;t chase seasons. We build the pieces that outlast them.&quot;</h2><span className="quote-byline">— The Noeve Studio</span></div>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium uppercase tracking-[0.05em] transition-all duration-200 hover:-translate-y-0.5"
-            style={{ border: '1px solid rgba(26,26,26,0.3)', borderRadius: '1px', color: 'var(--ink)' }}
-          >
-            Sign Out
-          </button>
-        </div>
-
-        <div className="mt-8 p-6" style={{ background: 'var(--cream-deep)', border: '1px solid rgba(26,26,26,0.08)', borderRadius: '2px' }}>
-          <h2 className="font-display mb-4 text-xl text-brand-primary">Your Orders</h2>
-          {ordersLoading ? (
-            <p className="text-sm" style={{ color: 'rgba(26,26,26,0.55)' }}>Loading orders…</p>
-          ) : orders.length === 0 ? (
-            <p className="text-sm" style={{ color: 'rgba(26,26,26,0.55)' }}>
-              No orders yet.{' '}
-              <Link href="/shop" className="underline" style={{ color: 'var(--burgundy)' }}>Start shopping</Link>
-            </p>
-          ) : (
-            <ul className="mt-2 space-y-3">
-              {orders.map((order) => (
-                <li key={order.id} className="flex items-center justify-between rounded-[1px] border p-4 text-sm" style={{ borderColor: 'rgba(26,26,26,0.1)' }}>
-                  <div>
-                    <p className="font-medium text-brand-primary">{order.orderNumber}</p>
-                    <p className="text-xs" style={{ color: 'rgba(26,26,26,0.55)' }}>
-                      {new Date(order.createdAt).toLocaleDateString('en-IN')} · {order.status}
-                    </p>
-                  </div>
-                  <p className="font-semibold" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-                    {formatPrice(order.totalCents, order.currency)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+          <div className="auth__form-card">
+            <p className="eyebrow">Welcome Back</p>
+            <h1>Sign in</h1>
+            <p className="sub">Access your orders, saved details and early drop access.</p>
+            <form onSubmit={handleLogin}>
+              <div className="form-field"><label>Email Address</label><input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div>
+              <div className="form-field"><label>Password</label><input type="password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password"/></div>
+              {error && <p style={{fontSize:'.76rem',color:'var(--oxblood)',marginBottom:'1rem'}}>{error}</p>}
+              <button type="submit" disabled={loading} className="btn btn--primary" style={{width:'100%'}}>{loading ? 'Signing in…' : 'Sign In'}</button>
+            </form>
+            <div className="auth__divider">or</div>
+            <Link href="/" className="btn btn--outline" style={{width:'100%'}}>Continue as Guest</Link>
+            <p className="auth__switch">New to Noeve? <Link href="/register">Create an account</Link></p>
+            <p style={{textAlign:'center',marginTop:'.5rem',fontSize:'.72rem',color:'rgba(33,29,25,.4)'}}>Demo: customer@noeve.local / Customer123!</p>
+          </div>
+        </section>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
-      {/* Visual panel — matching reference auth__visual */}
-      <div
-        className="hidden rounded-[2px] p-10 lg:flex lg:min-h-[520px] lg:flex-col lg:justify-between"
-        style={{ background: 'var(--ink)', position: 'relative', overflow: 'hidden' }}
-      >
-        {/* bg art */}
-        <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-15" viewBox="0 0 560 660" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <linearGradient id="alg1" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#e4d6a7"/>
-              <stop offset="100%" stopColor="#cbb36b"/>
-            </linearGradient>
-          </defs>
-          <path d="M60 40 C200 10, 380 90, 420 230 C460 370, 320 420, 260 540 C220 620, 140 640, 90 600 C30 555, 80 470, 150 420 C230 365, 250 280, 190 210 C130 140, 20 120, 60 40 Z" fill="url(#alg1)"/>
-        </svg>
-        <div className="relative z-10">
-          <span
-            className="inline-block px-3 py-1 text-[0.7rem] font-medium uppercase tracking-[0.1em]"
-            style={{ background: 'var(--cream)', border: '1px solid var(--gold)', color: 'var(--ink)', transform: 'rotate(-2deg)', borderRadius: '1px' }}
-          >
-            Member Access
-          </span>
+    <div>
+      <nav className="breadcrumb"><Link href="/">Home</Link><span>/</span><span style={{color:'var(--ink)'}}>{tab === 'orders' ? 'Your Orders' : 'Account Details'}</span></nav>
+      <div className="page-head" style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',flexWrap:'wrap',gap:'1rem'}}>
+        <div>
+          <p className="eyebrow">Account</p>
+          <h1>{tab === 'orders' ? 'Your Orders' : 'Account Details'}</h1>
         </div>
-        <div className="relative z-10">
-          <div className="mb-5 h-px w-10" style={{ background: 'var(--gold)' }} />
-          <p
-            className="mb-3 leading-[1.32]"
-            style={{ fontFamily: '"Libre Caslon Text", serif', fontStyle: 'italic', fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)', color: 'var(--cream)' }}
-          >
-            "We don't chase seasons. We build the pieces that outlast them."
-          </p>
-          <span className="text-[0.7rem] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--gold)' }}>
-            — The Noeve Studio
-          </span>
-        </div>
+        <button onClick={() => { logout(); setLoggedIn(false); setOrders([]); }} style={{fontFamily:'var(--mono)',fontSize:'.72rem',letterSpacing:'.08em',textTransform:'uppercase',textDecoration:'underline',color:'rgba(33,29,25,.55)',background:'none',border:'none',cursor:'pointer'}}>Sign Out</button>
       </div>
 
-      {/* Form */}
-      <div>
-        <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--burgundy)' }}>
-          {mode === 'login' ? 'Welcome Back' : 'New Member'}
-        </p>
-        <h1 className="font-display mb-2 text-3xl text-brand-primary">
-          {mode === 'login' ? 'Sign In' : 'Create Account'}
-        </h1>
-        <p className="mb-8 text-sm" style={{ color: 'rgba(26,26,26,0.65)' }}>
-          {mode === 'login'
-            ? 'Access your orders, saved details and early drop access.'
-            : 'Create your account for early access and order tracking.'}
-        </p>
+      <nav className="account-tabs">
+        <a href="#" className={tab==='orders'?'is-active':''} onClick={e=>{e.preventDefault();setTab('orders')}}>Orders</a>
+        <a href="#">Addresses</a>
+        <a href="#" className={tab==='profile'?'is-active':''} onClick={e=>{e.preventDefault();setTab('profile')}}>Account Details</a>
+        <a href="#">Wishlist</a>
+      </nav>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {mode === 'register' && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.08em]" style={{ color: 'rgba(26,26,26,0.6)', fontFamily: '"JetBrains Mono", monospace' }}>
-                  First Name
-                </label>
-                <input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={inputStyle} />
+      {tab === 'orders' && (
+        <div className="orders-list">
+          {orders.length === 0 ? (
+            <p style={{padding:'3rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>No orders yet. <Link href="/#edit" style={{textDecoration:'underline',color:'var(--oxblood)'}}>Start shopping</Link></p>
+          ) : orders.map(order => {
+            const isOpen = openOrder === order.id;
+            const statusClass = order.status === 'DELIVERED' ? 'status--delivered' : order.status === 'SHIPPED' ? 'status--shipped' : 'status--processing';
+            return (
+              <article key={order.id} className={`order-card ${isOpen?'is-open':''}`}>
+                <div className="order-card__head" onClick={()=>toggleOrder(order.id)}>
+                  <div>
+                    <p className="order-card__id">{order.orderNumber}</p>
+                    <p className="order-card__date">Placed {new Date(order.createdAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>
+                  </div>
+                  <div className="order-card__mid">
+                    <span className={`status ${statusClass}`}>{order.status}</span>
+                    <span className="order-card__total">{formatPrice(order.totalCents, order.currency)}</span>
+                  </div>
+                  <span className="order-card__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg></span>
+                </div>
+                {isOpen && (
+                  <div className="order-card__body" style={{maxHeight:'600px'}}>
+                    <div className="order-card__body-inner">
+                      <div>
+                        {order.lines?.map((line, i) => (
+                          <div key={i} className="order-line">
+                            <div><p className="order-line__name">{line.productName}</p><p className="order-line__meta">Qty {line.quantity}</p></div>
+                            <span>{formatPrice(line.unitPriceCents * line.quantity, order.currency)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="order-meta">
+                        <h4>Order Status</h4>
+                        <p>{order.status}</p>
+                      </div>
+                    </div>
+                    <div className="order-card__actions">
+                      <Link href="/#edit" className="btn btn--primary">Buy Again</Link>
+                      <a href="#" className="btn btn--outline">Need Help?</a>
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {tab === 'profile' && (
+        <div className="profile-layout">
+          <aside className="profile-card">
+            <div className="avatar">MK</div>
+            <h3>Member</h3>
+            <p className="email">{email || 'customer@noeve.local'}</p>
+            <p className="since">Member Since 2025</p>
+            <Link href="#" className="btn btn--outline" style={{width:'100%'}}>View Orders</Link>
+          </aside>
+          <div>
+            <div className="section-card">
+              <h2>Personal Information</h2>
+              <p className="section-sub">Update your name, email and phone number.</p>
+              <div className="form-row">
+                <div className="form-field"><label>First Name</label><input type="text" defaultValue="Maren" style={{background:'var(--cream)'}}/></div>
+                <div className="form-field"><label>Last Name</label><input type="text" defaultValue="K." style={{background:'var(--cream)'}}/></div>
               </div>
-              <div>
-                <label className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.08em]" style={{ color: 'rgba(26,26,26,0.6)', fontFamily: '"JetBrains Mono", monospace' }}>
-                  Last Name
-                </label>
-                <input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} style={inputStyle} />
-              </div>
+              <div className="form-field"><label>Email Address</label><input type="email" defaultValue={email || 'customer@noeve.local'} style={{background:'var(--cream)'}}/></div>
             </div>
-          )}
-
-          <div>
-            <label htmlFor="email" className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.08em]" style={{ color: 'rgba(26,26,26,0.6)', fontFamily: '"JetBrains Mono", monospace' }}>
-              Email Address
-            </label>
-            <input id="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
+            <div className="section-card">
+              <h2>Email Preferences</h2>
+              <p className="section-sub">Choose what you&apos;d like to hear from us about.</p>
+              <div className="checkbox-row"><input type="checkbox" id="prefDrops" defaultChecked/><label htmlFor="prefDrops">New drops, early access and seasonal notes.</label></div>
+              <div className="checkbox-row"><input type="checkbox" id="prefSms"/><label htmlFor="prefSms">SMS order and shipping updates.</label></div>
+            </div>
+            <div className="save-row">
+              <button type="button" className="btn btn--primary">Save Changes</button>
+              <a href="#" className="btn btn--outline">Cancel</a>
+            </div>
           </div>
-
-          <div>
-            <label htmlFor="password" className="mb-2 block text-[0.7rem] font-semibold uppercase tracking-[0.08em]" style={{ color: 'rgba(26,26,26,0.6)', fontFamily: '"JetBrains Mono", monospace' }}>
-              Password
-            </label>
-            <input id="password" type="password" required autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
-          </div>
-
-          {error && <p className="text-sm" style={{ color: 'var(--burgundy)' }}>{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 text-[0.85rem] font-semibold uppercase tracking-[0.05em] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60"
-            style={{ background: 'var(--burgundy)', color: 'var(--cream)', borderRadius: '1px' }}
-          >
-            {loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="my-7 flex items-center gap-4" style={{ color: 'rgba(26,26,26,0.4)', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          <div className="h-px flex-1" style={{ background: 'rgba(26,26,26,0.15)' }} />
-          or
-          <div className="h-px flex-1" style={{ background: 'rgba(26,26,26,0.15)' }} />
         </div>
-
-        <Link
-          href="/shop"
-          className="block w-full py-4 text-center text-[0.85rem] font-semibold uppercase tracking-[0.05em] transition-all duration-300 hover:-translate-y-0.5 hover:bg-ink hover:text-cream-DEFAULT"
-          style={{ border: '1px solid var(--ink)', color: 'var(--ink)', borderRadius: '1px' }}
-        >
-          Continue as Guest
-        </Link>
-
-        <p className="mt-6 text-center text-[0.88rem]" style={{ color: 'rgba(26,26,26,0.7)' }}>
-          {mode === 'login' ? (
-            <>
-              New to Noeve?{' '}
-              <button type="button" onClick={() => setMode('register')} className="font-semibold underline" style={{ color: 'var(--ink)' }}>
-                Create an account
-              </button>
-            </>
-          ) : (
-            <>
-              Already have an account?{' '}
-              <button type="button" onClick={() => setMode('login')} className="font-semibold underline" style={{ color: 'var(--ink)' }}>
-                Sign in
-              </button>
-            </>
-          )}
-        </p>
-        <p className="mt-2 text-center text-[0.72rem]" style={{ color: 'rgba(26,26,26,0.4)' }}>
-          Demo: customer@noeve.local / Customer123!
-        </p>
-      </div>
+      )}
     </div>
   );
 }

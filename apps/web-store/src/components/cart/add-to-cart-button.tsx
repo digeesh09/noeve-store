@@ -48,7 +48,7 @@ export function AddToCartButton({ productId, variantId, className }: AddToCartBu
         disabled={status === 'loading'}
         className={className ?? 'flex-1 sm:flex-none'}
         style={isPrimary ? {
-          background: 'var(--burgundy)',
+          background: 'var(--oxblood)',
           color: 'var(--cream)',
           border: 'none',
           padding: '0.95em 1.9em',

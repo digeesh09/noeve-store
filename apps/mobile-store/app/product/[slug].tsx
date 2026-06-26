@@ -23,7 +23,6 @@ export default function ProductDetailScreen() {
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
 
-  // Custom configurations based on the UI spec
   const [selectedMetal, setSelectedMetal] = useState('Yellow Gold');
   const [selectedPurity, setSelectedPurity] = useState('18K Gold');
   const [selectedChainLength, setSelectedChainLength] = useState('45cm');
@@ -41,7 +40,6 @@ export default function ProductDetailScreen() {
     if (!product) return;
     setAdding(true);
     try {
-      // Add item to backend cart
       await addItem(product.id, product.variants?.[0]?.id);
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
@@ -55,7 +53,7 @@ export default function ProductDetailScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.brand.accent} size="large" />
+        <ActivityIndicator color={colors.brand.primary} size="large" />
       </View>
     );
   }
@@ -95,8 +93,8 @@ export default function ProductDetailScreen() {
           {product.category ? (
             <Text style={styles.category}>{product.category.name.toUpperCase()}</Text>
           ) : null}
-          <Text style={styles.name}>“{product.name}”</Text>
-          <Text style={styles.subtitle}>A timeless statement of elegance in gold and brilliant gemstones.</Text>
+          <Text style={styles.name}>{product.name}</Text>
+          <Text style={styles.subtitle}>Considered apparel, beauty and home objects — for the woman who buys once, and buys well.</Text>
           <Text style={styles.price}>{formatPrice(product.basePriceCents, product.currency)}</Text>
         </View>
 
@@ -212,26 +210,26 @@ export default function ProductDetailScreen() {
           disabled={adding}
         >
           <Text style={styles.addBtnText}>
-            {adding ? 'ADDING TO BAG…' : added ? 'ADDED ✓' : 'ADD TO BAG 🛍️'}
+            {adding ? 'ADDING TO BAG…' : added ? 'ADDED ✓' : `ADD TO BAG — ${formatPrice(product.basePriceCents * quantity, product.currency)}`}
           </Text>
         </Pressable>
-        <Text style={styles.secureText}>Secure Checkout | Free Insured Delivery | Gift Wrap Available</Text>
+        <Text style={styles.secureText}>Secure Checkout · 30-Day Returns · Free Over $150</Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#210b38' },
+  container: { flex: 1, backgroundColor: colors.neutral[50] },
   scroll: { flex: 1 },
   content: { paddingBottom: spacing.lg },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#210b38' },
-  error: { color: colors.semantic.error, fontSize: 16, fontWeight: '600' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.neutral[50] },
+  error: { color: colors.brand.primary, fontSize: 16, fontWeight: '600' },
   imageWrap: {
     aspectRatio: 4.2 / 5,
-    backgroundColor: '#311456',
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    backgroundColor: colors.neutral[100],
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
     overflow: 'hidden',
   },
   image: { width: '100%', height: '100%' },
@@ -246,20 +244,20 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 3,
-    color: colors.brand.accent,
+    color: colors.brand.primary,
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#fff',
+    color: colors.neutral.ink,
     textAlign: 'center',
     letterSpacing: 0.5,
   },
   subtitle: {
     fontSize: 12,
-    color: '#bfb5cc',
+    color: 'rgba(33, 29, 25, 0.6)',
     textAlign: 'center',
     marginTop: spacing.xs,
     paddingHorizontal: spacing.sm,
@@ -269,16 +267,16 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     fontSize: 24,
     fontWeight: '800',
-    color: colors.brand.accent,
+    color: colors.brand.primary,
   },
   selectorsCard: {
-    backgroundColor: '#2d144a',
-    borderRadius: 20,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 8,
     marginHorizontal: spacing.lg,
     marginTop: spacing.lg,
     padding: spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.15)',
+    borderColor: 'rgba(33, 29, 25, 0.08)',
   },
   selectorRow: {
     flexDirection: 'row',
@@ -286,37 +284,36 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.06)',
+    borderBottomColor: 'rgba(33,29,25,0.06)',
   },
   selectorLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#bfb5cc',
+    color: colors.neutral.ink,
   },
   selectorChips: {
     flexDirection: 'row',
     gap: spacing.xs,
   },
   chip: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(33,29,25,0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 15,
+    borderColor: 'rgba(33,29,25,0.08)',
+    borderRadius: 4,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   chipActive: {
-    backgroundColor: 'transparent',
-    borderColor: colors.brand.accent,
-    borderWidth: 1.5,
+    backgroundColor: colors.brand.primary,
+    borderColor: colors.brand.primary,
   },
   chipText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#fff',
+    color: colors.neutral.ink,
   },
   chipTextActive: {
-    color: colors.brand.accent,
+    color: colors.neutral[50],
   },
   quantityRow: {
     flexDirection: 'row',
@@ -327,22 +324,22 @@ const styles = StyleSheet.create({
   quantityCounter: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 15,
+    backgroundColor: 'rgba(33,29,25,0.04)',
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(33,29,25,0.08)',
   },
   quantityBtn: {
     paddingHorizontal: 14,
     paddingVertical: 6,
   },
   quantityBtnText: {
-    color: '#fff',
+    color: colors.neutral.ink,
     fontSize: 16,
     fontWeight: 'bold',
   },
   quantityValue: {
-    color: '#fff',
+    color: colors.neutral.ink,
     fontSize: 14,
     fontWeight: '700',
     paddingHorizontal: 8,
@@ -354,12 +351,12 @@ const styles = StyleSheet.create({
   descTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: colors.brand.accent,
+    color: colors.brand.primary,
     marginBottom: spacing.xs,
   },
   descText: {
     fontSize: 14,
-    color: '#bfb5cc',
+    color: 'rgba(33, 29, 25, 0.75)',
     lineHeight: 22,
   },
   specs: {
@@ -367,64 +364,53 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(33,29,25,0.08)',
     paddingVertical: spacing.md,
     gap: spacing.sm,
   },
   specRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  specLabel: { fontSize: 11, fontWeight: '700', color: '#bfb5cc', textTransform: 'uppercase' },
-  specValue: { fontSize: 13, fontWeight: '700', color: colors.brand.accent },
+  specLabel: { fontSize: 11, fontWeight: '700', color: 'rgba(33, 29, 25, 0.6)', textTransform: 'uppercase' },
+  specValue: { fontSize: 13, fontWeight: '700', color: colors.brand.primary },
   care: {
     marginTop: spacing.lg,
     marginHorizontal: spacing.lg,
-    backgroundColor: '#311456',
-    borderRadius: 16,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 8,
     padding: spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.1)',
+    borderColor: 'rgba(33, 29, 25, 0.08)',
   },
-  careTitle: { fontWeight: '700', color: colors.brand.accent, fontSize: 13 },
-  careText: { marginTop: spacing.xs, fontSize: 13, color: '#bfb5cc', lineHeight: 18 },
+  careTitle: { fontWeight: '700', color: colors.brand.primary, fontSize: 13 },
+  careText: { marginTop: spacing.xs, fontSize: 13, color: 'rgba(33, 29, 25, 0.75)', lineHeight: 18 },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#210b38',
+    backgroundColor: colors.neutral[50],
     borderTopWidth: 1,
-    borderTopColor: 'rgba(212, 175, 55, 0.2)',
+    borderTopColor: 'rgba(33,29,25,0.08)',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
     paddingBottom: spacing.lg,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -10 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 10,
   },
   addBtn: {
-    backgroundColor: colors.brand.accent,
-    borderRadius: 30,
+    backgroundColor: colors.brand.primary,
+    borderRadius: 4,
     paddingVertical: 14,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.brand.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 5,
   },
   addBtnDisabled: { opacity: 0.6 },
   addBtnSuccess: { backgroundColor: colors.semantic.success },
-  addBtnText: { color: colors.brand.primary, fontWeight: '800', fontSize: 14, letterSpacing: 1 },
+  addBtnText: { color: colors.neutral[50], fontWeight: '800', fontSize: 14, letterSpacing: 1 },
   secureText: {
     marginTop: spacing.sm,
     fontSize: 9,
     fontWeight: '600',
-    color: '#bfb5cc',
+    color: 'rgba(33, 29, 25, 0.5)',
     letterSpacing: 0.2,
   },
 });
-

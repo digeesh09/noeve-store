@@ -40,7 +40,7 @@ export default function HomeScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.brand.accent} size="large" />
+        <ActivityIndicator color={colors.brand.primary} size="large" />
       </View>
     );
   }
@@ -101,9 +101,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: '#210b38' },
+  scroll: { flex: 1, backgroundColor: colors.neutral[50] },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#210b38' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.neutral[50] },
   brandRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -111,8 +111,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     paddingTop: spacing.sm,
   },
-  logo: { fontSize: 28, fontWeight: '700', color: colors.brand.accent, letterSpacing: 0.5 },
-  bagLink: { fontSize: 14, fontWeight: '600', color: colors.brand.accent },
+  logo: { fontSize: 28, fontWeight: '700', color: colors.brand.primary, letterSpacing: 0.5 },
+  bagLink: { fontSize: 14, fontWeight: '600', color: colors.brand.primary },
   section: { marginTop: spacing.xl },
   sectionHead: {
     flexDirection: 'row',
@@ -120,21 +120,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#fff' },
-  sectionLink: { fontSize: 13, fontWeight: '600', color: colors.brand.accent },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: colors.neutral.ink },
+  sectionLink: { fontSize: 13, fontWeight: '600', color: colors.brand.primary },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   collectionCard: {
     width: 140,
     marginRight: spacing.sm,
-    backgroundColor: '#2d144a',
-    borderRadius: 12,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 8,
     padding: spacing.md,
     minHeight: 100,
     justifyContent: 'flex-end',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.15)',
+    borderColor: 'rgba(33, 29, 25, 0.08)',
   },
-  collectionLabel: { fontSize: 10, fontWeight: '600', color: colors.brand.accent, opacity: 0.75 },
-  collectionName: { fontSize: 16, fontWeight: '700', color: '#fff', marginTop: 4 },
+  collectionLabel: { fontSize: 10, fontWeight: '600', color: colors.brand.primary, opacity: 0.75 },
+  collectionName: { fontSize: 16, fontWeight: '700', color: colors.neutral.ink, marginTop: 4 },
 });
-

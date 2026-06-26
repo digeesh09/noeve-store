@@ -1,3 +1,4 @@
+
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { colors, spacing } from '@noeve/ui-tokens';
@@ -45,12 +46,19 @@ export function ProductCard({ product, width = '48%' }: ProductCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { marginBottom: spacing.md, padding: 6, backgroundColor: '#2d144a', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.1)' },
+  card: {
+    marginBottom: spacing.md,
+    padding: 6,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(33, 29, 25, 0.08)',
+  },
   imageWrap: {
     aspectRatio: 4 / 5,
-    borderRadius: 12,
+    borderRadius: 6,
     overflow: 'hidden',
-    backgroundColor: '#311456',
+    backgroundColor: colors.neutral.stone,
   },
   image: { width: '100%', height: '100%' },
   placeholder: {
@@ -63,20 +71,37 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     left: 8,
-    backgroundColor: colors.brand.accent,
+    backgroundColor: colors.neutral.cream,
+    borderWidth: 1,
+    borderColor: colors.brand.accent,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 10,
   },
-  badgeText: { fontSize: 9, fontWeight: '700', color: colors.brand.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: colors.neutral.ink,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   name: {
     marginTop: spacing.sm,
     fontSize: 13,
     fontWeight: '600',
-    color: '#fff',
+    color: colors.neutral.ink,
     paddingHorizontal: 4,
   },
-  meta: { marginTop: 2, fontSize: 10, color: '#bfb5cc', paddingHorizontal: 4 },
-  price: { marginTop: 4, fontSize: 13, fontWeight: '700', color: colors.brand.accent, paddingHorizontal: 4 },
+  meta: {
+    marginTop: 2,
+    fontSize: 10,
+    color: 'rgba(33, 29, 25, 0.6)',
+    paddingHorizontal: 4,
+  },
+  price: {
+    marginTop: 4,
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.brand.primary,
+    paddingHorizontal: 4,
+  },
 });
-

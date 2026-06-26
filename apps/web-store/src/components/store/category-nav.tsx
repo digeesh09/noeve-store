@@ -27,8 +27,8 @@ export function CategoryNav({
             className="shrink-0 px-4 py-2 text-[0.82rem] font-medium uppercase tracking-[0.06em] transition-all duration-200"
             style={{
               borderRadius: '1px',
-              border: `1px solid ${isActive ? 'var(--burgundy)' : 'rgba(26,26,26,0.2)'}`,
-              background: isActive ? 'var(--burgundy)' : 'transparent',
+              border: `1px solid ${isActive ? 'var(--oxblood)' : 'rgba(33,29,25,0.2)'}`,
+              background: isActive ? 'var(--oxblood)' : 'transparent',
               color: isActive ? 'var(--cream)' : 'var(--ink)',
             }}
           >

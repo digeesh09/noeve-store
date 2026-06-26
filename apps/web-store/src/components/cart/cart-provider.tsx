@@ -23,7 +23,7 @@ interface CartContextValue {
   cart: Cart;
   loading: boolean;
   refresh: () => Promise<void>;
-  addItem: (productId: string, variantId?: string) => Promise<void>;
+  addItem: (productId: string, variantId?: string, quantity?: number) => Promise<void>;
   updateQuantity: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
 }
@@ -52,8 +52,8 @@ export function CartProvider({ children }: { children: ReactNode }): React.JSX.E
     refresh().finally(() => setLoading(false));
   }, [refresh]);
 
-  const addItem = useCallback(async (productId: string, variantId?: string) => {
-    const data = await apiAdd(productId, variantId, 1);
+  const addItem = useCallback(async (productId: string, variantId?: string, quantity = 1) => {
+    const data = await apiAdd(productId, variantId, quantity);
     setCart(data);
   }, []);
 

@@ -19,7 +19,7 @@ export default function CartScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.brand.accent} size="large" />
+        <ActivityIndicator color={colors.brand.primary} size="large" />
       </View>
     );
   }
@@ -59,14 +59,14 @@ export default function CartScreen() {
                 onPress={() => updateQuantity(line.id, line.quantity - 1)}
                 disabled={line.quantity <= 1}
               >
-                <Text>−</Text>
+                <Text style={styles.qtyBtnChar}>−</Text>
               </Pressable>
               <Text style={styles.qty}>{line.quantity}</Text>
               <Pressable
                 style={styles.qtyBtn}
                 onPress={() => updateQuantity(line.id, line.quantity + 1)}
               >
-                <Text>+</Text>
+                <Text style={styles.qtyBtnChar}>+</Text>
               </Pressable>
               <Pressable onPress={() => removeItem(line.id)} style={styles.remove}>
                 <Text style={styles.removeText}>Remove</Text>
@@ -93,18 +93,18 @@ export default function CartScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: spacing.lg, backgroundColor: colors.neutral[50] },
-  scroll: { flex: 1 },
+  scroll: { flex: 1, backgroundColor: colors.neutral[50] },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.neutral[50] },
   empty: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.neutral[200],
-    borderRadius: 16,
-    backgroundColor: '#fff',
+    borderColor: 'rgba(33, 29, 25, 0.15)',
+    borderRadius: 4,
+    backgroundColor: colors.neutral.cream,
     padding: spacing.xl,
     marginTop: spacing.md,
   },
@@ -115,54 +115,54 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand.primary,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
-    borderRadius: 24,
+    borderRadius: 4,
   },
-  ctaText: { color: '#fff', fontWeight: '700' },
+  ctaText: { color: colors.neutral[50], fontWeight: '700' },
   line: {
     flexDirection: 'row',
     gap: spacing.md,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: 'rgba(33, 29, 25, 0.08)',
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
-  thumb: { width: 72, height: 88, borderRadius: 8 },
-  thumbPlaceholder: { backgroundColor: colors.brand.accentLight },
+  thumb: { width: 72, height: 88, borderRadius: 2 },
+  thumbPlaceholder: { backgroundColor: colors.neutral.stone },
   lineBody: { flex: 1 },
-  lineName: { fontWeight: '600', color: colors.brand.primary },
-  linePrice: { marginTop: 4, fontWeight: '700' },
+  lineName: { fontWeight: '600', color: colors.neutral.ink },
+  linePrice: { marginTop: 4, fontWeight: '700', color: colors.brand.primary },
   qtyRow: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm, gap: spacing.sm },
   qtyBtn: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: 'rgba(33, 29, 25, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  qty: { fontWeight: '600', minWidth: 24, textAlign: 'center' },
+  qtyBtnChar: { color: colors.neutral.ink, fontSize: 15 },
+  qty: { fontWeight: '600', minWidth: 24, textAlign: 'center', color: colors.neutral.ink },
   remove: { marginLeft: 'auto' },
-  removeText: { fontSize: 12, color: colors.neutral[800] },
+  removeText: { fontSize: 12, color: 'rgba(33, 29, 25, 0.6)', textDecorationLine: 'underline' },
   summary: {
     marginTop: spacing.lg,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 4,
     padding: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: 'rgba(33, 29, 25, 0.08)',
   },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.md },
-  summaryLabel: { color: colors.neutral[800] },
-  summaryValue: { fontWeight: '700', fontSize: 16 },
+  summaryLabel: { color: colors.neutral.ink },
+  summaryValue: { fontWeight: '700', fontSize: 16, color: colors.brand.primary },
   checkout: {
-    backgroundColor: colors.brand.accent,
-    borderRadius: 24,
+    backgroundColor: colors.brand.primary,
+    borderRadius: 4,
     paddingVertical: spacing.md,
     alignItems: 'center',
   },
-  checkoutText: { fontWeight: '700', color: colors.brand.primary },
-  hint: { marginTop: spacing.sm, textAlign: 'center', fontSize: 11, color: colors.neutral[800] },
+  checkoutText: { fontWeight: '700', color: colors.neutral[50] },
 });

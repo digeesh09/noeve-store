@@ -48,7 +48,7 @@ export default function AccountScreen() {
           <TextInput
             style={styles.input}
             placeholder="you@example.com"
-            placeholderTextColor={colors.neutral[800]}
+            placeholderTextColor="rgba(33, 29, 25, 0.4)"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -58,7 +58,7 @@ export default function AccountScreen() {
           <TextInput
             style={styles.input}
             placeholder="••••••••"
-            placeholderTextColor={colors.neutral[800]}
+            placeholderTextColor="rgba(33, 29, 25, 0.4)"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -66,11 +66,11 @@ export default function AccountScreen() {
           <Pressable style={styles.btn} onPress={handleLogin} disabled={isLoading}>
             <Text style={styles.btnText}>{isLoading ? 'Signing in...' : 'Sign in'}</Text>
           </Pressable>
-          <Text style={styles.hint}>New to Noeve? Create an account (coming soon)</Text>
+          <Text style={styles.hint}>Demo: customer@noeve.local / Customer123!</Text>
         </View>
       ) : (
         <View style={styles.form}>
-          <Text style={styles.label}>Signed in</Text>
+          <Text style={styles.label}>Signed in as Member</Text>
           <Pressable style={styles.btn} onPress={logout}>
             <Text style={styles.btnText}>Sign out</Text>
           </Pressable>
@@ -101,42 +101,42 @@ export default function AccountScreen() {
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1 },
+  scroll: { flex: 1, backgroundColor: colors.neutral[50] },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
   form: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: 'rgba(33, 29, 25, 0.08)',
     padding: spacing.lg,
   },
-  label: { fontSize: 13, fontWeight: '600', color: colors.neutral[800] },
+  label: { fontSize: 13, fontWeight: '600', color: colors.neutral.ink },
   input: {
     marginTop: spacing.xs,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
-    borderRadius: 10,
+    borderColor: 'rgba(33, 29, 25, 0.12)',
+    borderRadius: 4,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
     fontSize: 15,
-    color: colors.brand.primary,
+    color: colors.neutral.ink,
   },
   btn: {
     marginTop: spacing.lg,
     backgroundColor: colors.brand.primary,
-    borderRadius: 24,
+    borderRadius: 4,
     paddingVertical: spacing.md,
     alignItems: 'center',
   },
-  btnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  hint: { marginTop: spacing.md, textAlign: 'center', fontSize: 12, color: colors.neutral[800] },
+  btnText: { color: colors.neutral[50], fontWeight: '700', fontSize: 15 },
+  hint: { marginTop: spacing.md, textAlign: 'center', fontSize: 12, color: 'rgba(33, 29, 25, 0.5)' },
   ordersCard: {
     marginTop: spacing.lg,
     backgroundColor: colors.brand.primary,
-    borderRadius: 16,
+    borderRadius: 4,
     padding: spacing.lg,
   },
-  ordersTitle: { fontSize: 18, fontWeight: '700', color: '#fff' },
+  ordersTitle: { fontSize: 18, fontWeight: '700', color: colors.neutral[50] },
   ordersSub: { marginTop: spacing.xs, fontSize: 13, color: 'rgba(255,255,255,0.7)' },
   ordersLink: { marginTop: spacing.md, fontSize: 14, fontWeight: '600', color: colors.brand.accent },
   perk: {
@@ -144,14 +144,14 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     marginTop: spacing.md,
     padding: spacing.md,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: colors.neutral.cream,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
+    borderColor: 'rgba(33, 29, 25, 0.08)',
   },
   perkN: { fontSize: 14, fontWeight: '700', color: colors.brand.accent },
   perkBody: { flex: 1 },
-  perkTitle: { fontWeight: '700', color: colors.brand.primary },
-  perkDesc: { marginTop: 2, fontSize: 13, color: colors.neutral[800] },
-  errorText: { color: 'red', marginBottom: spacing.sm, fontSize: 13, textAlign: 'center' },
+  perkTitle: { fontWeight: '700', color: colors.neutral.ink },
+  perkDesc: { marginTop: 2, fontSize: 13, color: 'rgba(33, 29, 25, 0.6)' },
+  errorText: { color: colors.brand.primary, marginBottom: spacing.sm, fontSize: 13, textAlign: 'center' },
 });

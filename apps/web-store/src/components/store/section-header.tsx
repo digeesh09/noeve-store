@@ -17,8 +17,8 @@ export function SectionHeader({
   return (
     <div className="flex items-end justify-between gap-4">
       <div>
-        <h2 className="font-serif text-2xl font-semibold text-brand-primary md:text-3xl">{title}</h2>
-        {subtitle ? <p className="mt-1 text-sm text-neutral-600">{subtitle}</p> : null}
+        <h2 className="font-display text-[clamp(1.9rem,3.4vw,2.6rem)]">{title}</h2>
+        {subtitle ? <p className="mt-1 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-brand-primary">{subtitle}</p> : null}
       </div>
       {href ? (
         <Link href={href} className="shrink-0 text-sm font-medium text-brand-accent hover:underline">

@@ -16,8 +16,8 @@ export function AddToCartSection({ productId, variantId }: AddToCartSectionProps
         type="button"
         className="flex w-full items-center justify-center gap-2 px-8 py-4 text-[0.85rem] font-semibold uppercase tracking-[0.05em] transition-all duration-300 hover:-translate-y-0.5"
         style={{
-          border: '1px solid var(--gold)',
-          color: 'var(--burgundy)',
+          border: '1px solid var(--champagne)',
+          color: 'var(--oxblood)',
           background: 'transparent',
           borderRadius: '1px',
         }}

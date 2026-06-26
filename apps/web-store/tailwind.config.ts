@@ -6,20 +6,20 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          primary: '#5a0014',
-          'primary-dark': '#36000c',
-          accent: '#cbb36b',
-          'accent-light': '#e4d6a7',
+          primary: 'var(--oxblood)',
+          'primary-dark': 'var(--burgundy-dark)',
+          accent: 'var(--champagne)',
+          'accent-light': 'var(--gold-light)',
         },
         cream: {
-          DEFAULT: '#fdfbf4',
-          deep: '#f5f0df',
-          darker: '#ebdcc0',
+          DEFAULT: 'var(--cream)',
+          deep: 'var(--bone)',
+          darker: 'var(--stone)',
         },
         ink: {
-          DEFAULT: '#1a1a1a',
-          muted: 'rgba(26,26,26,0.65)',
-          faint: 'rgba(26,26,26,0.4)',
+          DEFAULT: 'var(--ink)',
+          muted: 'var(--ink-muted)',
+          faint: 'var(--ink-faint)',
         },
       },
       fontFamily: {

@@ -9,19 +9,17 @@ interface ProductGridProps {
 export function ProductGrid({ products }: ProductGridProps): React.JSX.Element {
   if (products.length === 0) {
     return (
-      <p className="py-16 text-center text-neutral-500">
+      <p style={{ padding: '4rem 0', textAlign: 'center', color: 'rgba(33,29,25,0.5)' }}>
         No pieces in this collection yet. Check back soon.
       </p>
     );
   }
 
   return (
-    <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+    <div className="related__grid">
       {products.map((product, i) => (
-        <li key={product.id}>
-          <ProductCard product={product} priority={i < 4} />
-        </li>
+        <ProductCard key={product.id} product={product} priority={i < 4} />
       ))}
-    </ul>
+    </div>
   );
 }

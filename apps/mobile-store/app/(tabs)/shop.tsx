@@ -43,7 +43,7 @@ export default function ShopScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.brand.accent} size="large" />
+        <ActivityIndicator color={colors.brand.primary} size="large" />
       </View>
     );
   }
@@ -57,7 +57,7 @@ export default function ShopScreen() {
       <ScreenHeader
         eyebrow="Catalogue"
         title={categoryName ?? 'All pieces'}
-        subtitle="Fine jewellery, pendants & care accessories"
+        subtitle="Considered apparel, beauty and home objects — for the woman who buys once, and buys well."
       />
 
       <CategoryChips
@@ -84,10 +84,10 @@ export default function ShopScreen() {
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1 },
+  scroll: { flex: 1, backgroundColor: colors.neutral[50] },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  count: { marginTop: spacing.sm, marginBottom: spacing.md, fontSize: 13, color: colors.neutral[800] },
-  empty: { textAlign: 'center', color: colors.neutral[800], marginTop: spacing.xl },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.neutral[50] },
+  count: { marginTop: spacing.sm, marginBottom: spacing.md, fontSize: 13, color: 'rgba(33, 29, 25, 0.6)' },
+  empty: { textAlign: 'center', color: 'rgba(33, 29, 25, 0.6)', marginTop: spacing.xl },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
 });

@@ -1,6 +1,7 @@
+import React from 'react';
+import Link from 'next/link';
 import { CategoryNav } from '@/components/store/category-nav';
 import { ProductGrid } from '@/components/store/product-grid';
-import React from 'react';
 import { filterByCategory, getCategories, getProducts } from '@/lib/api';
 
 interface ShopPageProps {
@@ -14,35 +15,33 @@ export default async function ShopPage({ searchParams }: ShopPageProps): Promise
   const activeCategory = categories.find((c) => c.slug === categorySlug);
 
   return (
-    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(1.5rem,5vw,4.5rem)', paddingBottom: '5rem' }}>
+    <div className="wrap" style={{ paddingBottom: '5rem' }}>
       {/* Breadcrumb */}
-      <nav style={{ display: 'flex', gap: '0.5em', alignItems: 'center', padding: '1.6rem 0 0', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem', letterSpacing: '0.07em', textTransform: 'uppercase', color: 'rgba(26,26,26,0.5)' }}>
-        <a href="/" style={{ color: 'inherit' }}>Home</a>
-        <span style={{ opacity: 0.5 }}>/</span>
-        <span style={{ color: '#1a1a1a' }}>Shop</span>
+      <nav className="breadcrumb">
+        <Link href="/">Home</Link>
+        <span>/</span>
+        <span style={{ color: 'var(--ink)' }}>Shop</span>
         {activeCategory && (
           <>
-            <span style={{ opacity: 0.5 }}>/</span>
-            <span style={{ color: '#1a1a1a' }}>{activeCategory.name}</span>
+            <span>/</span>
+            <span style={{ color: 'var(--ink)' }}>{activeCategory.name}</span>
           </>
         )}
       </nav>
 
       {/* Page head */}
-      <div style={{ padding: '1.2rem 0 2.5rem' }}>
-        <p style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#5a0014', marginBottom: '0.4rem' }}>
+      <div className="page-head">
+        <p className="eyebrow">
           {filtered.length} {filtered.length === 1 ? 'piece' : 'pieces'}
         </p>
-        <h1 style={{ fontFamily: '"Libre Caslon Display", serif', fontSize: 'clamp(2.2rem,4.5vw,3.1rem)', color: '#5a0014', marginTop: '0.4rem' }}>
-          {activeCategory ? activeCategory.name : 'All Pieces'}
-        </h1>
-        <p style={{ marginTop: '0.5rem', color: 'rgba(26,26,26,0.65)', fontSize: '0.95rem' }}>
-          {activeCategory?.description ?? 'Fine jewellery, elegant pendants, and ladies care accessories.'}
+        <h1>{activeCategory ? activeCategory.name : 'All Pieces'}</h1>
+        <p className="sub">
+          {activeCategory?.description ?? 'Fine apparel, elegant objects, and organic beauty formulas.'}
         </p>
       </div>
 
       {/* Category nav */}
-      <div style={{ marginBottom: '2rem' }}>
+      <div style={{ marginBottom: '2.5rem' }}>
         <CategoryNav categories={categories} activeSlug={categorySlug} />
       </div>
 

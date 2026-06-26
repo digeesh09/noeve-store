@@ -1,23 +1,29 @@
-/** Noeve brand design tokens — purple & gold theme */
+/** Noeve brand design tokens — reference design theme */
 export const colors = {
   brand: {
-    primary: '#5a0014',
-    primaryDark: '#36000c',
-    accent: '#cbb36b',
-    accentLight: '#e4d6a7',
-    accentGold: '#cbb36b',
+    primary: '#6B2230',       // oxblood
+    primaryDark: '#211D19',   // ink
+    accent: '#B89B6E',        // champagne
+    accentLight: '#F6F1E8',   // cream
+    accentGold: '#B89B6E',
   },
   neutral: {
-    50: '#fdfbf4',
-    100: '#f5f0df',
-    200: '#ebdcc0',
-    800: '#262626',
+    bone: '#E9E3D8',
+    stone: '#DCD3C2',
+    ink: '#211D19',
+    oxblood: '#6B2230',
+    champagne: '#B89B6E',
+    cream: '#F6F1E8',
+    50: '#F6F1E8',
+    100: '#DCD3C2',
+    200: '#E9E3D8',
+    800: '#211D19',
     900: '#000000',
   },
   semantic: {
     success: '#16a34a',
-    error: '#dc2626',
-    warning: '#ca8a04',
+    error: '#6B2230',
+    warning: '#B89B6E',
   },
 } as const;
 
@@ -32,8 +38,10 @@ export const spacing = {
 
 export const typography = {
   fontFamily: {
-    sans: 'Inter, system-ui, sans-serif',
-    serif: 'Cormorant Garamond, Georgia, serif',
+    sans: 'Public Sans, system-ui, sans-serif',
+    serif: 'Libre Caslon Text, Georgia, serif',
+    display: 'Libre Caslon Display, serif',
+    mono: 'JetBrains Mono, monospace',
   },
   fontSize: {
     sm: 14,

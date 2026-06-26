@@ -14,46 +14,35 @@ export function HeroBanner({ compact }: HeroBannerProps): React.JSX.Element {
       {/* Text side */}
       <div>
         {/* Rotating tag */}
-        <span
-          className="mb-6 inline-flex items-center gap-2 border px-3 py-1 text-[0.7rem] font-medium uppercase tracking-[0.1em]"
-          style={{
-            background: 'var(--cream)',
-            borderColor: 'var(--gold)',
-            color: 'var(--ink)',
-            transform: 'rotate(-2deg)',
-            display: 'inline-block',
-          }}
-        >
+        <span className="tag mb-6">
           New Collection
         </span>
 
         <h1
-          className={`font-display leading-[1.04] tracking-tight text-brand-primary ${compact ? 'text-3xl md:text-4xl' : 'text-5xl md:text-6xl lg:text-7xl'}`}
+          className="font-display leading-[1.04] tracking-tight mb-6 mt-4"
+          style={{ fontSize: compact ? 'clamp(2rem, 4vw, 3rem)' : 'clamp(2.6rem, 6.2vw, 5.1rem)' }}
         >
           Fewer pieces.<br />
-          <em className="not-italic" style={{ color: 'var(--gold)' }}>Finer ones.</em>
+          Finer <em className="italic text-brand-primary">ones.</em>
         </h1>
 
         <p
-          className={`mt-6 leading-relaxed ${compact ? 'text-sm max-w-sm' : 'text-lg max-w-[34ch]'}`}
-          style={{ color: 'rgba(26,26,26,0.72)', marginBottom: '2.2rem' }}
+          className="leading-relaxed"
+          style={{ 
+            color: 'rgba(33,29,25,0.78)', 
+            marginBottom: '2.2rem', 
+            maxWidth: compact ? '30ch' : '34ch', 
+            fontSize: compact ? '0.95rem' : '1.08rem' 
+          }}
         >
           Effortless elegance in every piece — fine jewellery, pendants, and ladies accessories crafted for everyday radiance.
         </p>
 
         <div className="flex flex-wrap gap-4">
-          <Link
-            href="/shop"
-            className="inline-flex items-center gap-2 border-none px-8 py-4 text-[0.85rem] font-semibold uppercase tracking-[0.05em] transition-all duration-300 hover:-translate-y-0.5"
-            style={{ background: 'var(--burgundy)', color: 'var(--cream)', borderRadius: '1px' }}
-          >
+          <Link href="/shop" className="btn btn--primary">
             Shop the Collection
           </Link>
-          <Link
-            href="/shop?category=jewellery"
-            className="inline-flex items-center gap-2 px-8 py-4 text-[0.85rem] font-semibold uppercase tracking-[0.05em] transition-all duration-300 hover:-translate-y-0.5 hover:bg-ink hover:text-cream-DEFAULT"
-            style={{ border: '1px solid var(--ink)', color: 'var(--ink)', borderRadius: '1px' }}
-          >
+          <Link href="/shop?category=jewellery" className="btn btn--outline">
             Explore Categories
           </Link>
         </div>
@@ -63,26 +52,10 @@ export function HeroBanner({ compact }: HeroBannerProps): React.JSX.Element {
       {!compact && (
         <div className="relative hidden md:block" aria-hidden="true">
           {/* Floating tag */}
-          <span
-            className="absolute left-[-6%] top-[6%] z-10 inline-block border px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.1em]"
-            style={{
-              background: 'var(--cream-deep)',
-              borderColor: 'var(--gold)',
-              color: 'var(--ink)',
-              transform: 'rotate(-3deg)',
-            }}
-          >
+          <span className="tag absolute left-[-6%] top-[6%] z-10">
             Handcrafted
           </span>
-          <span
-            className="absolute bottom-[8%] right-[-4%] z-10 inline-block border px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.1em]"
-            style={{
-              background: 'var(--cream-deep)',
-              borderColor: 'var(--gold)',
-              color: 'var(--ink)',
-              transform: 'rotate(3deg)',
-            }}
-          >
+          <span className="tag absolute bottom-[8%] right-[-4%] z-10">
             No. 01 — Signature Edit
           </span>
 
@@ -90,16 +63,16 @@ export function HeroBanner({ compact }: HeroBannerProps): React.JSX.Element {
           <svg viewBox="0 0 560 660" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-lg">
             <defs>
               <linearGradient id="jg1" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#e4d6a7"/>
-                <stop offset="100%" stopColor="#cbb36b"/>
+                <stop offset="0%" stopColor="#DCD3C2"/>
+                <stop offset="100%" stopColor="#B89B6E"/>
               </linearGradient>
               <linearGradient id="jg2" x1="1" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fdfbf4"/>
-                <stop offset="100%" stopColor="#ebdcc0"/>
+                <stop offset="0%" stopColor="#F6F1E8"/>
+                <stop offset="100%" stopColor="#DCD3C2"/>
               </linearGradient>
               <linearGradient id="jg3" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0%" stopColor="#5a0014"/>
-                <stop offset="100%" stopColor="#8a1a30"/>
+                <stop offset="0%" stopColor="#6B2230"/>
+                <stop offset="100%" stopColor="#8a3744"/>
               </linearGradient>
             </defs>
             <path d="M60 40 C200 10, 380 90, 420 230 C460 370, 320 420, 260 540 C220 620, 140 640, 90 600 C30 555, 80 470, 150 420 C230 365, 250 280, 190 210 C130 140, 20 120, 60 40 Z" fill="url(#jg1)"/>

@@ -21,13 +21,13 @@ export function CartView(): React.JSX.Element {
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-accent-light/50 text-2xl">
           ✦
         </div>
-        <p className="mt-6 font-medium text-brand-primary">Your bag is empty</p>
+        <p className="mt-6 font-medium text-ink">Your bag is empty</p>
         <p className="mt-2 max-w-sm text-sm text-neutral-500">
           Discover pendants, fine jewellery, and care accessories from our collection.
         </p>
         <Link
           href="/shop"
-          className="mt-8 rounded-full border-2 border-brand-accent bg-transparent px-8 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent/10"
+          className="btn btn--outline mt-8"
         >
           Continue shopping
         </Link>
@@ -64,7 +64,7 @@ export function CartView(): React.JSX.Element {
             <div className="flex flex-1 flex-col">
               <Link
                 href={`/shop/${line.productSlug}`}
-                className="font-medium text-brand-primary hover:text-brand-accent"
+                className="font-serif italic text-lg hover:opacity-80"
               >
                 {line.productName}
               </Link>
@@ -106,7 +106,7 @@ export function CartView(): React.JSX.Element {
       </ul>
 
       <aside className="h-fit rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
-        <h2 className="font-serif text-lg font-semibold text-brand-primary">Order summary</h2>
+        <h2 className="font-display text-xl">Order summary</h2>
         <dl className="mt-4 space-y-2 text-sm">
           <div className="flex justify-between">
             <dt className="text-neutral-600">Subtotal ({cart.itemCount} items)</dt>
@@ -123,7 +123,7 @@ export function CartView(): React.JSX.Element {
         </div>
         <Link
           href={cart.lines.length > 0 ? '/checkout' : '/shop'}
-          className="mt-6 block w-full rounded-full bg-brand-accent py-3 text-center text-sm font-bold text-brand-primary hover:opacity-90"
+          className="btn btn--primary mt-6 w-full"
         >
           Proceed to checkout
         </Link>

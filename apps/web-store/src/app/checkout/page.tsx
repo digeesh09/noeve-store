@@ -37,110 +37,162 @@ export default function CheckoutPage(): React.JSX.Element {
   };
 
   if (!isLoggedIn()) {
-    return <p className="py-12 text-center text-neutral-500">Redirecting to sign in…</p>;
+    return (
+      <div className="wrap" style={{ padding: '6rem 0', textAlign: 'center' }}>
+        <p style={{ color: 'rgba(33,29,25,0.5)' }}>Redirecting to sign in…</p>
+      </div>
+    );
   }
 
   if (success) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-accent-light text-2xl text-brand-accent">
-          ✓
-        </div>
-        <h1 className="mt-6 font-serif text-2xl font-semibold text-brand-primary">Order confirmed</h1>
-        <p className="mt-2 text-neutral-600">
-          Thank you for your purchase. Your order <strong>{success}</strong> has been placed.
-        </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link
-            href="/account"
-            className="rounded-full border-2 border-brand-accent bg-transparent px-8 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent/10"
-          >
-            View orders
-          </Link>
-          <Link
-            href="/shop"
-            className="rounded-full border-2 border-brand-accent px-8 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent/10"
-          >
-            Continue shopping
-          </Link>
+      <div className="wrap" style={{ padding: '6rem 0', textAlign: 'center' }}>
+        <div className="auth__success is-visible">
+          <div className="auth__success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+          <h2>Order confirmed</h2>
+          <p>
+            Thank you for your purchase. Your order <strong>{success}</strong> has been placed.
+          </p>
+          <div className="auth__success-actions">
+            <Link href="/account" className="btn btn--primary">
+              View orders
+            </Link>
+            <Link href="/shop" className="btn btn--outline">
+              Continue shopping
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   if (loading) {
-    return <p className="py-12 text-center text-neutral-500">Loading checkout…</p>;
+    return (
+      <div className="wrap" style={{ padding: '6rem 0', textAlign: 'center' }}>
+        <p style={{ color: 'rgba(33,29,25,0.5)' }}>Loading checkout…</p>
+      </div>
+    );
   }
 
   if (cart.lines.length === 0) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <h1 className="font-serif text-2xl font-semibold text-brand-primary">Your bag is empty</h1>
-        <p className="mt-2 text-neutral-600">Add items before checking out.</p>
-        <Link
-          href="/shop"
-          className="mt-6 inline-block rounded-full border-2 border-brand-accent bg-transparent px-8 py-3 text-sm font-semibold text-brand-primary hover:bg-brand-accent/10"
-        >
-          Browse collection
-        </Link>
+      <div className="wrap" style={{ padding: '6rem 0', textAlign: 'center' }}>
+        <div className="auth__success is-visible">
+          <h2>Your bag is empty</h2>
+          <p>Add items before checking out.</p>
+          <div className="auth__success-actions">
+            <Link href="/shop" className="btn btn--primary">
+              Browse collection
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
-      <p className="text-xs font-semibold uppercase tracking-widest text-brand-accent">Checkout</p>
-      <h1 className="mt-2 font-serif text-3xl font-semibold text-brand-primary">Complete your order</h1>
-      <p className="mt-2 text-neutral-600">
-        Payment integration coming soon — orders are confirmed immediately for demo purposes.
-      </p>
+    <div className="wrap">
+      {/* Breadcrumb */}
+      <nav className="breadcrumb">
+        <Link href="/">Home</Link>
+        <span>/</span>
+        <Link href="/cart">Your Bag</Link>
+        <span>/</span>
+        <span style={{ color: 'var(--ink)' }}>Checkout</span>
+      </nav>
 
-      <div className="mt-8 space-y-4 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-        <h2 className="font-serif text-lg font-semibold text-brand-primary">Order summary</h2>
-        <ul className="divide-y divide-neutral-100">
-          {cart.lines.map((line) => (
-            <li key={line.id} className="flex justify-between py-3 text-sm">
-              <span>
-                {line.productName} × {line.quantity}
-              </span>
-              <span className="font-medium">{formatPrice(line.lineTotalCents, line.currency)}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="flex justify-between border-t border-neutral-200 pt-4 font-semibold">
-          <span>Total</span>
-          <span className="text-brand-accent">{formatPrice(cart.subtotalCents, cart.currency)}</span>
+      {/* Page Head */}
+      <div className="page-head">
+        <p className="eyebrow">Secure Checkout</p>
+        <h1>Complete your order</h1>
+        <p className="sub">
+          Payment integration coming soon — orders are confirmed immediately for demo purposes.
+        </p>
+      </div>
+
+      <div className="cart-layout">
+        <div>
+          {/* Order Details form fields */}
+          <div className="section-card" style={{ background: 'var(--cream)', border: '1px solid rgba(33,29,25,.1)', borderRadius: '2px', padding: '2rem' }}>
+            <h2 style={{ fontFamily: 'var(--display)', fontSize: '1.6rem', marginBottom: '1rem' }}>Shipping Details</h2>
+            <p style={{ fontSize: '.88rem', color: 'rgba(33,29,25,.65)', marginBottom: '1.5rem' }}>
+              Your order will be shipped to the default address linked to your account.
+            </p>
+            <div className="form-field">
+              <label htmlFor="note">Order note (optional)</label>
+              <textarea
+                id="note"
+                rows={3}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Gift message, delivery instructions…"
+                style={{
+                  width: '100%',
+                  border: '1px solid rgba(33,29,25,.25)',
+                  background: 'transparent',
+                  padding: '.85em 1em',
+                  fontSize: '.95rem',
+                  color: 'var(--ink)',
+                  outline: 'none',
+                  borderRadius: '1px',
+                  fontFamily: 'inherit',
+                }}
+              />
+            </div>
+          </div>
         </div>
+
+        {/* Sidebar Summary */}
+        <aside className="summary">
+          <h3>Order summary</h3>
+          <div className="summary__items" style={{ marginBottom: '1.5rem' }}>
+            {cart.lines.map((line) => (
+              <div
+                key={line.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '.85rem',
+                  padding: '.6rem 0',
+                  borderBottom: '1px solid rgba(33,29,25,.1)',
+                }}
+              >
+                <span style={{ color: 'rgba(33,29,25,.8)' }}>
+                  {line.productName} <span style={{ fontFamily: 'var(--mono)', fontSize: '.76rem' }}>× {line.quantity}</span>
+                </span>
+                <span style={{ fontFamily: 'var(--mono)', fontWeight: 500 }}>
+                  {formatPrice(line.lineTotalCents, line.currency)}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="summary__row summary__row--total">
+            <span>Total</span>
+            <span>{formatPrice(cart.subtotalCents, cart.currency)}</span>
+          </div>
+
+          {error && <p style={{ fontSize: '.76rem', color: 'var(--oxblood)', marginBottom: '1rem' }}>{error}</p>}
+
+          <button
+            type="button"
+            disabled={submitting}
+            onClick={handlePlaceOrder}
+            className="btn btn--primary"
+            style={{ width: '100%' }}
+          >
+            {submitting ? 'Placing order…' : 'Place order'}
+          </button>
+
+          <Link href="/cart" style={{ display: 'block', textAlign: 'center', marginTop: '1.2rem', fontSize: '.8rem', textDecoration: 'underline' }}>
+            ← Back to bag
+          </Link>
+        </aside>
       </div>
-
-      <div className="mt-6">
-        <label htmlFor="note" className="block text-sm font-medium text-neutral-700">
-          Order note (optional)
-        </label>
-        <textarea
-          id="note"
-          rows={3}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Gift message, delivery instructions…"
-          className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none ring-brand-accent focus:ring-2"
-        />
-      </div>
-
-      {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
-
-      <button
-        type="button"
-        disabled={submitting}
-        onClick={handlePlaceOrder}
-        className="mt-6 w-full rounded-full bg-brand-accent py-3.5 text-sm font-bold text-brand-primary hover:opacity-90 disabled:opacity-60"
-      >
-        {submitting ? 'Placing order…' : 'Place order'}
-      </button>
-
-      <Link href="/cart" className="mt-4 block text-center text-sm text-neutral-500 hover:text-brand-primary">
-        ← Back to bag
-      </Link>
     </div>
   );
 }
