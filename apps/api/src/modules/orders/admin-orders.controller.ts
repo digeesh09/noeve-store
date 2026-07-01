@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { OrderStatus, UserRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -37,5 +37,24 @@ export class AdminOrdersController {
       body.trackingNumber,
       body.carrier,
     );
+  }
+
+  // --- PROMOTIONS ---
+  @Get('promotions')
+  @Roles(UserRole.ADMIN)
+  listPromotions() {
+    return this.orders.listPromotions();
+  }
+
+  @Post('promotions')
+  @Roles(UserRole.ADMIN)
+  createPromotion(@Body() body: { code: string; description?: string; discountPercentage?: number; discountCents?: number; minOrderValue?: number }) {
+    return this.orders.createPromotion(body);
+  }
+
+  @Delete('promotions/:id')
+  @Roles(UserRole.ADMIN)
+  deletePromotion(@Param('id') id: string) {
+    return this.orders.deletePromotion(id);
   }
 }

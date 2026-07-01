@@ -117,6 +117,10 @@ export class OrdersService {
       return result;
     });
 
+    // MOCK NOTIFICATION SYSTEM
+    // In a production system, you would push this to a queue or call an email/SMS provider
+    console.log(`[NOTIFICATION] Order ${updated.orderNumber} status changed to ${status}. Email sent to customer.`);
+
     return { data: updated };
   }
 
@@ -154,10 +158,19 @@ export class OrdersService {
     });
 
     const subtotalCents = lines.reduce((sum, l) => sum + l.lineTotalCents, 0);
-    const shippingCents = 0;
-    const taxCents = 0;
-    const totalCents = subtotalCents + shippingCents + taxCents;
     const currency = cart.lines[0]?.product.currency ?? 'INR';
+    
+    // Taxation & Shipping logic
+    const taxRate = 0.18; // 18% GST
+    const taxCents = Math.round(subtotalCents * taxRate);
+    
+    // Free shipping on orders over 15000 INR ($150 USD equivalent), otherwise 1000 INR
+    let shippingCents = 0;
+    if (subtotalCents < 1500000) { 
+      shippingCents = 100000; // $10 or 1000 INR flat rate
+    }
+
+    const totalCents = Math.max(0, subtotalCents + shippingCents + taxCents - ((input as any).discountCents || 0));
     const orderNumber = `NV-${Date.now().toString(36).toUpperCase()}`;
 
     const order = await this.prisma.$transaction(async (tx) => {
@@ -165,16 +178,18 @@ export class OrdersService {
         data: {
           orderNumber,
           userId,
-          status: OrderStatus.CONFIRMED,
+          status: OrderStatus.PENDING_PAYMENT,
           subtotalCents,
           shippingCents,
           taxCents,
+          discountCents: (input as any).discountCents || 0,
           totalCents,
           currency,
+          promotionCode: (input as any).promotionCode,
           lines: { create: lines },
           statusHistory: {
             create: {
-              status: OrderStatus.CONFIRMED,
+              status: OrderStatus.PENDING_PAYMENT,
               note: note ?? 'Order placed',
               createdBy: userId,
             },
@@ -198,5 +213,45 @@ export class OrdersService {
     });
 
     return { data: order };
+  }
+
+  // --- PROMOTIONS ---
+  async listPromotions() {
+    const promotions = await this.prisma.promotion.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    return { data: promotions };
+  }
+
+  async createPromotion(data: { code: string, description?: string, discountPercentage?: number, discountCents?: number, minOrderValue?: number }) {
+    const promo = await this.prisma.promotion.create({ data });
+    return { data: promo };
+  }
+
+  async deletePromotion(id: string) {
+    await this.prisma.promotion.delete({ where: { id } });
+    return { success: true };
+  }
+
+  async validatePromotion(code: string, cartTotalCents: number) {
+    const promo = await this.prisma.promotion.findUnique({ where: { code } });
+    if (!promo || !promo.isActive) {
+      throw new BadRequestException('Invalid or expired promotion code');
+    }
+    if (promo.expiresAt && promo.expiresAt < new Date()) {
+      throw new BadRequestException('Promotion has expired');
+    }
+    if (promo.minOrderValue > cartTotalCents) {
+      throw new BadRequestException(`Minimum order value is ${promo.minOrderValue / 100}`);
+    }
+    
+    let discount = 0;
+    if (promo.discountPercentage) {
+      discount = Math.round(cartTotalCents * (promo.discountPercentage / 100));
+    } else if (promo.discountCents) {
+      discount = promo.discountCents;
+    }
+    
+    return { data: { discountCents: discount, code: promo.code } };
   }
 }

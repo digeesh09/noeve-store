@@ -1,15 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { loginAdmin } from '@/lib/auth';
 
-export default function AdminLoginPage(): React.JSX.Element {
+function AdminLoginForm(): React.JSX.Element {
   const router = useRouter();
   const [email, setEmail] = useState('admin@noeve.local');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  React.useEffect(() => {
+    if (searchParams.get('session_expired') === 'true') {
+      setError('Your session has expired due to inactivity. Please log in again.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,5 +77,13 @@ export default function AdminLoginPage(): React.JSX.Element {
         <p className="mt-4 text-xs text-neutral-500">Demo: admin@noeve.local / Admin123!</p>
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage(): React.JSX.Element {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { useCart } from '@/components/cart/cart-provider';
 import { formatPrice } from '@/lib/format';
 import type { Product } from '@/lib/types';
+import { isLoggedIn } from '@/lib/auth';
+import { fetchWishlist, addToWishlist, removeFromWishlist } from '@/lib/wishlist';
+
 
 interface ProductDetailClientProps {
   product: Product;
@@ -28,9 +31,58 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
   const [showAddedMsg, setShowAddedMsg] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [inWishlist, setInWishlist] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center center', transform: 'scale(1)' });
 
-  const images = product.images || [];
-  const mainImage = images[0];
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomStyle({
+      transformOrigin: `${x}% ${y}%`,
+      transform: 'scale(2)'
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setZoomStyle({
+      transformOrigin: 'center center',
+      transform: 'scale(1)'
+    });
+  };
+
+  React.useEffect(() => {
+    if (isLoggedIn()) {
+      fetchWishlist().then(items => {
+        setInWishlist(items.some(item => item.productId === product.id));
+      }).catch(err => console.error(err));
+    }
+  }, [product.id]);
+
+  const handleWishlistToggle = async () => {
+    if (!isLoggedIn()) {
+      alert('Please sign in to save items to your wishlist.');
+      return;
+    }
+    setWishlistLoading(true);
+    try {
+      if (inWishlist) {
+        await removeFromWishlist(product.id);
+        setInWishlist(false);
+      } else {
+        await addToWishlist(product.id);
+        setInWishlist(true);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
+
+  const images = product.images?.length ? product.images : undefined;
+  const activeImage = images ? (images[activeThumb] || images[0]) : undefined;
 
   const handleAddToBag = async () => {
     setIsAdding(true);
@@ -67,27 +119,50 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
       <section className="pdp">
         {/* Gallery */}
         <div className="pdp__gallery">
-          <div
-            className="pdp__main-image"
-            style={{
-              background: activeThumb < FALLBACK_GALLERY_BGS.length ? FALLBACK_GALLERY_BGS[activeThumb] : FALLBACK_GALLERY_BGS[0],
-            }}
-          >
-            {mainImage && (
-              <Image
-                src={mainImage.url}
-                alt={mainImage.alt || product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-            )}
-            <span className="tag tag--accent">New Season</span>
-          </div>
+            <div
+              className="pdp__main-image"
+              style={{
+                background: images ? 'transparent' : (activeThumb < FALLBACK_GALLERY_BGS.length ? FALLBACK_GALLERY_BGS[activeThumb] : FALLBACK_GALLERY_BGS[0]),
+                position: 'relative',
+                overflow: 'hidden',
+                cursor: 'zoom-in',
+              }}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+            >
+              {activeImage && (
+                <div style={{ position: 'absolute', inset: 0, transition: 'transform 0.1s ease-out', ...zoomStyle, pointerEvents: 'none' }}>
+                  <Image
+                    src={activeImage.url}
+                    alt={activeImage.alt || product.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    priority
+                  />
+                </div>
+              )}
+              <span className="tag tag--accent" style={{ zIndex: 10 }}>New Season</span>
+            </div>
 
           <div className="pdp__thumbs">
-            {FALLBACK_GALLERY_BGS.map((bg, idx) => (
+            {images ? images.map((img, idx) => (
+              <button
+                key={idx}
+                className={`pdp__thumb ${activeThumb === idx ? 'is-active' : ''}`}
+                style={{ background: 'transparent', position: 'relative', overflow: 'hidden' }}
+                onClick={() => setActiveThumb(idx)}
+                aria-label={`View image ${idx + 1}`}
+              >
+                <Image
+                  src={img.url}
+                  alt={img.alt || `Thumbnail ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="100px"
+                />
+              </button>
+            )) : FALLBACK_GALLERY_BGS.map((bg, idx) => (
               <button
                 key={idx}
                 className={`pdp__thumb ${activeThumb === idx ? 'is-active' : ''}`}
@@ -177,9 +252,28 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
           </div>
 
           {/* Add Row */}
-          <div className="pdp__add-row">
-            <button className="btn btn--primary" onClick={handleAddToBag} disabled={isAdding}>
+          <div className="pdp__add-row" style={{ display: 'flex', gap: '1rem' }}>
+            <button className="btn btn--primary" onClick={handleAddToBag} disabled={isAdding} style={{ flexGrow: 1 }}>
               {isAdding ? 'Adding…' : `Add to Bag — ${formatPrice(product.basePriceCents * quantity, product.currency)}`}
+            </button>
+            <button
+              onClick={handleWishlistToggle}
+              disabled={wishlistLoading}
+              className="btn btn--outline"
+              style={{
+                width: '54px',
+                height: '54px',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}
+              title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={inWishlist ? 'var(--oxblood)' : 'none'} stroke={inWishlist ? 'var(--oxblood)' : 'currentColor'} strokeWidth="1.5">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
             </button>
           </div>
           <p className={`pdp__added-msg ${showAddedMsg ? 'is-visible' : ''}`} id="addedMsg">
@@ -191,7 +285,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               <rect x="3" y="7" width="18" height="13" rx="1" />
               <path d="M16 3v8M8 3v8" />
             </svg>
-            Free shipping on orders over $150 · 30-day returns
+            Free shipping on orders over ₹15,000 · 30-day returns
           </p>
 
           {/* Accordion */}
@@ -234,7 +328,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               </button>
               <div className="accordion__panel" style={{ maxHeight: openAccordion === 2 ? '120px' : '0' }}>
                 <div className="accordion__panel-inner">
-                  Dispatched within 1–2 business days. Free standard shipping on orders over $150. Unworn items may be returned within 30 days for a full refund.
+                  Dispatched within 1–2 business days. Free standard shipping on orders over ₹15,000. Unworn items may be returned within 30 days for a full refund.
                 </div>
               </div>
             </div>

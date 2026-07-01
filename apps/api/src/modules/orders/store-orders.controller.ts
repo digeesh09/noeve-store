@@ -26,4 +26,9 @@ export class StoreOrdersController {
   getOne(@Req() req: { user: { id: string } }, @Param('id') id: string) {
     return this.orders.getById(id, req.user.id);
   }
+
+  @Post('promotions/validate')
+  validatePromotion(@Body() body: { code: string; cartTotalCents: number }) {
+    return this.orders.validatePromotion(body.code, body.cartTotalCents);
+  }
 }

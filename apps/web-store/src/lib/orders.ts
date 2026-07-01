@@ -29,7 +29,7 @@ export interface Order {
   lines: OrderLine[];
 }
 
-export async function placeOrder(note?: string): Promise<Order> {
+export async function placeOrder(note?: string, promotionCode?: string, discountCents?: number): Promise<Order> {
   const sessionId = getCartSessionId();
   const res = await fetch(`${API_URL}/store/orders`, {
     method: 'POST',
@@ -38,7 +38,7 @@ export async function placeOrder(note?: string): Promise<Order> {
       ...authHeaders(),
       ...(sessionId ? { 'X-Cart-Session': sessionId } : {}),
     },
-    body: JSON.stringify({ note }),
+    body: JSON.stringify({ note, promotionCode, discountCents }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -57,4 +57,21 @@ export async function fetchMyOrders(): Promise<Order[]> {
   }
   const json = await res.json();
   return json.data as Order[];
+}
+
+export async function validatePromotion(code: string, cartTotalCents: number): Promise<{ discountCents: number; code: string }> {
+  const res = await fetch(`${API_URL}/store/orders/promotions/validate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify({ code, cartTotalCents }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message ?? 'Invalid promotion code');
+  }
+  const json = await res.json();
+  return json.data;
 }

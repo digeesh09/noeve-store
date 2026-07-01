@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NextFunction, Request, Response } from 'express';
 import { AppModule } from './app.module';
+import { ZodFilter } from './common/filters/zod.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,6 +39,12 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalFilters(new ZodFilter());
+
+  // Serve static files from /public
+  const expressAppStatic = app.getHttpAdapter().getInstance();
+  const path = require('path');
+  expressAppStatic.use('/public', require('express').static(path.join(__dirname, '..', 'public')));
 
   const port = process.env.API_PORT ?? 3001;
   const publicUrl = process.env.API_URL ?? `http://localhost:${port}`;

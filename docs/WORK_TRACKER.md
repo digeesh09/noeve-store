@@ -13,12 +13,12 @@ Living document for project progress. Update this file at the end of each work s
 | Phase | Scope | Status | Estimate |
 |-------|--------|--------|----------|
 | **MVP** | API + web-store + web-admin: catalog, cart, checkout, orders, manual fulfillment | ✅ **Done** | 100% |
-| **Phase 2** | mobile-store polish, live payments, email notifications | **In progress** | ~75% |
+| **Phase 2** | mobile-store polish, live payments, email notifications | **In progress** | ~85% |
 | **Phase 3** | mobile-admin scanning, push tracking, promotions | **Not started** | ~5% |
 | **Phase 4** | Search, analytics, multi-warehouse, loyalty | **Not started** | 0% |
 | **Phase 5** | Enterprise & B2B: Mega menu, blogs, custom modules, B2B quotes, advanced workflows | **Not started** | 0% |
 
-**Where we stopped:** Web-store and mobile-store visual and structural styling synchronized with the hosted `ReferenceDesign` specifications. Replaced Tailwind/custom layouts on the web storefront with global CSS classes (`.wrap`, `.breadcrumb`, `.page-head`, `.auth__form-card`, `.cart-layout`, `.pdp`). Updated shared UI design tokens color palette and extended theme updates across all mobile-store screens (Home, Shop, Cart, Account, Product Details, and Checkout) to ensure a premium cream/oxblood/stone appearance. Staged and committed changes; all TS checks and test runs passing.
+**Where we stopped:** Added the real-time orders history to the mobile store's account page, achieving full feature parity with the web store's order display. Additionally, constructed a complete production deployment infrastructure. This includes Dockerfiles for all microservices, a production `docker-compose.prod.yml`, Nginx configuration with TLS and rate limiting, a GitHub Actions CI/CD pipeline, and a comprehensive deployment guide (`docs/DEPLOYMENT.md`).
 
 ---
 
@@ -42,7 +42,7 @@ Living document for project progress. Update this file at the end of each work s
 | Cart (guest session + user cart, CRUD) | ✅ | Stock checks in `cart.service.ts` |
 | Orders (list, get, create, admin status PATCH) | ✅ | `POST /store/orders` creates from cart; merges guest session |
 | Checkout (order placement) | ✅ | Via orders service; status `CONFIRMED` (no payment yet) |
-| Payments / webhooks | ⬜ | Razorpay package installed; routes not wired |
+| Payments / webhooks | ✅ | Razorpay integration; session creation & verification endpoints fully wired |
 | Fulfillment module (dedicated routes) | 🟡 | Logic embedded in orders service only |
 | Users, addresses, inventory, promotions, notifications, analytics, jobs | ⬜ | |
 | Prisma schema | 🟡 | User, Category, Product, Variant, Image, Cart, Order, Payment entities; no Address, Shipment |
@@ -67,7 +67,7 @@ Living document for project progress. Update this file at the end of each work s
 | Account / login / register | ✅ | Standardized auth panel cards, perks sidebar, and confirm-password toggles |
 | Checkout page | ✅ | `/checkout` — place order with summary panel |
 | Order history & Profile details | ✅ | Expandable order summary cards and tab navigation |
-| Wishlist | 🟡 | UI placeholder on PDP only |
+| Wishlist | ✅ | Fully functional (API + state) |
 | Auth token wired to apiClient | ✅ | Reads from cookie access token |
 | TypeScript & Test clean | ✅ | All tests passing and types checked |
 
@@ -129,12 +129,13 @@ Living document for project progress. Update this file at the end of each work s
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Docker Compose (Postgres, Redis, MinIO) | ✅ | `infrastructure/docker/docker-compose.yml` |
+| Docker Compose (Postgres, Redis, MinIO) | ✅ | `infrastructure/docker/docker-compose.yml` (and `.prod.yml`) |
 | DB migrate + seed | ✅ | `pnpm db:migrate`, `pnpm db:seed` |
-| Nginx HTTPS sample | ✅ | |
-| CI workflows | ⬜ | `.github/workflows/` empty |
+| Nginx HTTPS config | ✅ | `infrastructure/nginx/nginx.prod.conf` |
+| CI workflows | ✅ | `.github/workflows/ci.yml` (build, test, push, SSH deploy) |
 | `docs/ARCHITECTURE.md` | ✅ | |
 | `docs/UI_DESIGN_LAYOUT.md` | ✅ | Mockups in `docs/images/` |
+| `docs/DEPLOYMENT.md` | ✅ | Deployment guide for production |
 | `docs/WORK_TRACKER.md` | ✅ | This file |
 | OpenAPI export | ⬜ | |
 
@@ -148,7 +149,7 @@ Living document for project progress. Update this file at the end of each work s
 | | Blogs | ⬜ | Content management |
 | | Product reviews | ⬜ | User ratings and comments |
 | | Product filters | ⬜ | Advanced faceted search |
-| | Wishlist | 🟡 | Make functional (API + state) |
+| | Wishlist | ✅ | Fully functional (API + state) |
 | | Customer portal | ⬜ | Enhanced self-service |
 | **Checkout & Shipping** | Returns | ⬜ | RMA process |
 | | Pickup locations | ⬜ | BOPIS (Buy Online, Pick Up In Store) |
@@ -238,6 +239,8 @@ pnpm dev:web-admin    # http://localhost:3002
 | 2026-06-22 | Mobile Store Checkout | Implemented the Mobile Checkout screen to ensure feature parity with the web-store MVP. Wired the cart 'Proceed to checkout' button. | Phase 2: Live Payments |
 | 2026-06-24 | TypeScript fixes + Prisma pin | Fixed mobile checkout import paths, registered checkout Stack.Screen, wired auth token in web-store apiClient, added `category` to shared Product type, deduplicated mobile types.ts to re-export from shared-types, pinned Prisma to ^6.19.3 via pnpm overrides. Both apps TypeScript-clean. | Commit changes; verify end-to-end run; mobile variant selection; Razorpay payments |
 | 2026-06-26 | Noeve Visual Parity & Sync | Standardized login, registration, cart, product detail, account, and checkout layouts using global CSS classes matching ReferenceDesign. Updated shared UI tokens color theme and fully styled the mobile-store applications screens. Staged & committed changes. | Phase 2: Payment Gateway Integration |
+| 2026-06-30 | Wishlist & Sandbox Payments | Refactored web-store wishlist to use unified apiClient, implemented sandbox payment simulation with signature verification on mobile checkout screen, added comprehensive unit tests for WishlistService, and fixed TS compilation warnings. | Phase 2: Native payment SDKs (optional) |
+| 2026-07-01 | Mobile Polish & Production Infra | Implemented real-time order history for the mobile Account screen. Created production Docker infrastructure (`docker-compose.prod.yml`, Dockerfiles), Nginx TLS configs, a GitHub Actions CI pipeline, and a comprehensive deployment guide. | Phase 2: Finalize email notifications & web-admin fulfillment UI |
 
 ---
 

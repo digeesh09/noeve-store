@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { loginStore } from '@/lib/auth';
 
-export default function LoginPage(): React.JSX.Element {
+function LoginForm(): React.JSX.Element {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,6 +13,13 @@ export default function LoginPage(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const searchParams = useSearchParams();
+
+  React.useEffect(() => {
+    if (searchParams.get('session_expired') === 'true') {
+      setError('Your session has expired due to inactivity. Please log in again.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,5 +162,13 @@ export default function LoginPage(): React.JSX.Element {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function LoginPage(): React.JSX.Element {
+  return (
+    <Suspense fallback={<div className="wrap">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

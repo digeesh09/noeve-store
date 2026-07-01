@@ -15,6 +15,13 @@ export const apiClient = new NoeveApiClient({
     if (typeof window === 'undefined') return null;
     return getAccessToken();
   },
+  onUnauthorized: () => {
+    if (typeof window !== 'undefined') {
+      const { clearAccessToken } = require('./auth');
+      clearAccessToken();
+      window.location.href = '/login?session_expired=true';
+    }
+  }
 });
 
 export async function getCategories(): Promise<Category[]> {
@@ -26,9 +33,9 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(sort?: string): Promise<Product[]> {
   try {
-    const res = await apiClient.store.getProducts({ next: { revalidate: 60 } } as RequestInit);
+    const res = await apiClient.store.getProducts({ sort }, { next: { revalidate: 60 } } as RequestInit);
     return res.data;
   } catch {
     return [];

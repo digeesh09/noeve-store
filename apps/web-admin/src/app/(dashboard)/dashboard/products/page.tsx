@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { fetchProducts, createProduct, fetchCategories, type Product, type Category } from '@/lib/api';
+import { fetchProducts, createProduct, updateProduct, deleteProduct, fetchCategories, uploadFile, type Product, type Category } from '@/lib/api';
 
 function formatPrice(cents: number, currency = 'INR') {
   return (cents / 100).toLocaleString('en-IN', {
@@ -17,6 +17,10 @@ export default function ProductsPage(): React.JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  
+  const [variants, setVariants] = useState<any[]>([]);
+  const [images, setImages] = useState<any[]>([]);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -24,7 +28,7 @@ export default function ProductsPage(): React.JSX.Element {
     slug: '',
     description: '',
     categoryId: '',
-    basePriceCents: 0,
+    basePrice: 0,
     material: '',
     purity: '',
     gemstone: '',
@@ -51,22 +55,84 @@ export default function ProductsPage(): React.JSX.Element {
     load();
   }, [load]);
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleEdit = (product: Product) => {
+    setEditingProductId(product.id);
+    setFormData({
+      name: product.name,
+      slug: product.slug,
+      description: product.description || '',
+      categoryId: product.categoryId,
+      basePrice: product.basePriceCents / 100,
+      material: product.material || '',
+      purity: product.purity || '',
+      gemstone: product.gemstone || '',
+      weightGrams: product.weightGrams ? String(product.weightGrams) : '',
+    });
+    setVariants(product.variants?.map((v: any) => ({ ...v, price: v.priceCents / 100 })) || []);
+    setImages(product.images || []);
+    setIsCreating(true);
+  };
+
+  const handleCancel = () => {
+    setIsCreating(false);
+    setEditingProductId(null);
+    setVariants([]);
+    setImages([]);
+    setFormData({
+      name: '', slug: '', description: '', categoryId: categories[0]?.id || '', basePrice: 0, material: '', purity: '', gemstone: '', weightGrams: ''
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
-      await createProduct({
+      const sanitizedSlug = formData.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const payload = {
         ...formData,
-        basePriceCents: Number(formData.basePriceCents),
+        slug: sanitizedSlug,
+        description: formData.description || undefined,
+        material: formData.material || undefined,
+        purity: formData.purity || undefined,
+        gemstone: formData.gemstone || undefined,
+        basePriceCents: Math.round(Number(formData.basePrice) * 100),
         weightGrams: formData.weightGrams ? Number(formData.weightGrams) : undefined,
-      });
-      setIsCreating(false);
-      setFormData({
-        name: '', slug: '', description: '', categoryId: categories[0]?.id || '', basePriceCents: 0, material: '', purity: '', gemstone: '', weightGrams: ''
-      });
+        variants: variants.map(v => ({ ...v, priceCents: Math.round(Number(v.price) * 100), stockQuantity: Number(v.stockQuantity) })),
+        images: images.map((img, idx) => ({ ...img, sortOrder: idx })),
+      };
+
+      if (editingProductId) {
+        await updateProduct(editingProductId, payload);
+      } else {
+        await createProduct(payload);
+      }
+      handleCancel();
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create product');
+      setError(err instanceof Error ? err.message : 'Failed to save product');
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const url = await uploadFile(file);
+      const newImages = [...images];
+      newImages[idx].url = url;
+      setImages(newImages);
+    } catch (err) {
+      alert('Failed to upload image');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    try {
+      await deleteProduct(id);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete product');
     }
   };
 
@@ -78,7 +144,7 @@ export default function ProductsPage(): React.JSX.Element {
           <p className="mt-2 text-sm text-neutral-600">Create and manage catalogue.</p>
         </div>
         <button
-          onClick={() => setIsCreating(!isCreating)}
+          onClick={isCreating ? handleCancel : () => setIsCreating(true)}
           className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:bg-brand-primary/90"
         >
           {isCreating ? 'Cancel' : 'Add Product'}
@@ -88,7 +154,7 @@ export default function ProductsPage(): React.JSX.Element {
       {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
 
       {isCreating && (
-        <form onSubmit={handleCreate} className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+        <form onSubmit={handleSubmit} className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-neutral-700">Name</label>
@@ -105,16 +171,73 @@ export default function ProductsPage(): React.JSX.Element {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-700">Price (Cents)</label>
-              <input required type="number" value={formData.basePriceCents} onChange={e => setFormData({...formData, basePriceCents: Number(e.target.value)})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+              <label className="block text-sm font-medium text-neutral-700">Price</label>
+              <input required type="number" step="0.01" value={formData.basePrice} onChange={e => setFormData({...formData, basePrice: Number(e.target.value)})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-neutral-700">Description</label>
               <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
             </div>
+
+            {/* Images */}
+            <div className="md:col-span-2 border-t pt-4">
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-neutral-700">Images</label>
+                <button type="button" onClick={() => setImages([...images, { url: '', alt: '' }])} className="text-xs font-medium text-brand-primary">
+                  + Add Image
+                </button>
+              </div>
+              {images.map((img, idx) => (
+                <div key={idx} className="flex gap-2 mb-2 items-center">
+                  {img.url ? (
+                    <div className="flex-1 flex gap-2 items-center">
+                      <img src={img.url} alt="" className="h-10 w-10 object-cover rounded border" />
+                      <input type="text" value={img.url} disabled className="flex-1 block w-full rounded-md border-neutral-300 bg-neutral-100 shadow-sm sm:text-sm" />
+                    </div>
+                  ) : (
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, idx)} className="flex-1 block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-primary file:text-white hover:file:bg-brand-primary/90" />
+                  )}
+                  <input type="text" placeholder="Alt Text" value={img.alt || ''} onChange={e => {
+                    const newImages = [...images];
+                    newImages[idx].alt = e.target.value;
+                    setImages(newImages);
+                  }} className="flex-1 block w-full rounded-md border-neutral-300 shadow-sm sm:text-sm" />
+                  <button type="button" onClick={() => setImages(images.filter((_, i) => i !== idx))} className="text-red-500 font-bold px-2">×</button>
+                </div>
+              ))}
+            </div>
+
+            {/* Variants */}
+            <div className="md:col-span-2 border-t pt-4">
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-neutral-700">Variants (SKU & Inventory)</label>
+                <button type="button" onClick={() => setVariants([...variants, { sku: '', name: '', price: formData.basePrice, stockQuantity: 0 }])} className="text-xs font-medium text-brand-primary">
+                  + Add Variant
+                </button>
+              </div>
+              {variants.map((v, idx) => (
+                <div key={idx} className="flex gap-2 mb-2 items-center">
+                  <input type="text" placeholder="SKU" required value={v.sku} onChange={e => {
+                    const newV = [...variants]; newV[idx].sku = e.target.value; setVariants(newV);
+                  }} className="w-1/4 block rounded-md border-neutral-300 shadow-sm sm:text-sm" />
+                  <input type="text" placeholder="Name" required value={v.name} onChange={e => {
+                    const newV = [...variants]; newV[idx].name = e.target.value; setVariants(newV);
+                  }} className="w-1/4 block rounded-md border-neutral-300 shadow-sm sm:text-sm" />
+                  <input type="number" step="0.01" placeholder="Price" required value={v.price} onChange={e => {
+                    const newV = [...variants]; newV[idx].price = Number(e.target.value); setVariants(newV);
+                  }} className="w-1/4 block rounded-md border-neutral-300 shadow-sm sm:text-sm" />
+                  <input type="number" placeholder="Stock Qty" required value={v.stockQuantity} onChange={e => {
+                    const newV = [...variants]; newV[idx].stockQuantity = Number(e.target.value); setVariants(newV);
+                  }} className="w-1/4 block rounded-md border-neutral-300 shadow-sm sm:text-sm" />
+                  <button type="button" onClick={() => setVariants(variants.filter((_, i) => i !== idx))} className="text-red-500 font-bold px-2">×</button>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="mt-4 flex justify-end">
-            <button type="submit" className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:bg-brand-primary/90">Save Product</button>
+            <button type="submit" className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:bg-brand-primary/90">
+              {editingProductId ? 'Update Product' : 'Save Product'}
+            </button>
           </div>
         </form>
       )}
@@ -131,6 +254,7 @@ export default function ProductsPage(): React.JSX.Element {
                 <th className="px-4 py-3 font-medium">Product</th>
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium">Price</th>
+                <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -145,6 +269,20 @@ export default function ProductsPage(): React.JSX.Element {
                   </td>
                   <td className="px-4 py-3 font-medium">
                     {formatPrice(product.basePriceCents, product.currency)}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="text-sm font-medium text-brand-primary hover:underline mr-4"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className="text-sm font-medium text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}

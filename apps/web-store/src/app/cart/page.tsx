@@ -11,7 +11,7 @@ export default function CartPage(): React.JSX.Element {
   if (loading) return <div className="wrap"><p style={{padding:'5rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>Loading your bag…</p></div>;
 
   const subtotal = cart.subtotalCents;
-  const shipping = subtotal >= 15000 ? 0 : 800;
+  const shipping = subtotal >= 1500000 ? 0 : 100000;
   const total = subtotal + shipping;
 
   return (
@@ -64,7 +64,7 @@ export default function CartPage(): React.JSX.Element {
           <div className="summary__row summary__row--total"><span>Total</span><span>{formatPrice(total, cart.currency)}</span></div>
 
           <Link href={cart.lines.length > 0 ? '/checkout' : '/#edit'} className="btn btn--primary">Proceed to Checkout</Link>
-          <p className="summary__note">Free shipping automatically applied over $150</p>
+          <p className="summary__note">Free shipping automatically applied over ₹15,000</p>
 
           <div className="trust-row">
             <div className="trust-row__item">
@@ -77,7 +77,7 @@ export default function CartPage(): React.JSX.Element {
             </div>
             <div className="trust-row__item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M16 3v8M8 3v8"/></svg>
-              Free Over $150
+              Free Over ₹15k
             </div>
           </div>
         </aside>

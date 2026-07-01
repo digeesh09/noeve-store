@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert, Modal } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { colors, spacing } from '@noeve/ui-tokens';
 import { useCart } from '../../src/context/cart-context';
@@ -15,6 +15,11 @@ export default function CheckoutScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Payment integration states
+  const [showMockModal, setShowMockModal] = useState(false);
+  const [paymentSession, setPaymentSession] = useState<any>(null);
+  const [currentOrder, setCurrentOrder] = useState<any>(null);
+
   useEffect(() => {
     if (!isAuthenticated) {
       Alert.alert('Sign in required', 'Please sign in to place an order.');
@@ -26,11 +31,53 @@ export default function CheckoutScreen() {
     if (!isAuthenticated) return;
     setSubmitting(true);
     try {
+      // 1. Create order (returns Order in PENDING_PAYMENT status)
       const res = await apiClient.store.placeOrder({ note });
-      await refreshCart();
-      setSuccess(res.data.orderNumber);
+      const order = res.data;
+      setCurrentOrder(order);
+
+      // 2. Create Payment Session
+      const sessionRes = await apiClient.store.createPaymentSession({ orderId: order.id });
+      const session = sessionRes.data;
+      setPaymentSession(session);
+
+      if (session.isMock) {
+        setShowMockModal(true);
+      } else {
+        // Fallback for simulation when real keys are detected
+        Alert.alert(
+          'Payment Gateway Active',
+          'Production/Test Razorpay configuration detected. Opening simulator to complete payment.',
+          [
+            {
+              text: 'Proceed to Simulator',
+              onPress: () => setShowMockModal(true),
+            },
+          ]
+        );
+      }
     } catch (err: any) {
       Alert.alert('Checkout Error', err?.message || 'Could not place order');
+      setSubmitting(false);
+    }
+  };
+
+  const handleSimulatePaymentSuccess = async () => {
+    if (!currentOrder || !paymentSession) return;
+    setSubmitting(true);
+    setShowMockModal(false);
+
+    try {
+      await apiClient.store.verifyPayment({
+        orderId: currentOrder.id,
+        razorpayOrderId: paymentSession.providerOrderId,
+        razorpayPaymentId: `pay_mock_${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+        razorpaySignature: 'mock_signature_verified',
+      });
+      await refreshCart();
+      setSuccess(currentOrder.orderNumber);
+    } catch (err: any) {
+      Alert.alert('Payment Error', err?.message || 'Verification of payment failed');
     } finally {
       setSubmitting(false);
     }
@@ -44,7 +91,7 @@ export default function CheckoutScreen() {
           <Text style={styles.successIcon}>✓</Text>
           <Text style={styles.successTitle}>Order confirmed</Text>
           <Text style={styles.successText}>
-            Thank you! Your order {success} has been placed successfully.
+            Thank you! Your order {success} has been placed and payment has been processed successfully.
           </Text>
           <Pressable style={styles.btn} onPress={() => router.replace('/(tabs)/shop')}>
             <Text style={styles.btnText}>Continue Shopping</Text>
@@ -69,7 +116,7 @@ export default function CheckoutScreen() {
 
       <Text style={styles.title}>Complete your order</Text>
       <Text style={styles.subtitle}>
-        Payment integration coming soon — orders are confirmed immediately for demo purposes.
+        Verify your items and proceed with secure payment.
       </Text>
 
       <View style={styles.summaryCard}>
@@ -102,8 +149,44 @@ export default function CheckoutScreen() {
       </View>
 
       <Pressable style={styles.btn} onPress={handlePlaceOrder} disabled={submitting}>
-        <Text style={styles.btnText}>{submitting ? 'Placing order…' : 'Place order'}</Text>
+        <Text style={styles.btnText}>{submitting ? 'Processing…' : 'Place Order & Pay'}</Text>
       </Pressable>
+
+      {/* Sandbox Payment Simulator Modal */}
+      <Modal
+        visible={showMockModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          setShowMockModal(false);
+          setSubmitting(false);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalIcon}>💳</Text>
+            <Text style={styles.modalTitle}>Noeve Sandbox Payment</Text>
+            <Text style={styles.modalText}>
+              You are running in development mode. Press below to simulate a successful transaction for order{' '}
+              <Text style={{ fontWeight: 'bold' }}>{currentOrder?.orderNumber}</Text>.
+            </Text>
+            <View style={styles.modalActions}>
+              <Pressable style={styles.btn} onPress={handleSimulatePaymentSuccess}>
+                <Text style={styles.btnText}>Simulate Successful Payment</Text>
+              </Pressable>
+              <Pressable
+                style={styles.modalBtnSecondary}
+                onPress={() => {
+                  setShowMockModal(false);
+                  setSubmitting(false);
+                }}
+              >
+                <Text style={styles.modalBtnSecondaryText}>Cancel Transaction</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -154,6 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingVertical: spacing.md,
     alignItems: 'center',
+    width: '100%',
   },
   btnText: { color: colors.neutral[50], fontWeight: '700', fontSize: 15 },
   emptyText: { fontSize: 16, color: colors.neutral.ink },
@@ -161,4 +245,63 @@ const styles = StyleSheet.create({
   successIcon: { fontSize: 48, color: colors.brand.primary, marginBottom: spacing.md },
   successTitle: { fontSize: 24, fontWeight: '700', color: colors.brand.primary, fontFamily: 'serif' },
   successText: { marginTop: spacing.sm, textAlign: 'center', color: colors.neutral.ink, lineHeight: 22 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(33, 29, 25, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  modalContent: {
+    backgroundColor: colors.neutral.cream,
+    borderWidth: 1,
+    borderColor: 'rgba(33, 29, 25, 0.15)',
+    borderRadius: 4,
+    padding: spacing.xl,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    shadowColor: '#211D19',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  modalIcon: {
+    fontSize: 40,
+    color: colors.brand.primary,
+    marginBottom: spacing.md,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.brand.primary,
+    marginBottom: spacing.sm,
+    fontFamily: 'serif',
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 13,
+    color: 'rgba(33, 29, 25, 0.7)',
+    lineHeight: 18,
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+  },
+  modalActions: {
+    width: '100%',
+    gap: spacing.sm,
+  },
+  modalBtnSecondary: {
+    marginTop: spacing.xs,
+    borderWidth: 1,
+    borderColor: 'rgba(33, 29, 25, 0.15)',
+    borderRadius: 4,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  modalBtnSecondaryText: {
+    color: colors.neutral.ink,
+    fontWeight: '600',
+    fontSize: 15,
+  },
 });

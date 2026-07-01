@@ -1,0 +1,185 @@
+# ─── Noeve — Production Docker Compose ──────────────────────────────────────
+#
+# Usage:
+#   1. Copy .env.example → .env.production and fill in all values.
+#   2. Place TLS certificates at ./infrastructure/certs/{fullchain,privkey}.pem
+#      (Let's Encrypt / certbot is recommended).
+#   3. Run: docker compose -f infrastructure/docker/docker-compose.prod.yml --env-file .env.production up -d
+#
+# Domains (update DNS A-records to point to your server before running):
+#   noeve.store         → web-store  (:3000)
+#   admin.noeve.store   → web-admin  (:3002)
+#   api.noeve.store     → api        (:3001)
+#
+# ─────────────────────────────────────────────────────────────────────────────
+
+x-restart: &default-restart
+  restart: unless-stopped
+
+x-logging: &default-logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+services:
+
+  # ── Postgres ───────────────────────────────────────────────────────────────
+  postgres:
+    <<: [*default-restart, *default-logging]
+    image: postgres:16-alpine
+    container_name: noeve-postgres
+    environment:
+      POSTGRES_USER:     ${POSTGRES_USER:-noeve}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB:       ${POSTGRES_DB:-noeve}
+    volumes:
+      - noeve_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-noeve} -d ${POSTGRES_DB:-noeve}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # ── Redis ──────────────────────────────────────────────────────────────────
+  redis:
+    <<: [*default-restart, *default-logging]
+    image: redis:7-alpine
+    container_name: noeve-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - noeve_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend
+
+  # ── MinIO (S3-compatible media storage) ────────────────────────────────────
+  minio:
+    <<: [*default-restart, *default-logging]
+    image: minio/minio:latest
+    container_name: noeve-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER:     ${MINIO_ROOT_USER:-noeve}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - noeve_minio_data:/data
+    networks:
+      - backend
+
+  # ── API (NestJS) ───────────────────────────────────────────────────────────
+  api:
+    <<: [*default-restart, *default-logging]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    container_name: noeve-api
+    environment:
+      NODE_ENV:             production
+      DATABASE_URL:         postgresql://${POSTGRES_USER:-noeve}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-noeve}?schema=public
+      REDIS_URL:            redis://:${REDIS_PASSWORD}@redis:6379
+      JWT_SECRET:           ${JWT_SECRET}
+      JWT_EXPIRES_IN:       ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      CORS_ORIGINS:         https://noeve.store,https://admin.noeve.store
+      API_PORT:             3001
+      S3_ENDPOINT:          http://minio:9000
+      S3_BUCKET:            ${S3_BUCKET:-noeve-media}
+      S3_ACCESS_KEY:        ${MINIO_ROOT_USER:-noeve}
+      S3_SECRET_KEY:        ${MINIO_ROOT_PASSWORD}
+      S3_REGION:            ${S3_REGION:-ap-south-1}
+      S3_PUBLIC_URL:        https://media.noeve.store
+      RAZORPAY_KEY_ID:      ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_KEY_SECRET:  ${RAZORPAY_KEY_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+
+  # ── Web Store (Next.js) ────────────────────────────────────────────────────
+  web-store:
+    <<: [*default-restart, *default-logging]
+    build:
+      context: ../..
+      dockerfile: apps/web-store/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://api.noeve.store/v1
+    container_name: noeve-web-store
+    environment:
+      NODE_ENV: production
+      PORT:     3000
+    depends_on:
+      - api
+    networks:
+      - frontend
+
+  # ── Web Admin (Next.js) ────────────────────────────────────────────────────
+  web-admin:
+    <<: [*default-restart, *default-logging]
+    build:
+      context: ../..
+      dockerfile: apps/web-admin/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://api.noeve.store/v1
+    container_name: noeve-web-admin
+    environment:
+      NODE_ENV: production
+      PORT:     3002
+    depends_on:
+      - api
+    networks:
+      - frontend
+
+  # ── Nginx (reverse proxy + TLS termination) ────────────────────────────────
+  nginx:
+    <<: [*default-restart, *default-logging]
+    image: nginx:1.27-alpine
+    container_name: noeve-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ../certs:/etc/nginx/certs:ro
+      # Let's Encrypt webroot for certificate renewal
+      - noeve_certbot_www:/var/www/certbot:ro
+    depends_on:
+      - web-store
+      - web-admin
+      - api
+    networks:
+      - frontend
+
+  # ── Certbot (optional — auto-renew Let's Encrypt certs) ───────────────────
+  certbot:
+    image: certbot/certbot:latest
+    container_name: noeve-certbot
+    volumes:
+      - ../certs:/etc/letsencrypt
+      - noeve_certbot_www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done'"
+    networks:
+      - frontend
+
+volumes:
+  noeve_pg_data:
+  noeve_redis_data:
+  noeve_minio_data:
+  noeve_certbot_www:
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge

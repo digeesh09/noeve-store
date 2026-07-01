@@ -1,4 +1,4 @@
-import type { ApiErrorBody, ApiResponse, AuthTokens, LoginRequest, RegisterRequest, Category, Product, Cart, Order } from '@noeve/shared-types';
+import type { ApiErrorBody, ApiResponse, AuthTokens, LoginRequest, RegisterRequest, Category, Product, Cart, Order, WishlistItem } from '@noeve/shared-types';
 
 export interface ApiClientConfig {
   baseUrl: string;
@@ -61,7 +61,8 @@ export class NoeveApiClient {
       }),
 
     getCategories: (options?: RequestInit) => this.request<Category[]>('/store/categories', options),
-    getProducts: (options?: RequestInit) => this.request<Product[]>('/store/products', options),
+    getProducts: (params?: { sort?: string }, options?: RequestInit) => 
+      this.request<Product[]>(params?.sort ? `/store/products?sort=${params.sort}` : '/store/products', options),
     getProduct: (slug: string, options?: RequestInit) => this.request<Product>(`/store/products/${slug}`, options),
 
     getCartSession: () => this.request<{ sessionId: string }>('/store/cart/session'),
@@ -75,9 +76,47 @@ export class NoeveApiClient {
     clearCart: (options?: RequestInit) =>
       this.request<Cart>('/store/cart', { ...options, method: 'DELETE' }),
 
-    placeOrder: (body?: { note?: string }, options?: RequestInit) =>
+    placeOrder: (body?: { note?: string, promotionCode?: string, discountCents?: number }, options?: RequestInit) =>
       this.request<Order>('/store/orders', { ...options, method: 'POST', body: JSON.stringify(body || {}) }),
     getOrders: (options?: RequestInit) => this.request<Order[]>('/store/orders', options),
+
+    validatePromotion: (body: { code: string; cartTotalCents: number }, options?: RequestInit) =>
+      this.request<{ discountCents: number; code: string }>('/store/orders/promotions/validate', {
+        ...options,
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    createPaymentSession: (body: { orderId: string }, options?: RequestInit) =>
+      this.request<{
+        paymentId: string;
+        providerOrderId: string;
+        amount: number;
+        currency: string;
+        keyId: string;
+        isMock: boolean;
+      }>('/store/payments/create-session', { ...options, method: 'POST', body: JSON.stringify(body) }),
+
+    verifyPayment: (
+      body: {
+        orderId: string;
+        razorpayOrderId: string;
+        razorpayPaymentId: string;
+        razorpaySignature: string;
+      },
+      options?: RequestInit,
+    ) =>
+      this.request<{
+        success: boolean;
+        orderId: string;
+        status: string;
+      }>('/store/payments/verify', { ...options, method: 'POST', body: JSON.stringify(body) }),
+
+    getWishlist: (options?: RequestInit) => this.request<WishlistItem[]>('/store/wishlist', options),
+    addToWishlist: (body: { productId: string }, options?: RequestInit) =>
+      this.request<WishlistItem[]>('/store/wishlist', { ...options, method: 'POST', body: JSON.stringify(body) }),
+    removeFromWishlist: (productId: string, options?: RequestInit) =>
+      this.request<WishlistItem[]>(`/store/wishlist/${productId}`, { ...options, method: 'DELETE' }),
   };
 
   admin = {

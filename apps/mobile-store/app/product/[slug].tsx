@@ -7,21 +7,26 @@ import {
   StyleSheet,
   Text,
   View,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useCart } from '../../src/context/cart-context';
-import { getProduct } from '../../src/lib/api';
+import { getProduct, getWishlist, addToWishlist, removeFromWishlist } from '../../src/lib/api';
 import { formatPrice } from '../../src/lib/format';
 import type { Product } from '../../src/lib/types';
 import { colors, spacing } from '@noeve/ui-tokens';
+import { useAuth } from '../../src/context/auth-context';
 
 export default function ProductDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { addItem } = useCart();
+  const { isAuthenticated } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [inWishlist, setInWishlist] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   const [selectedMetal, setSelectedMetal] = useState('Yellow Gold');
   const [selectedPurity, setSelectedPurity] = useState('18K Gold');
@@ -35,6 +40,36 @@ export default function ProductDetailScreen() {
       setLoading(false);
     });
   }, [slug]);
+
+  useEffect(() => {
+    if (isAuthenticated && product) {
+      getWishlist().then((items) => {
+        setInWishlist(items.some((item) => item.productId === product.id));
+      }).catch(() => {});
+    }
+  }, [product, isAuthenticated]);
+
+  const handleWishlistToggle = async () => {
+    if (!product) return;
+    if (!isAuthenticated) {
+      Alert.alert('Wishlist', 'Please sign in to save items to your wishlist.');
+      return;
+    }
+    setWishlistLoading(true);
+    try {
+      if (inWishlist) {
+        await removeFromWishlist(product.id);
+        setInWishlist(false);
+      } else {
+        await addToWishlist(product.id);
+        setInWishlist(true);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   const handleAdd = async () => {
     if (!product) return;
@@ -204,15 +239,26 @@ export default function ProductDetailScreen() {
 
       {/* Floating Bottom Action Bar */}
       <View style={styles.bottomBar}>
-        <Pressable
-          style={[styles.addBtn, adding && styles.addBtnDisabled, added && styles.addBtnSuccess]}
-          onPress={handleAdd}
-          disabled={adding}
-        >
-          <Text style={styles.addBtnText}>
-            {adding ? 'ADDING TO BAG…' : added ? 'ADDED ✓' : `ADD TO BAG — ${formatPrice(product.basePriceCents * quantity, product.currency)}`}
-          </Text>
-        </Pressable>
+        <View style={styles.actionRow}>
+          <Pressable
+            style={[styles.addBtn, adding && styles.addBtnDisabled, added && styles.addBtnSuccess]}
+            onPress={handleAdd}
+            disabled={adding}
+          >
+            <Text style={styles.addBtnText}>
+              {adding ? 'ADDING TO BAG…' : added ? 'ADDED ✓' : `ADD TO BAG — ${formatPrice(product.basePriceCents * quantity, product.currency)}`}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.wishlistBtn, wishlistLoading && styles.wishlistBtnDisabled]}
+            onPress={handleWishlistToggle}
+            disabled={wishlistLoading}
+          >
+            <Text style={[styles.wishlistBtnText, inWishlist && styles.wishlistBtnTextActive]}>
+              {inWishlist ? '♥' : '♡'}
+            </Text>
+          </Pressable>
+        </View>
         <Text style={styles.secureText}>Secure Checkout · 30-Day Returns · Free Over $150</Text>
       </View>
     </View>
@@ -399,13 +445,39 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand.primary,
     borderRadius: 4,
     paddingVertical: 14,
-    width: '100%',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   addBtnDisabled: { opacity: 0.6 },
   addBtnSuccess: { backgroundColor: colors.semantic.success },
   addBtnText: { color: colors.neutral[50], fontWeight: '800', fontSize: 14, letterSpacing: 1 },
+  actionRow: {
+    flexDirection: 'row',
+    width: '100%',
+    gap: spacing.sm,
+  },
+  wishlistBtn: {
+    width: 50,
+    height: 50,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(33, 29, 25, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.neutral.cream,
+  },
+  wishlistBtnDisabled: {
+    opacity: 0.6,
+  },
+  wishlistBtnText: {
+    fontSize: 24,
+    color: colors.neutral.ink,
+    lineHeight: 28,
+  },
+  wishlistBtnTextActive: {
+    color: colors.brand.primary,
+  },
   secureText: {
     marginTop: spacing.sm,
     fontSize: 9,

@@ -99,3 +99,15 @@ export interface Cart {
   itemCount: number;
   currency: string;
 }
+
+export interface WishlistItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  basePriceCents: number;
+  currency: string;
+  imageUrl: string | null;
+  createdAt: string;
+}
+

@@ -3,11 +3,17 @@ import type { NextConfig } from 'next';
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
+  // Required for Docker multi-stage standalone build
+  output: isProd ? 'standalone' : undefined,
+
   transpilePackages: ['@noeve/api-client', '@noeve/shared-types', '@noeve/ui-tokens'],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'placehold.co' },
-      { protocol: 'http', hostname: 'localhost', port: '9000' },
+      { protocol: 'http',  hostname: 'localhost',   port: '9000' },
+      { protocol: 'http',  hostname: 'localhost',   port: '3001' },
+      // Production MinIO / S3 CDN
+      { protocol: 'https', hostname: 'media.noeve.store' },
     ],
   },
   async headers() {
@@ -17,6 +23,9 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          { key: 'X-Content-Type-Options',     value: 'nosniff' },
+          { key: 'X-Frame-Options',            value: 'DENY' },
+          { key: 'Referrer-Policy',            value: 'strict-origin-when-cross-origin' },
         ],
       },
     ];
@@ -24,3 +33,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

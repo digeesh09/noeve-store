@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  # ─── Type-check & test all packages ───────────────────────────────────────
+  typecheck-and-test:
+    name: Typecheck & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER:     noeve
+          POSTGRES_PASSWORD: noeve_test
+          POSTGRES_DB:       noeve_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL:  postgresql://noeve:noeve_test@localhost:5432/noeve_test?schema=public
+      JWT_SECRET:    ci-test-secret-do-not-use
+      CORS_ORIGINS:  http://localhost:3000
+      NODE_ENV:      test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm --filter @noeve/api exec prisma generate
+
+      - name: Run DB migrations (test DB)
+        run: pnpm --filter @noeve/api exec prisma migrate deploy
+
+      - name: TypeScript — shared packages
+        run: pnpm --filter @noeve/shared-types typecheck
+
+      - name: TypeScript — API
+        run: pnpm --filter @noeve/api typecheck
+
+      - name: TypeScript — web-store
+        run: pnpm --filter @noeve/web-store typecheck
+
+      - name: TypeScript — mobile-store
+        run: pnpm --filter @noeve/mobile-store typecheck
+
+      - name: Test — API
+        run: pnpm --filter @noeve/api test
+
+      - name: Test — web-store
+        run: pnpm --filter @noeve/web-store test
+
+  # ─── Build Docker images (only on main) ───────────────────────────────────
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: typecheck-and-test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build & push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/noeve-api:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/noeve-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      - name: Build & push web-store image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web-store/Dockerfile
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.noeve.store/v1
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/noeve-web-store:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/noeve-web-store:${{ github.sha }}
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+  # ─── Deploy to production VPS (SSH deploy on main) ───────────────────────
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-images
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host:     ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key:      ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/noeve
+            git pull origin main
+            docker compose \
+              -f infrastructure/docker/docker-compose.prod.yml \
+              --env-file .env.production \
+              pull
+            docker compose \
+              -f infrastructure/docker/docker-compose.prod.yml \
+              --env-file .env.production \
+              up -d --remove-orphans
+            docker system prune -f

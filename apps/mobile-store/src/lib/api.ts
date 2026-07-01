@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { NoeveApiClient } from '@noeve/api-client';
-import type { Category, Product } from '@noeve/shared-types';
+import type { Category, Product, WishlistItem } from '@noeve/shared-types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const SESSION_KEY = 'noeve_cart_session';
@@ -69,3 +69,31 @@ export function filterByCategory(products: Product[], categorySlug?: string) {
   if (!categorySlug) return products;
   return products.filter((p) => p.category?.slug === categorySlug);
 }
+
+export async function getWishlist(): Promise<WishlistItem[]> {
+  try {
+    const res = await apiClient.store.getWishlist();
+    return res.data;
+  } catch {
+    return [];
+  }
+}
+
+export async function addToWishlist(productId: string): Promise<WishlistItem[]> {
+  try {
+    const res = await apiClient.store.addToWishlist({ productId });
+    return res.data;
+  } catch {
+    return [];
+  }
+}
+
+export async function removeFromWishlist(productId: string): Promise<WishlistItem[]> {
+  try {
+    const res = await apiClient.store.removeFromWishlist(productId);
+    return res.data;
+  } catch {
+    return [];
+  }
+}
+

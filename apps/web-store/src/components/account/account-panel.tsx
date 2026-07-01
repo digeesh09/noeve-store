@@ -5,22 +5,31 @@ import Link from 'next/link';
 import { isLoggedIn, loginStore, logout } from '@/lib/auth';
 import { fetchMyOrders, type Order } from '@/lib/orders';
 import { formatPrice } from '@/lib/format';
+import { fetchWishlist, removeFromWishlist, type WishlistItem } from '@/lib/wishlist';
 
 export function AccountPanel(): React.JSX.Element {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [tab, setTab] = useState<'orders'|'profile'>('orders');
+  const [tab, setTab] = useState<'orders'|'profile'|'wishlist'>('orders');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string|null>(null);
   const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [openOrder, setOpenOrder] = useState<string|null>(null);
 
   useEffect(() => { setLoggedIn(isLoggedIn()); }, []);
   useEffect(() => {
     if (!loggedIn) return;
     fetchMyOrders().then(setOrders).catch(() => setOrders([]));
+    fetchWishlist().then(setWishlist).catch(() => setWishlist([]));
   }, [loggedIn]);
+
+  useEffect(() => {
+    if (loggedIn && tab === 'wishlist') {
+      fetchWishlist().then(setWishlist).catch(() => setWishlist([]));
+    }
+  }, [loggedIn, tab]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setError(null); setLoading(true);
@@ -66,20 +75,20 @@ export function AccountPanel(): React.JSX.Element {
 
   return (
     <div>
-      <nav className="breadcrumb"><Link href="/">Home</Link><span>/</span><span style={{color:'var(--ink)'}}>{tab === 'orders' ? 'Your Orders' : 'Account Details'}</span></nav>
+      <nav className="breadcrumb"><Link href="/">Home</Link><span>/</span><span style={{color:'var(--ink)'}}>{tab === 'orders' ? 'Your Orders' : tab === 'profile' ? 'Account Details' : 'Wishlist'}</span></nav>
       <div className="page-head" style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',flexWrap:'wrap',gap:'1rem'}}>
         <div>
           <p className="eyebrow">Account</p>
-          <h1>{tab === 'orders' ? 'Your Orders' : 'Account Details'}</h1>
+          <h1>{tab === 'orders' ? 'Your Orders' : tab === 'profile' ? 'Account Details' : 'Wishlist'}</h1>
         </div>
-        <button onClick={() => { logout(); setLoggedIn(false); setOrders([]); }} style={{fontFamily:'var(--mono)',fontSize:'.72rem',letterSpacing:'.08em',textTransform:'uppercase',textDecoration:'underline',color:'rgba(33,29,25,.55)',background:'none',border:'none',cursor:'pointer'}}>Sign Out</button>
+        <button onClick={() => { logout(); setLoggedIn(false); setOrders([]); setWishlist([]); }} style={{fontFamily:'var(--mono)',fontSize:'.72rem',letterSpacing:'.08em',textTransform:'uppercase',textDecoration:'underline',color:'rgba(33,29,25,.55)',background:'none',border:'none',cursor:'pointer'}}>Sign Out</button>
       </div>
 
       <nav className="account-tabs">
         <a href="#" className={tab==='orders'?'is-active':''} onClick={e=>{e.preventDefault();setTab('orders')}}>Orders</a>
         <a href="#">Addresses</a>
         <a href="#" className={tab==='profile'?'is-active':''} onClick={e=>{e.preventDefault();setTab('profile')}}>Account Details</a>
-        <a href="#">Wishlist</a>
+        <a href="#" className={tab==='wishlist'?'is-active':''} onClick={e=>{e.preventDefault();setTab('wishlist')}}>Wishlist</a>
       </nav>
 
       {tab === 'orders' && (
@@ -160,6 +169,77 @@ export function AccountPanel(): React.JSX.Element {
               <a href="#" className="btn btn--outline">Cancel</a>
             </div>
           </div>
+        </div>
+      )}
+
+      {tab === 'wishlist' && (
+        <div className="wishlist-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem', marginTop: '2rem' }}>
+          {wishlist.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', padding: '4rem 0', textAlign: 'center', color: 'rgba(33,29,25,.55)' }}>
+              <p style={{ fontFamily: 'var(--serif)', fontSize: '1.25rem', marginBottom: '1.5rem' }}>Your wishlist is empty.</p>
+              <Link href="/shop" className="btn btn--primary" style={{ display: 'inline-block' }}>
+                Explore Collection
+              </Link>
+            </div>
+          ) : (
+            wishlist.map(item => (
+              <article key={item.id} className="product-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+                <button
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    try {
+                      const updated = await removeFromWishlist(item.productId);
+                      setWishlist(updated);
+                    } catch (err) {
+                      console.error(err);
+                    }
+                  }}
+                  style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    zIndex: 10,
+                    background: 'var(--cream)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  }}
+                  title="Remove from wishlist"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--oxblood)" stroke="var(--oxblood)" strokeWidth="2">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                  </svg>
+                </button>
+                <Link href={`/shop/${item.productSlug}`} style={{ display: 'block', flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
+                  <div className="product-card__media" style={{ position: 'relative', overflow: 'hidden', paddingBottom: '120%', background: 'var(--cream)', borderRadius: '4px' }}>
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.productName}
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(33,29,25,.3)' }}>
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  <div className="product-card__meta" style={{ marginTop: '1rem' }}>
+                    <h3 style={{ fontFamily: 'var(--serif)', fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>{item.productName}</h3>
+                    <p style={{ fontFamily: 'var(--mono)', fontSize: '0.85rem', color: 'var(--oxblood)', margin: 0 }}>
+                      {formatPrice(item.basePriceCents, item.currency)}
+                    </p>
+                  </div>
+                </Link>
+              </article>
+            ))
+          )}
         </div>
       )}
     </div>
