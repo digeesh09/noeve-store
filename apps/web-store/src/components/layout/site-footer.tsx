@@ -5,20 +5,21 @@ const shopLinks = [
   { href: '/#pillars', label: 'Apparel' },
   { href: '/#pillars', label: 'Beauty' },
   { href: '/#pillars', label: 'Lifestyle' },
-  { href: '#', label: 'Gift Cards' },
+  { href: '/gift-cards', label: 'Gift Cards' },
 ];
 const supportLinks = [
   { href: '/account', label: 'Order Status' },
   { href: '/return-policy', label: 'Returns Policy' },
-  { href: '#', label: 'Size Guide' },
+  { href: '/size-guide', label: 'Size Guide' },
   { href: '/grievance-redressal', label: 'Grievance Redressal' },
-  { href: '#', label: 'FAQs' },
+  { href: '/faqs', label: 'FAQs' },
 ];
 const studioLinks = [
-  { href: '#', label: 'About Noeve' },
-  { href: '/#newsletter', label: 'Journal' },
-  { href: '#', label: 'Sustainability' },
-  { href: '#', label: 'Careers' },
+  { href: '/about', label: 'About Noeve' },
+  { href: '/vision', label: 'Vision' },
+  { href: '/mission', label: 'Mission' },
+  { href: '/sustainability', label: 'Sustainability' },
+  { href: '/careers', label: 'Careers' },
 ];
 
 export function SiteFooter(): React.JSX.Element {

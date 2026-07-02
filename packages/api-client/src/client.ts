@@ -130,6 +130,9 @@ export class NoeveApiClient {
       this.request<any>(`/store/user/addresses/${id}`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
     deleteAddress: (id: string, options?: RequestInit) =>
       this.request<void>(`/store/user/addresses/${id}`, { ...options, method: 'DELETE' }),
+
+    subscribeNewsletter: (body: { email: string }, options?: RequestInit) =>
+      this.request<void>('/store/newsletter/subscribe', { ...options, method: 'POST', body: JSON.stringify(body) }),
   };
 
   admin = {

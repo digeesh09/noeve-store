@@ -74,4 +74,12 @@ export class UsersService {
       }
     }
   }
+
+  async subscribeNewsletter(email: string) {
+    return this.prisma.newsletterSubscriber.upsert({
+      where: { email },
+      update: { isActive: true },
+      create: { email },
+    });
+  }
 }

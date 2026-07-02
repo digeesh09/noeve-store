@@ -1,5 +1,6 @@
 import { ProductGrid } from '@/components/store/product-grid';
 import { getCategories, getProducts } from '@/lib/api';
+import { NewsletterForm } from '@/components/store/newsletter-form';
 import Link from 'next/link';
 import React from 'react';
 
@@ -123,10 +124,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
           <span className="eyebrow">Stay Close</span>
           <h2>Join the list</h2>
           <p>First access to new drops, early entry to sales, and a short note from the studio — once a month, never more.</p>
-          <div className="newsletter__form">
-            <input type="email" placeholder="Your email address" />
-            <button type="button" className="btn btn--primary">Subscribe</button>
-          </div>
+          <NewsletterForm />
           <p className="newsletter__fine">By joining, you agree to receive marketing emails. Unsubscribe anytime.</p>
         </div>
       </section>

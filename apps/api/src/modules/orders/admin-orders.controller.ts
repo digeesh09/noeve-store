@@ -16,6 +16,24 @@ export class AdminOrdersController {
     return this.orders.listAll(query);
   }
 
+  @Get('promotions')
+  @Roles(UserRole.ADMIN)
+  listPromotions() {
+    return this.orders.listPromotions();
+  }
+
+  @Post('promotions')
+  @Roles(UserRole.ADMIN)
+  createPromotion(@Body() body: { code: string; description?: string; discountPercentage?: number; discountCents?: number; minOrderValue?: number }) {
+    return this.orders.createPromotion(body);
+  }
+
+  @Delete('promotions/:id')
+  @Roles(UserRole.ADMIN)
+  deletePromotion(@Param('id') id: string) {
+    return this.orders.deletePromotion(id);
+  }
+
   @Get(':id')
   @Roles(UserRole.ADMIN, UserRole.FULFILLMENT, UserRole.SUPPORT)
   getOne(@Param('id') id: string) {
@@ -39,22 +57,4 @@ export class AdminOrdersController {
     );
   }
 
-  // --- PROMOTIONS ---
-  @Get('promotions')
-  @Roles(UserRole.ADMIN)
-  listPromotions() {
-    return this.orders.listPromotions();
-  }
-
-  @Post('promotions')
-  @Roles(UserRole.ADMIN)
-  createPromotion(@Body() body: { code: string; description?: string; discountPercentage?: number; discountCents?: number; minOrderValue?: number }) {
-    return this.orders.createPromotion(body);
-  }
-
-  @Delete('promotions/:id')
-  @Roles(UserRole.ADMIN)
-  deletePromotion(@Param('id') id: string) {
-    return this.orders.deletePromotion(id);
-  }
 }
