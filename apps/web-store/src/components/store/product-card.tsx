@@ -15,7 +15,7 @@ export function ProductCard({ product, priority }: ProductCardProps): React.JSX.
   const materialLabel = product.material || 'Premium Material';
 
   return (
-    <Link href={`/shop/${product.slug}`} className="card">
+    <Link href={`/shop/${product.slug}`} className="card outline outline-1 outline-[rgba(33,29,25,0.1)] p-4 rounded-sm hover:shadow-md transition-shadow">
       <div
         className="card__media"
         style={{

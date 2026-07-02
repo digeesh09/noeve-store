@@ -20,7 +20,7 @@ export function CategoryTiles({ categories }: CategoryTilesProps): React.ReactNo
         <li key={cat.id}>
           <Link
             href={`/shop?category=${cat.slug}`}
-            className="group flex min-h-[380px] flex-col justify-end rounded-[2px] p-[2.2rem_1.8rem] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md relative overflow-hidden isolate"
+            className="group flex min-h-[380px] flex-col justify-end rounded-[2px] p-[2.2rem_1.8rem] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md relative overflow-hidden isolate outline outline-1 outline-[rgba(33,29,25,0.1)]"
             style={{ background: FALLBACK_GRADIENTS[i % FALLBACK_GRADIENTS.length] }}
           >
             <span className="tag absolute left-5 top-5 z-10">
