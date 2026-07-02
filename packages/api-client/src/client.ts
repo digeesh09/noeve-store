@@ -14,8 +14,9 @@ export class NoeveApiClient {
     path: string,
     options: RequestInit = {},
   ): Promise<ApiResponse<T>> {
+    const isFormData = options.body instanceof FormData || (options.body && typeof (options.body as any).append === 'function');
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(options.headers ?? {}),
     };
 
@@ -61,9 +62,13 @@ export class NoeveApiClient {
       }),
 
     getCategories: (options?: RequestInit) => this.request<Category[]>('/store/categories', options),
+    getSettings: (options?: RequestInit) => this.request<any>('/store/settings', options),
     getProducts: (params?: { sort?: string }, options?: RequestInit) => 
       this.request<Product[]>(params?.sort ? `/store/products?sort=${params.sort}` : '/store/products', options),
     getProduct: (slug: string, options?: RequestInit) => this.request<Product>(`/store/products/${slug}`, options),
+    getReviews: (productId: string, options?: RequestInit) => this.request<any[]>(`/store/products/${productId}/reviews`, options),
+    addReview: (productId: string, body: { rating: number; comment?: string }, options?: RequestInit) => 
+      this.request<any>(`/store/products/${productId}/reviews`, { ...options, method: 'POST', body: JSON.stringify(body) }),
 
     getCartSession: () => this.request<{ sessionId: string }>('/store/cart/session'),
     getCart: (options?: RequestInit) => this.request<Cart>('/store/cart', options),
@@ -117,6 +122,14 @@ export class NoeveApiClient {
       this.request<WishlistItem[]>('/store/wishlist', { ...options, method: 'POST', body: JSON.stringify(body) }),
     removeFromWishlist: (productId: string, options?: RequestInit) =>
       this.request<WishlistItem[]>(`/store/wishlist/${productId}`, { ...options, method: 'DELETE' }),
+
+    getAddresses: (options?: RequestInit) => this.request<any[]>('/store/user/addresses', options),
+    addAddress: (body: any, options?: RequestInit) =>
+      this.request<any>('/store/user/addresses', { ...options, method: 'POST', body: JSON.stringify(body) }),
+    updateAddress: (id: string, body: any, options?: RequestInit) =>
+      this.request<any>(`/store/user/addresses/${id}`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+    deleteAddress: (id: string, options?: RequestInit) =>
+      this.request<void>(`/store/user/addresses/${id}`, { ...options, method: 'DELETE' }),
   };
 
   admin = {
@@ -127,6 +140,34 @@ export class NoeveApiClient {
         method: 'POST',
         body: JSON.stringify(body),
       }),
+
+    getOrders: (status?: string, options?: RequestInit) => 
+      this.request<Order[]>(status ? `/admin/orders?status=${status}` : '/admin/orders', options),
+    updateOrderStatus: (orderId: string, body: { status: string; note?: string }, options?: RequestInit) =>
+      this.request<Order>(`/admin/orders/${orderId}/status`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+
+    getProducts: (options?: RequestInit) => this.request<Product[]>('/admin/products', options),
+    createProduct: (body: any, options?: RequestInit) =>
+      this.request<Product>('/admin/products', { ...options, method: 'POST', body: JSON.stringify(body) }),
+    updateProduct: (id: string, body: any, options?: RequestInit) =>
+      this.request<Product>(`/admin/products/${id}`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+    deleteProduct: (id: string, options?: RequestInit) =>
+      this.request<void>(`/admin/products/${id}`, { ...options, method: 'DELETE' }),
+    uploadFile: (file: File, options?: RequestInit) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return this.request<{ url: string }>('/admin/upload', { ...options, method: 'POST', body: formData });
+    },
+
+    getPromotions: (options?: RequestInit) => this.request<any[]>('/admin/orders/promotions', options),
+    createPromotion: (body: any, options?: RequestInit) =>
+      this.request<any>('/admin/orders/promotions', { ...options, method: 'POST', body: JSON.stringify(body) }),
+    deletePromotion: (id: string, options?: RequestInit) =>
+      this.request<void>(`/admin/orders/promotions/${id}`, { ...options, method: 'DELETE' }),
+
+    getSettings: (options?: RequestInit) => this.request<any>('/admin/settings', options),
+    updateSettings: (body: any, options?: RequestInit) =>
+      this.request<any>('/admin/settings', { ...options, method: 'PATCH', body: JSON.stringify(body) }),
   };
 }
 

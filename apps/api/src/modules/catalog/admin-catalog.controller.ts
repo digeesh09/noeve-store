@@ -55,6 +55,6 @@ export class AdminCatalogController {
     if (!file) throw new BadRequestException('No file uploaded');
     const port = process.env.API_PORT ?? 3001;
     const publicUrl = process.env.API_URL ?? `http://localhost:${port}`;
-    return { url: `${publicUrl}/public/uploads/${file.filename}` };
+    return { data: { url: `${publicUrl}/public/uploads/${file.filename}` } };
   }
 }

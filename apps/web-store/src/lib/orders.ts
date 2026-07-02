@@ -27,6 +27,9 @@ export interface Order {
   carrier: string | null;
   createdAt: string;
   lines: OrderLine[];
+  statusHistory?: { note: string | null; createdAt: string }[];
+  discountCents?: number;
+  promotionCode?: string | null;
 }
 
 export async function placeOrder(note?: string, promotionCode?: string, discountCents?: number): Promise<Order> {

@@ -4,6 +4,7 @@ import { paginationQuerySchema, placeOrderSchema } from '@noeve/validation';
 import type { PlaceOrderInput } from '@noeve/validation';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CartService } from '../cart/cart.service';
+import { MailService } from '../mail/mail.service';
 
 const FULFILLMENT_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
   [OrderStatus.CONFIRMED]: [OrderStatus.PROCESSING, OrderStatus.CANCELLED],
@@ -18,6 +19,7 @@ export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private cart: CartService,
+    private mailService: MailService,
   ) {}
 
   async listForUser(userId: string, query: Record<string, unknown>) {
@@ -27,7 +29,7 @@ export class OrdersService {
     const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
         where,
-        include: { lines: true },
+        include: { lines: true, statusHistory: { orderBy: { createdAt: 'asc' } } },
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' },
@@ -35,8 +37,27 @@ export class OrdersService {
       this.prisma.order.count({ where }),
     ]);
 
+    const productIds = Array.from(new Set(orders.flatMap(o => o.lines.map(l => l.productId))));
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, slug: true, images: { orderBy: { sortOrder: 'asc' }, take: 1 } },
+    });
+    const productMap = new Map(products.map(p => [p.id, p]));
+
+    const enrichedOrders = orders.map(order => ({
+      ...order,
+      lines: order.lines.map(line => {
+        const product = productMap.get(line.productId);
+        return {
+          ...line,
+          imageUrl: product?.images[0]?.url || null,
+          productSlug: product?.slug || '',
+        };
+      })
+    }));
+
     return {
-      data: orders,
+      data: enrichedOrders,
       meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
     };
   }
@@ -82,7 +103,10 @@ export class OrdersService {
     trackingNumber?: string,
     carrier?: string,
   ) {
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    const order = await this.prisma.order.findUnique({ 
+      where: { id: orderId },
+      include: { user: { select: { email: true } } }
+    });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -117,9 +141,9 @@ export class OrdersService {
       return result;
     });
 
-    // MOCK NOTIFICATION SYSTEM
-    // In a production system, you would push this to a queue or call an email/SMS provider
-    console.log(`[NOTIFICATION] Order ${updated.orderNumber} status changed to ${status}. Email sent to customer.`);
+    if (order.user?.email) {
+      this.mailService.sendOrderStatusUpdate(order.user.email, updated.orderNumber, status, updated.trackingNumber || undefined, updated.carrier || undefined).catch(console.error);
+    }
 
     return { data: updated };
   }
@@ -211,6 +235,12 @@ export class OrdersService {
 
       return created;
     });
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+    if (user?.email) {
+      const formattedTotal = (order.totalCents / 100).toLocaleString('en-IN', { style: 'currency', currency: order.currency, maximumFractionDigits: 0 });
+      this.mailService.sendOrderConfirmation(user.email, order.orderNumber, formattedTotal).catch(console.error);
+    }
 
     return { data: order };
   }

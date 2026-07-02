@@ -72,9 +72,10 @@ export class CartService {
     }
 
     let variantId: string | null = data.variantId ?? null;
+    let variant: any = null;
 
     if (variantId) {
-      const variant = product.variants.find((v) => v.id === variantId);
+      variant = product.variants.find((v) => v.id === variantId);
       if (!variant) {
         throw new NotFoundException('Variant not found');
       }
@@ -82,7 +83,7 @@ export class CartService {
         throw new BadRequestException('Insufficient stock');
       }
     } else if (product.variants.length === 1) {
-      const variant = product.variants[0];
+      variant = product.variants[0];
       variantId = variant.id;
       if (variant.stockQuantity < data.quantity) {
         throw new BadRequestException('Insufficient stock');
@@ -100,6 +101,9 @@ export class CartService {
     });
 
     if (existing) {
+      if (variant && variant.stockQuantity < existing.quantity + data.quantity) {
+        throw new BadRequestException('Insufficient stock to add more of this item');
+      }
       await this.prisma.cartLine.update({
         where: { id: existing.id },
         data: { quantity: existing.quantity + data.quantity },
@@ -124,9 +128,14 @@ export class CartService {
 
     const line = await this.prisma.cartLine.findFirst({
       where: { id: lineId, cartId: cart.id },
+      include: { variant: true },
     });
     if (!line) {
       throw new NotFoundException('Cart line not found');
+    }
+
+    if (line.variant && line.variant.stockQuantity < quantity) {
+      throw new BadRequestException('Insufficient stock for requested quantity');
     }
 
     await this.prisma.cartLine.update({

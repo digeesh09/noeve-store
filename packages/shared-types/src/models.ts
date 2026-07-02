@@ -9,6 +9,20 @@ export interface User {
   createdAt: string;
 }
 
+export interface Address {
+  id: string;
+  userId: string;
+  name: string;
+  phone: string;
+  streetLine1: string;
+  streetLine2: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -75,6 +89,8 @@ export interface OrderLine {
   quantity: number;
   unitPriceCents: number;
   lineTotalCents: number;
+  imageUrl?: string | null;
+  productSlug?: string;
 }
 
 export interface CartLine {

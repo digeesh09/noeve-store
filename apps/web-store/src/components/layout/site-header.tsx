@@ -18,9 +18,13 @@ export function SiteHeader(): React.JSX.Element {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showShopBtn, setShowShopBtn] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     setLoggedIn(isLoggedIn());
+    import('@/lib/api').then(({ apiClient }) => {
+      apiClient.store.getSettings().then(res => setSettings(res.data)).catch(console.error);
+    });
     const onScroll = () => {
       setScrolled(window.scrollY > 12);
       setShowShopBtn(window.scrollY > 480);
@@ -34,13 +38,13 @@ export function SiteHeader(): React.JSX.Element {
       {/* Announcement marquee */}
       <div className="marquee">
         <div className="marquee__track">
-          <span>FREE SHIPPING ON ORDERS OVER ₹15,000</span>
+          <span>FREE SHIPPING ON ORDERS OVER {settings ? `₹${(settings.shippingThresholdCents / 100).toLocaleString()}` : '₹15,000'}</span>
           <span>○</span>
           <span>THE NEW EDIT IS NOW LIVE</span>
           <span>○</span>
           <span>EARLY ACCESS FOR LIST MEMBERS</span>
           <span>○</span>
-          <span>FREE SHIPPING ON ORDERS OVER ₹15,000</span>
+          <span>FREE SHIPPING ON ORDERS OVER {settings ? `₹${(settings.shippingThresholdCents / 100).toLocaleString()}` : '₹15,000'}</span>
           <span>○</span>
           <span>THE NEW EDIT IS NOW LIVE</span>
           <span>○</span>
@@ -55,7 +59,9 @@ export function SiteHeader(): React.JSX.Element {
         className={`site-header ${scrolled ? 'is-scrolled' : ''}`}
       >
         <div className="wrap nav">
-          <Link href="/" className="nav__logo">NOEVE</Link>
+          <Link href="/" className="nav__logo" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/images/logo.png" alt="NOEVE" style={{ height: '44px', width: 'auto', mixBlendMode: 'multiply' }} />
+          </Link>
 
           <nav className="nav__links">
             {nav.map((item) => (
@@ -98,7 +104,9 @@ export function SiteHeader(): React.JSX.Element {
       {/* Mobile nav overlay */}
       <div className={`mobile-nav ${mobileOpen ? 'is-open' : ''}`}>
         <div className="mobile-nav__top">
-          <span className="nav__logo">NOEVE</span>
+          <span className="nav__logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src="/images/logo.png" alt="NOEVE" style={{ height: '44px', width: 'auto', mixBlendMode: 'multiply' }} />
+          </span>
           <button
             aria-label="Close menu"
             onClick={() => setMobileOpen(false)}

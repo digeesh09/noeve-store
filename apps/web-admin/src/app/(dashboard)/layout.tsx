@@ -12,6 +12,7 @@ const nav = [
   { href: '/dashboard/products', label: 'Products' },
   { href: '/dashboard/promotions', label: 'Promotions' },
   { href: '/dashboard/fulfillment', label: 'Fulfillment' },
+  { href: '/dashboard/settings', label: 'Settings' },
 ];
 
 export default function DashboardLayout({ children }: { children: any }) {
@@ -26,7 +27,9 @@ export default function DashboardLayout({ children }: { children: any }) {
     <AuthGuard>
       <div className="flex min-h-screen">
         <aside className="w-56 border-r border-neutral-200 bg-white p-4">
-          <p className="font-semibold text-brand-primary">Noeve Admin</p>
+          <div className="mb-8">
+            <img src="/images/logo.png" alt="Noeve Admin" style={{ height: '32px', width: 'auto' }} />
+          </div>
           <nav className="mt-8 space-y-1">
             {nav.map((item) => (
               <Link

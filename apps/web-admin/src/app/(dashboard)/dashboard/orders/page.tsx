@@ -34,6 +34,7 @@ export default function OrdersPage(): React.JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [openOrder, setOpenOrder] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -88,8 +89,10 @@ export default function OrdersPage(): React.JSX.Element {
             <tbody>
               {orders.map((order) => {
                 const next = NEXT_STATUS[order.status] ?? [];
+                const isOpen = openOrder === order.id;
                 return (
-                  <tr key={order.id} className="border-b border-neutral-100">
+                  <React.Fragment key={order.id}>
+                  <tr className="border-b border-neutral-100 hover:bg-neutral-50/50 cursor-pointer" onClick={() => setOpenOrder(isOpen ? null : order.id)}>
                     <td className="px-4 py-3">
                       <p className="font-medium">{order.orderNumber}</p>
                       <p className="text-xs text-neutral-500">
@@ -112,7 +115,7 @@ export default function OrdersPage(): React.JSX.Element {
                             key={status}
                             type="button"
                             disabled={updating === order.id}
-                            onClick={() => handleStatus(order.id, status)}
+                            onClick={(e) => { e.stopPropagation(); handleStatus(order.id, status); }}
                             className="rounded border border-neutral-300 px-2 py-1 text-xs hover:border-brand-primary disabled:opacity-50"
                           >
                             → {status}
@@ -121,6 +124,48 @@ export default function OrdersPage(): React.JSX.Element {
                       </div>
                     </td>
                   </tr>
+                  {isOpen && (
+                    <tr className="border-b border-neutral-200 bg-neutral-50/30">
+                      <td colSpan={5} className="px-4 py-4">
+                        <div className="flex flex-col md:flex-row gap-8">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-sm mb-2 text-neutral-800">Items</h4>
+                            <div className="space-y-2">
+                              {order.lines?.map((line, i) => (
+                                <div key={i} className="flex justify-between text-sm">
+                                  <span className="text-neutral-600">{line.quantity} × {line.productName}</span>
+                                  <span className="font-medium">{formatPrice(line.lineTotalCents, order.currency)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-sm mb-2 text-neutral-800">Financial Summary</h4>
+                            <div className="space-y-1 text-sm">
+                              <div className="flex justify-between"><span className="text-neutral-500">Subtotal:</span><span>{formatPrice(order.subtotalCents, order.currency)}</span></div>
+                              <div className="flex justify-between"><span className="text-neutral-500">Shipping:</span><span>{formatPrice(order.shippingCents, order.currency)}</span></div>
+                              <div className="flex justify-between"><span className="text-neutral-500">Tax:</span><span>{formatPrice(order.taxCents, order.currency)}</span></div>
+                              {(order.discountCents ?? 0) > 0 && (
+                                <div className="flex justify-between text-brand-primary"><span className="text-neutral-500">Discount:</span><span>-{formatPrice(order.discountCents || 0, order.currency)}</span></div>
+                              )}
+                              <div className="flex justify-between font-semibold pt-1 mt-1 border-t border-neutral-200">
+                                <span>Total:</span><span>{formatPrice(order.totalCents, order.currency)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-sm mb-2 text-neutral-800">Tracking Info</h4>
+                            {order.trackingNumber ? (
+                              <p className="text-sm text-neutral-600">{order.carrier} - {order.trackingNumber}</p>
+                            ) : (
+                              <p className="text-sm text-neutral-400 italic">No tracking info provided</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 );
               })}
             </tbody>

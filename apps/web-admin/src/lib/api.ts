@@ -1,21 +1,20 @@
 'use client';
 
-import { authHeaders } from './auth';
+import { getAccessToken, clearAccessToken } from './auth';
+import { NoeveApiClient } from '@noeve/api-client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/v1';
 
-async function adminFetch(url: string, options?: RequestInit) {
-  const res = await fetch(url, options);
-  if (res.status === 401) {
-    const { clearAccessToken } = require('./auth');
+export const apiClient = new NoeveApiClient({
+  baseUrl: API_URL,
+  getAccessToken: () => getAccessToken(),
+  onUnauthorized: () => {
     clearAccessToken();
     if (typeof window !== 'undefined') {
       window.location.href = '/login?session_expired=true';
     }
-    throw new Error('Session expired');
-  }
-  return res;
-}
+  },
+});
 
 export interface OrderLine {
   id: string;
@@ -47,40 +46,18 @@ export interface Order {
   createdAt: string;
   lines: OrderLine[];
   user?: OrderUser;
+  discountCents?: number;
+  promotionCode?: string | null;
 }
 
 export async function fetchOrders(status?: string): Promise<Order[]> {
-  const params = status ? `?status=${status}` : '';
-  const res = await adminFetch(`${API_URL}/admin/orders${params}`, {
-    headers: authHeaders(),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? 'Could not load orders');
-  }
-  const json = await res.json();
-  return json.data as Order[];
+  const res = await apiClient.admin.getOrders(status);
+  return res.data as unknown as Order[];
 }
 
-export async function updateOrderStatus(
-  orderId: string,
-  status: string,
-  note?: string,
-): Promise<Order> {
-  const res = await adminFetch(`${API_URL}/admin/orders/${orderId}/status`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders(),
-    },
-    body: JSON.stringify({ status, note }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? 'Could not update status');
-  }
-  const json = await res.json();
-  return json.data as Order;
+export async function updateOrderStatus(orderId: string, status: string, note?: string): Promise<Order> {
+  const res = await apiClient.admin.updateOrderStatus(orderId, { status, note });
+  return res.data as unknown as Order;
 }
 
 export interface ProductImage {
@@ -116,79 +93,27 @@ export interface Product {
 }
 
 export async function fetchProducts(): Promise<Product[]> {
-  const res = await adminFetch(`${API_URL}/admin/products`, {
-    headers: authHeaders(),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? 'Could not load products');
-  }
-  const json = await res.json();
-  return json.data as Product[];
+  const res = await apiClient.admin.getProducts();
+  return res.data as unknown as Product[];
 }
 
 export async function createProduct(payload: any): Promise<Product> {
-  const res = await adminFetch(`${API_URL}/admin/products`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders(),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? 'Could not create product');
-  }
-  const json = await res.json();
-  return json.data as Product;
+  const res = await apiClient.admin.createProduct(payload);
+  return res.data as unknown as Product;
 }
 
 export async function updateProduct(id: string, payload: any): Promise<Product> {
-  const res = await adminFetch(`${API_URL}/admin/products/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders(),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? 'Could not update product');
-  }
-  const json = await res.json();
-  return json.data as Product;
+  const res = await apiClient.admin.updateProduct(id, payload);
+  return res.data as unknown as Product;
 }
 
 export async function deleteProduct(id: string): Promise<void> {
-  const res = await adminFetch(`${API_URL}/admin/products/${id}`, {
-    method: 'DELETE',
-    headers: authHeaders(),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? 'Could not delete product');
-  }
+  await apiClient.admin.deleteProduct(id);
 }
 
 export async function uploadFile(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append('file', file);
-  
-  const res = await adminFetch(`${API_URL}/admin/upload`, {
-    method: 'POST',
-    headers: {
-      ...authHeaders(),
-    },
-    body: formData,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? 'Could not upload file');
-  }
-  const json = await res.json();
-  return json.url;
+  const res = await apiClient.admin.uploadFile(file);
+  return res.data.url;
 }
 
 export interface Category {
@@ -199,15 +124,8 @@ export interface Category {
 }
 
 export async function fetchCategories(): Promise<Category[]> {
-  const res = await adminFetch(`${API_URL}/store/categories`, {
-    headers: authHeaders(),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? 'Could not load categories');
-  }
-  const json = await res.json();
-  return json.data as Category[];
+  const res = await apiClient.store.getCategories();
+  return res.data as unknown as Category[];
 }
 
 export interface Promotion {
@@ -223,27 +141,34 @@ export interface Promotion {
 }
 
 export async function fetchPromotions(): Promise<Promotion[]> {
-  const res = await adminFetch(`${API_URL}/admin/orders/promotions`, { headers: authHeaders() });
-  if (!res.ok) throw new Error('Could not load promotions');
-  const json = await res.json();
-  return json.data as Promotion[];
+  const res = await apiClient.admin.getPromotions();
+  return res.data as unknown as Promotion[];
 }
 
 export async function createPromotion(payload: any): Promise<Promotion> {
-  const res = await adminFetch(`${API_URL}/admin/orders/promotions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error('Could not create promotion');
-  const json = await res.json();
-  return json.data as Promotion;
+  const res = await apiClient.admin.createPromotion(payload);
+  return res.data as unknown as Promotion;
 }
 
 export async function deletePromotion(id: string): Promise<void> {
-  const res = await adminFetch(`${API_URL}/admin/orders/promotions/${id}`, {
-    method: 'DELETE',
-    headers: authHeaders(),
-  });
-  if (!res.ok) throw new Error('Could not delete promotion');
+  await apiClient.admin.deletePromotion(id);
 }
+
+export interface StoreSettings {
+  id: string;
+  shippingThresholdCents: number;
+  shippingRateCents: number;
+  taxRatePercentage: number;
+  updatedAt: string;
+}
+
+export async function fetchSettings(): Promise<StoreSettings> {
+  const res = await apiClient.admin.getSettings();
+  return res.data as unknown as StoreSettings;
+}
+
+export async function updateSettings(payload: any): Promise<StoreSettings> {
+  const res = await apiClient.admin.updateSettings(payload);
+  return res.data as unknown as StoreSettings;
+}
+

@@ -9,6 +9,8 @@ import { formatPrice } from '@/lib/format';
 import { placeOrder, validatePromotion } from '@/lib/orders';
 import { apiClient } from '@/lib/api';
 
+import { fetchAddresses, type Address } from '@/lib/addresses';
+
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     const script = document.createElement('script');
@@ -21,6 +23,8 @@ const loadRazorpayScript = () => {
 
 export default function CheckoutPage(): React.JSX.Element {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const { cart, loading, refresh } = useCart();
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -32,6 +36,13 @@ export default function CheckoutPage(): React.JSX.Element {
   const [promoError, setPromoError] = useState<string | null>(null);
   const [validatingPromo, setValidatingPromo] = useState(false);
 
+  // Address & Gift States
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [isGift, setIsGift] = useState(false);
+  const [deliveryDate, setDeliveryDate] = useState('');
+  const [deliveryTime, setDeliveryTime] = useState('');
+
   // Mock payment modal states
   const [showMockModal, setShowMockModal] = useState(false);
   const [paymentSession, setPaymentSession] = useState<any>(null);
@@ -40,6 +51,13 @@ export default function CheckoutPage(): React.JSX.Element {
   useEffect(() => {
     if (!isLoggedIn()) {
       router.replace('/account?redirect=/checkout');
+    } else {
+      fetchAddresses().then(addrs => {
+        setAddresses(addrs);
+        const defaultAddr = addrs.find(a => a.isDefault);
+        if (defaultAddr) setSelectedAddressId(defaultAddr.id);
+        else if (addrs.length > 0) setSelectedAddressId(addrs[0].id);
+      }).catch(console.error);
     }
   }, [router]);
 
@@ -64,13 +82,43 @@ export default function CheckoutPage(): React.JSX.Element {
     }
   };
 
+  const selectedAddress = addresses.find(a => a.id === selectedAddressId);
+  const computeMinDeliveryDays = (pincode: string | undefined) => {
+    if (!pincode) return 5;
+    const firstDigit = pincode.charAt(0);
+    return ['1', '2', '3', '4'].includes(firstDigit) ? 3 : 5;
+  };
+  const minDeliveryDays = computeMinDeliveryDays(selectedAddress?.postalCode);
+  const minDateObj = new Date();
+  minDateObj.setDate(minDateObj.getDate() + minDeliveryDays);
+  const minDateString = minDateObj.toISOString().split('T')[0];
+
   const handlePlaceOrder = async () => {
+    if (!selectedAddressId) {
+      setError('Please select a shipping address.');
+      return;
+    }
+    if (isGift && deliveryDate && deliveryDate < minDateString) {
+      setError(`Based on your pincode (${selectedAddress?.postalCode}), the earliest delivery date is ${minDateObj.toLocaleDateString()}. Please select a valid date.`);
+      return;
+    }
     setError(null);
     setSubmitting(true);
+    
+    let finalNote = note;
+    if (isGift) {
+      finalNote = `[GIFT ORDER] ${note ? `- ${note}` : ''}\nPreferred Date: ${deliveryDate || 'Any'}\nPreferred Time: ${deliveryTime || 'Any'}`;
+    }
+    
+    if (selectedAddress) {
+      const addressString = `Shipping Address:\n${selectedAddress.name}\n${selectedAddress.streetLine1}${selectedAddress.streetLine2 ? `, ${selectedAddress.streetLine2}` : ''}\n${selectedAddress.city}, ${selectedAddress.state} ${selectedAddress.postalCode}\n${selectedAddress.country}\nPhone: ${selectedAddress.phone}`;
+      finalNote = finalNote ? `${finalNote}\n\n${addressString}` : addressString;
+    }
+
     try {
       // 1. Create order (returns Order in PENDING_PAYMENT status)
       const order = await placeOrder(
-        note || undefined,
+        finalNote || undefined,
         appliedPromo?.code,
         appliedPromo?.discountCents
       );
@@ -160,12 +208,16 @@ export default function CheckoutPage(): React.JSX.Element {
     }
   };
 
-  if (!isLoggedIn()) {
+  if (!mounted || loading) {
     return (
       <div className="wrap" style={{ padding: '6rem 0', textAlign: 'center' }}>
-        <p style={{ color: 'rgba(33,29,25,0.5)' }}>Redirecting to sign in…</p>
+        <p style={{ color: 'rgba(33,29,25,0.5)' }}>Loading checkout…</p>
       </div>
     );
+  }
+
+  if (!isLoggedIn()) {
+    return null;
   }
 
   if (success) {
@@ -194,13 +246,7 @@ export default function CheckoutPage(): React.JSX.Element {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="wrap" style={{ padding: '6rem 0', textAlign: 'center' }}>
-        <p style={{ color: 'rgba(33,29,25,0.5)' }}>Loading checkout…</p>
-      </div>
-    );
-  }
+
 
   if (cart.lines.length === 0) {
     return (
@@ -244,12 +290,85 @@ export default function CheckoutPage(): React.JSX.Element {
           <div className="section-card" style={{ background: 'var(--cream)', border: '1px solid rgba(33,29,25,.1)', borderRadius: '2px', padding: '2rem' }}>
             <h2 style={{ fontFamily: 'var(--display)', fontSize: '1.6rem', marginBottom: '1rem' }}>Shipping Details</h2>
             <p style={{ fontSize: '.88rem', color: 'rgba(33,29,25,.65)', marginBottom: '1.5rem' }}>
-              Your order will be shipped to the default address linked to your account.
+              Select a shipping address below or add a new one in your account.
             </p>
-            <div className="form-field">
-              <label htmlFor="note">Order note (optional)</label>
-              <textarea
-                id="note"
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+              {addresses.length === 0 ? (
+                <div style={{ padding: '1.5rem', border: '1px dashed rgba(33,29,25,.2)', textAlign: 'center' }}>
+                  <p style={{ fontSize: '.9rem', marginBottom: '1rem' }}>No shipping addresses found.</p>
+                  <Link href="/account?tab=addresses&new=1&redirect=checkout" className="btn btn--outline" style={{ display: 'inline-block' }}>Add Address</Link>
+                </div>
+              ) : (
+                addresses.map(addr => (
+                  <label key={addr.id} style={{ display: 'flex', gap: '1rem', padding: '1rem', border: `1px solid ${selectedAddressId === addr.id ? 'var(--brand-primary)' : 'rgba(33,29,25,.1)'}`, borderRadius: '2px', cursor: 'pointer', background: selectedAddressId === addr.id ? 'var(--cream)' : 'transparent' }}>
+                    <input type="radio" name="address" value={addr.id} checked={selectedAddressId === addr.id} onChange={(e) => setSelectedAddressId(e.target.value)} style={{ marginTop: '0.2rem' }} />
+                    <div style={{ fontSize: '.9rem', lineHeight: 1.4 }}>
+                      <p style={{ fontWeight: 600, color: 'var(--ink)', marginBottom: '0.25rem' }}>{addr.name} {addr.isDefault && <span style={{ fontSize: '.7rem', padding: '0.1rem 0.4rem', background: 'var(--brand-accent)', color: 'var(--brand-primary)', borderRadius: '2px', marginLeft: '0.5rem' }}>Default</span>}</p>
+                      <p style={{ color: 'rgba(33,29,25,.8)' }}>{addr.streetLine1}{addr.streetLine2 ? `, ${addr.streetLine2}` : ''}</p>
+                      <p style={{ color: 'rgba(33,29,25,.8)' }}>{addr.city}, {addr.state} {addr.postalCode}</p>
+                      <p style={{ color: 'rgba(33,29,25,.8)' }}>{addr.country}</p>
+                      <p style={{ color: 'rgba(33,29,25,.8)', marginTop: '0.25rem' }}>Phone: {addr.phone}</p>
+                    </div>
+                  </label>
+                ))
+              )}
+              {addresses.length > 0 && (
+                <div style={{ textAlign: 'right' }}>
+                  <Link href="/account?tab=addresses&new=1&redirect=checkout" style={{ fontSize: '.85rem', textDecoration: 'underline' }}>+ Add a new address</Link>
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginBottom: '2rem', padding: '1.5rem', background: 'rgba(33,29,25,.03)', border: '1px solid rgba(33,29,25,.1)', borderRadius: '2px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}>
+                <input type="checkbox" checked={isGift} onChange={(e) => setIsGift(e.target.checked)} style={{ width: '18px', height: '18px' }} />
+                Deliver as a Gift
+              </label>
+              
+              {isGift && (
+                <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-field">
+                      <label>Preferred Delivery Date</label>
+                      <input type="date" min={minDateString} value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid rgba(33,29,25,.2)' }} />
+                      {selectedAddress && (
+                        <p style={{ fontSize: '.75rem', color: 'rgba(33,29,25,.6)', marginTop: '.4rem', lineHeight: 1.3 }}>
+                          Based on your pincode ({selectedAddress.postalCode}), the earliest delivery is <strong>{minDateObj.toLocaleDateString()}</strong>.
+                        </p>
+                      )}
+                    </div>
+                    <div className="form-field">
+                      <label>Preferred Time</label>
+                      <input type="time" value={deliveryTime} onChange={e => setDeliveryTime(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid rgba(33,29,25,.2)' }} />
+                    </div>
+                  </div>
+                  <div className="form-field" style={{ margin: 0 }}>
+                    <label>Gift Message</label>
+                    <textarea
+                      rows={2}
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      placeholder="Write a special message for the recipient…"
+                      style={{
+                        width: '100%',
+                        border: '1px solid rgba(33,29,25,.25)',
+                        background: 'transparent',
+                        padding: '.85em 1em',
+                        fontSize: '.95rem',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {!isGift && (
+              <div className="form-field">
+                <label htmlFor="note">Order note (optional)</label>
+                <textarea
+                  id="note"
                 rows={3}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -267,6 +386,7 @@ export default function CheckoutPage(): React.JSX.Element {
                 }}
               />
             </div>
+            )}
           </div>
         </div>
 
@@ -350,14 +470,17 @@ export default function CheckoutPage(): React.JSX.Element {
             disabled={submitting}
             onClick={handlePlaceOrder}
             className="btn btn--primary"
-            style={{ width: '100%' }}
+            style={{ width: '100%', display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center' }}
           >
-            {submitting ? 'Processing…' : 'Place Order & Pay'}
+            {submitting ? (
+              <><svg className="spinner" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{animation:'spin 1s linear infinite'}}><circle cx="12" cy="12" r="10" strokeDasharray="30" strokeDashoffset="10"/></svg> Processing…</>
+            ) : 'Place Order & Pay'}
           </button>
 
           <Link href="/cart" style={{ display: 'block', textAlign: 'center', marginTop: '1.2rem', fontSize: '.8rem', textDecoration: 'underline' }}>
             ← Back to bag
           </Link>
+          <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
         </aside>
       </div>
 

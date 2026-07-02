@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/components/cart/cart-provider';
 import { formatPrice } from '@/lib/format';
 import type { Product } from '@/lib/types';
@@ -23,10 +24,10 @@ const FALLBACK_GALLERY_BGS = [
 ];
 
 export function ProductDetailClient({ product, relatedProducts }: ProductDetailClientProps): React.JSX.Element {
+  const router = useRouter();
   const { addItem } = useCart();
   const [activeThumb, setActiveThumb] = useState(0);
-  const [activeColor, setActiveColor] = useState('Ivory');
-  const [activeSize, setActiveSize] = useState('S');
+  const [activeVariant, setActiveVariant] = useState(product.variants?.[0] || null);
   const [quantity, setQuantity] = useState(1);
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
   const [showAddedMsg, setShowAddedMsg] = useState(false);
@@ -34,6 +35,40 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
   const [inWishlist, setInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center center', transform: 'scale(1)' });
+  const [settings, setSettings] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  React.useEffect(() => {
+    import('@/lib/api').then(({ apiClient }) => {
+      apiClient.store.getSettings().then(res => setSettings(res.data)).catch(console.error);
+      apiClient.store.getReviews(product.id).then(res => setReviews(res.data)).catch(console.error);
+    });
+  }, [product.id]);
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLoggedIn()) {
+      alert('Please sign in to leave a review.');
+      return;
+    }
+    setSubmittingReview(true);
+    try {
+      const { apiClient } = await import('@/lib/api');
+      const res = await apiClient.store.addReview(product.id, { rating: reviewRating, comment: reviewText });
+      setReviews([res.data, ...reviews]);
+      setReviewText('');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const avgRating = reviews.length ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : '5.0';
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -85,14 +120,27 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
   const activeImage = images ? (images[activeThumb] || images[0]) : undefined;
 
   const handleAddToBag = async () => {
+    if (!activeVariant || (activeVariant.stockQuantity ?? 0) <= 0) return;
     setIsAdding(true);
     try {
-      await addItem(product.id, product.variants?.[0]?.id, quantity);
+      await addItem(product.id, activeVariant.id, quantity);
       setShowAddedMsg(true);
       setTimeout(() => setShowAddedMsg(false), 3000);
     } catch (err) {
       console.error(err);
     } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!activeVariant || (activeVariant.stockQuantity ?? 0) <= 0) return;
+    setIsAdding(true);
+    try {
+      await addItem(product.id, activeVariant.id, quantity);
+      router.push('/checkout');
+    } catch (err) {
+      console.error(err);
       setIsAdding(false);
     }
   };
@@ -182,58 +230,49 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
           <h1 className="pdp__title">{product.name}</h1>
 
           <div className="pdp__rating">
-            <span className="stars">★★★★★</span>
-            <a href="#reviews">4.9 (184 reviews)</a>
+            <span className="stars">{'★'.repeat(Math.round(Number(avgRating)))}{'☆'.repeat(5 - Math.round(Number(avgRating)))}</span>
+            <a href="#reviews">{avgRating} ({reviews.length} reviews)</a>
           </div>
 
-          <p className="pdp__price">{formatPrice(product.basePriceCents, product.currency)}</p>
+          <p className="pdp__price">{formatPrice(activeVariant ? activeVariant.priceCents : product.basePriceCents, product.currency)}</p>
 
           <p className="pdp__desc">
             {product.description ||
               'A beautifully detailed and premium quality addition to our curated drops, designed with clean silhouettes and made to last.'}
           </p>
 
-          {/* Color Option */}
-          <div className="pdp__option">
-            <div className="pdp__option-label">
-              <span>Colour</span> <b id="colorLabel">{activeColor}</b>
-            </div>
-            <div className="swatches">
-              {['Ivory', 'Black', 'Clay'].map((color) => {
-                const bg = color === 'Ivory' ? '#F6F1E8' : color === 'Black' ? '#211D19' : '#B89B6E';
-                return (
+          {/* Variants */}
+          {product.variants && product.variants.length > 0 && (
+            <div className="pdp__option">
+              <div className="pdp__option-label">
+                <span>Select Variant</span>
+              </div>
+              <div className="sizes" id="sizeGroup" style={{flexWrap: 'wrap'}}>
+                {product.variants.map((v) => (
                   <button
-                    key={color}
-                    className={`swatch ${activeColor === color ? 'is-active' : ''}`}
-                    style={{ background: bg }}
-                    onClick={() => setActiveColor(color)}
-                    aria-label={color}
-                  />
-                );
-              })}
+                    key={v.id}
+                    className={`size-pill ${activeVariant?.id === v.id ? 'is-active' : ''}`}
+                    onClick={() => setActiveVariant(v)}
+                    disabled={(v.stockQuantity ?? 0) <= 0}
+                    style={{ 
+                      opacity: (v.stockQuantity ?? 0) <= 0 ? 0.5 : 1, 
+                      textDecoration: (v.stockQuantity ?? 0) <= 0 ? 'line-through' : 'none',
+                      minWidth: 'auto',
+                      padding: '0 1rem'
+                    }}
+                  >
+                    {v.name}
+                  </button>
+                ))}
+              </div>
+              {activeVariant && (activeVariant.stockQuantity ?? 0) <= 5 && (activeVariant.stockQuantity ?? 0) > 0 && (
+                <p style={{fontSize: '0.85rem', color: 'var(--oxblood)', marginTop: '0.75rem'}}>Only {activeVariant.stockQuantity} left in stock!</p>
+              )}
+              {activeVariant && (activeVariant.stockQuantity ?? 0) <= 0 && (
+                <p style={{fontSize: '0.85rem', color: 'var(--oxblood)', marginTop: '0.75rem'}}>Out of stock</p>
+              )}
             </div>
-          </div>
-
-          {/* Size Option */}
-          <div className="pdp__option">
-            <div className="pdp__option-label">
-              <span>Size</span>{' '}
-              <a href="#" style={{ textDecoration: 'underline', color: 'rgba(33,29,25,.6)' }}>
-                Size guide
-              </a>
-            </div>
-            <div className="sizes" id="sizeGroup">
-              {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
-                <button
-                  key={size}
-                  className={`size-pill ${activeSize === size ? 'is-active' : ''}`}
-                  onClick={() => setActiveSize(size)}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
           {/* Quantity Selector */}
           <div className="pdp__option">
@@ -252,9 +291,12 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
           </div>
 
           {/* Add Row */}
-          <div className="pdp__add-row" style={{ display: 'flex', gap: '1rem' }}>
-            <button className="btn btn--primary" onClick={handleAddToBag} disabled={isAdding} style={{ flexGrow: 1 }}>
-              {isAdding ? 'Adding…' : `Add to Bag — ${formatPrice(product.basePriceCents * quantity, product.currency)}`}
+          <div className="pdp__add-row" style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn btn--outline" onClick={handleAddToBag} disabled={isAdding || (activeVariant ? (activeVariant.stockQuantity ?? 0) <= 0 : false)} style={{ flexGrow: 1 }}>
+              {isAdding ? 'Adding…' : (activeVariant && (activeVariant.stockQuantity ?? 0) <= 0) ? 'Out of Stock' : 'Add to Bag'}
+            </button>
+            <button className="btn btn--primary" onClick={handleBuyNow} disabled={isAdding || (activeVariant ? (activeVariant.stockQuantity ?? 0) <= 0 : false)} style={{ flexGrow: 1 }}>
+              Buy Now
             </button>
             <button
               onClick={handleWishlistToggle}
@@ -285,7 +327,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               <rect x="3" y="7" width="18" height="13" rx="1" />
               <path d="M16 3v8M8 3v8" />
             </svg>
-            Free shipping on orders over ₹15,000 · 30-day returns
+            Free shipping on orders over {settings ? formatPrice(settings.shippingThresholdCents, product.currency) : '₹15,000'} · 30-day returns
           </p>
 
           {/* Accordion */}
@@ -328,7 +370,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               </button>
               <div className="accordion__panel" style={{ maxHeight: openAccordion === 2 ? '120px' : '0' }}>
                 <div className="accordion__panel-inner">
-                  Dispatched within 1–2 business days. Free standard shipping on orders over ₹15,000. Unworn items may be returned within 30 days for a full refund.
+                  Dispatched within 1–2 business days. Free standard shipping on orders over {settings ? formatPrice(settings.shippingThresholdCents, product.currency) : '₹15,000'}. Unworn items may be returned within 30 days for a full refund.
                 </div>
               </div>
             </div>
@@ -367,7 +409,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               </p>
               <div className="card__rating">
                 <span className="card__stars">★★★★★</span>
-                <span className="card__rating-text">4.9 (184)</span>
+                <span className="card__rating-text">5.0 (0)</span>
               </div>
             </Link>
           ))}
@@ -381,80 +423,61 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
         </div>
         <div className="reviews__summary">
           <div className="reviews__score">
-            <span className="big">4.9</span>
-            <span className="stars">★★★★★</span>
-            <span className="count">184 reviews</span>
+            <span className="big">{avgRating}</span>
+            <span className="stars">{'★'.repeat(Math.round(Number(avgRating)))}{'☆'.repeat(5 - Math.round(Number(avgRating)))}</span>
+            <span className="count">{reviews.length} reviews</span>
           </div>
           <div className="reviews__bars">
-            <div className="reviews__bar-row">
-              <span>5★</span>
-              <div className="reviews__bar-track">
-                <div className="reviews__bar-fill" style={{ width: '82%' }} />
-              </div>
-              <span>82%</span>
-            </div>
-            <div className="reviews__bar-row">
-              <span>4★</span>
-              <div className="reviews__bar-track">
-                <div className="reviews__bar-fill" style={{ width: '13%' }} />
-              </div>
-              <span>13%</span>
-            </div>
-            <div className="reviews__bar-row">
-              <span>3★</span>
-              <div className="reviews__bar-track">
-                <div className="reviews__bar-fill" style={{ width: '3%' }} />
-              </div>
-              <span>3%</span>
-            </div>
-            <div className="reviews__bar-row">
-              <span>2★</span>
-              <div className="reviews__bar-track">
-                <div className="reviews__bar-fill" style={{ width: '1%' }} />
-              </div>
-              <span>1%</span>
-            </div>
-            <div className="reviews__bar-row">
-              <span>1★</span>
-              <div className="reviews__bar-track">
-                <div className="reviews__bar-fill" style={{ width: '1%' }} />
-              </div>
-              <span>1%</span>
-            </div>
+            {[5, 4, 3, 2, 1].map(star => {
+              const count = reviews.filter(r => r.rating === star).length;
+              const pct = reviews.length ? Math.round((count / reviews.length) * 100) : 0;
+              return (
+                <div className="reviews__bar-row" key={star}>
+                  <span>{star}★</span>
+                  <div className="reviews__bar-track">
+                    <div className="reviews__bar-fill" style={{ width: `${pct}%` }} />
+                  </div>
+                  <span>{pct}%</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
+        <form onSubmit={handleSubmitReview} style={{ marginBottom: '3rem', padding: '1.5rem', background: 'var(--cream)', border: '1px solid rgba(33,29,25,.1)' }}>
+          <h3 style={{ marginBottom: '1rem', fontFamily: 'var(--display)' }}>Write a review</h3>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem' }}>Rating</label>
+            <select value={reviewRating} onChange={e => setReviewRating(Number(e.target.value))} style={{ padding: '0.5rem', border: '1px solid rgba(33,29,25,.2)' }}>
+              {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} Stars</option>)}
+            </select>
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem' }}>Comment</label>
+            <textarea required value={reviewText} onChange={e => setReviewText(e.target.value)} rows={3} style={{ width: '100%', padding: '0.5rem', border: '1px solid rgba(33,29,25,.2)', fontFamily: 'inherit' }} />
+          </div>
+          <button type="submit" className="btn btn--primary" disabled={submittingReview}>
+            {submittingReview ? 'Submitting...' : 'Submit Review'}
+          </button>
+        </form>
+
         <div className="testimonials__grid">
-          <div className="testimonial">
-            <span className="testimonial__stars">★★★★★</span>
-            <p className="testimonial__quote">
-              Heavier than I expected in the best way — it drapes instead of clinging. Runs true to size.
-            </p>
-            <div className="testimonial__byline">
-              <span className="testimonial__name">Anjali R. — Singapore</span>
-              <span className="tag">Verified Buyer</span>
-            </div>
-          </div>
-          <div className="testimonial">
-            <span className="testimonial__stars">★★★★★</span>
-            <p className="testimonial__quote">
-              Wore it to a wedding tied at the waist and again the next day buttoned up for work. One shirt, two completely different looks.
-            </p>
-            <div className="testimonial__byline">
-              <span className="testimonial__name">Beatriz F. — Lisbon, PT</span>
-              <span className="tag">Verified Buyer</span>
-            </div>
-          </div>
-          <div className="testimonial">
-            <span className="testimonial__stars">★★★★☆</span>
-            <p className="testimonial__quote">
-              Beautiful fabric and stitching. Only note is the ivory marks easily, so I&apos;d dry clean rather than hand wash.
-            </p>
-            <div className="testimonial__byline">
-              <span className="testimonial__name">Sofia M. — Toronto, CA</span>
-              <span className="tag">Verified Buyer</span>
-            </div>
-          </div>
+          {reviews.length === 0 ? (
+            <p style={{ color: 'rgba(33,29,25,0.6)' }}>No reviews yet. Be the first to review this product!</p>
+          ) : (
+            reviews.map(review => (
+              <div className="testimonial" key={review.id}>
+                <span className="testimonial__stars">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                <p className="testimonial__quote">
+                  {review.comment}
+                </p>
+                <div className="testimonial__byline">
+                  <span className="testimonial__name">{review.user?.firstName || 'Anonymous'}</span>
+                  <span className="tag">Verified Buyer</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
     </div>

@@ -1,17 +1,30 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCart } from '@/components/cart/cart-provider';
 import { formatPrice } from '@/lib/format';
 
+interface StoreSettings {
+  shippingThresholdCents: number;
+  shippingRateCents: number;
+}
+
 export default function CartPage(): React.JSX.Element {
   const { cart, loading, updateQuantity, removeItem } = useCart();
+  const [settings, setSettings] = useState<StoreSettings | null>(null);
 
-  if (loading) return <div className="wrap"><p style={{padding:'5rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>Loading your bag…</p></div>;
+  useEffect(() => {
+    import('@/lib/api').then(({ apiClient }) => {
+      apiClient.store.getSettings().then(res => setSettings(res.data)).catch(console.error);
+    });
+  }, []);
+
+  if (loading || !settings || !cart) return <div className="wrap"><p style={{padding:'5rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>Loading your bag…</p></div>;
 
   const subtotal = cart.subtotalCents;
-  const shipping = subtotal >= 1500000 ? 0 : 100000;
+  const shipping = subtotal >= settings.shippingThresholdCents ? 0 : settings.shippingRateCents;
   const total = subtotal + shipping;
 
   return (
@@ -39,7 +52,11 @@ export default function CartPage(): React.JSX.Element {
             <div className="cart-items">
               {cart.lines.map((line) => (
                 <div className="cart-item" key={line.id}>
-                  <div className="cart-item__media" style={{background:'linear-gradient(135deg,#DCD3C2,#B89B6E)'}} />
+                  <div className="cart-item__media" style={{background:'linear-gradient(135deg,#DCD3C2,#B89B6E)', position: 'relative', overflow: 'hidden'}}>
+                    {line.imageUrl && (
+                      <Image src={line.imageUrl} alt={line.productName} fill style={{ objectFit: 'cover' }} />
+                    )}
+                  </div>
                   <div>
                     <h3 className="cart-item__name">{line.productName}</h3>
                     <p className="cart-item__meta">{line.sku}</p>
@@ -64,7 +81,7 @@ export default function CartPage(): React.JSX.Element {
           <div className="summary__row summary__row--total"><span>Total</span><span>{formatPrice(total, cart.currency)}</span></div>
 
           <Link href={cart.lines.length > 0 ? '/checkout' : '/#edit'} className="btn btn--primary">Proceed to Checkout</Link>
-          <p className="summary__note">Free shipping automatically applied over ₹15,000</p>
+          <p className="summary__note">Free shipping automatically applied over {formatPrice(settings.shippingThresholdCents, cart.currency)}</p>
 
           <div className="trust-row">
             <div className="trust-row__item">
@@ -77,7 +94,7 @@ export default function CartPage(): React.JSX.Element {
             </div>
             <div className="trust-row__item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M16 3v8M8 3v8"/></svg>
-              Free Over ₹15k
+              Free Over {formatPrice(settings.shippingThresholdCents, cart.currency).replace('.00', '').replace(',000', 'k')}
             </div>
           </div>
         </aside>

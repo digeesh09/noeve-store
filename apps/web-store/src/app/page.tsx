@@ -91,7 +91,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
           </div>
           <div className="testimonial">
             <span className="testimonial__stars">★★★★★</span>
-            <p className="testimonial__quote">The repair serum cleared up texture I'd been fighting for two years, in about six weeks.</p>
+            <p className="testimonial__quote">The repair serum cleared up texture I&apos;d been fighting for two years, in about six weeks.</p>
             <div className="testimonial__byline">
               <span className="testimonial__name">Priya S. — London, UK</span>
               <span className="tag">Verified Buyer</span>

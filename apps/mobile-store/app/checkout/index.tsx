@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert, Modal, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { colors, spacing } from '@noeve/ui-tokens';
 import { useCart } from '../../src/context/cart-context';
@@ -149,7 +149,14 @@ export default function CheckoutScreen() {
       </View>
 
       <Pressable style={styles.btn} onPress={handlePlaceOrder} disabled={submitting}>
-        <Text style={styles.btnText}>{submitting ? 'Processing…' : 'Place Order & Pay'}</Text>
+        {submitting ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <ActivityIndicator color={colors.neutral[50]} size="small" />
+            <Text style={styles.btnText}>Processing…</Text>
+          </View>
+        ) : (
+          <Text style={styles.btnText}>Place Order & Pay</Text>
+        )}
       </Pressable>
 
       {/* Sandbox Payment Simulator Modal */}

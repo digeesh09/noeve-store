@@ -18,7 +18,7 @@ Living document for project progress. Update this file at the end of each work s
 | **Phase 4** | Search, analytics, multi-warehouse, loyalty | **Not started** | 0% |
 | **Phase 5** | Enterprise & B2B: Mega menu, blogs, custom modules, B2B quotes, advanced workflows | **Not started** | 0% |
 
-**Where we stopped:** Added the real-time orders history to the mobile store's account page, achieving full feature parity with the web store's order display. Additionally, constructed a complete production deployment infrastructure. This includes Dockerfiles for all microservices, a production `docker-compose.prod.yml`, Nginx configuration with TLS and rate limiting, a GitHub Actions CI/CD pipeline, and a comprehensive deployment guide (`docs/DEPLOYMENT.md`).
+**Where we stopped:** Stabilized the Admin Catalog and Web Store features. Resolved image upload path errors, added API static file serving, fixed dynamic image rendering and zoom magnifier on the Web Store product details page. Standardized admin pricing forms to use standard currency rather than raw cents for consistency, aligned shipping thresholds, and wired dynamic session checking to the site header.
 
 ---
 
@@ -49,6 +49,7 @@ Living document for project progress. Update this file at the end of each work s
 | Seed data | ✅ | `admin@noeve.local` / `customer@noeve.local` + 12 sample products |
 | Redis integration | ⬜ | In docker-compose; unused in code |
 | Prisma version pinned | ✅ | Locked to `^6.19.3` via pnpm overrides in root `package.json` |
+| Static File Serving | ✅ | `@nestjs/serve-static` added to serve uploaded product images from `public/uploads` |
 
 **Key endpoints live:** `/v1/store/categories`, `/store/products`, `/store/cart/*`, `/store/auth/*`, `POST /store/orders`, `/admin/auth/login`, `/admin/orders/*`
 
@@ -81,9 +82,10 @@ Living document for project progress. Update this file at the end of each work s
 | Login page | ✅ | Wired to `POST /admin/auth/login` |
 | Auth guard (dashboard) | ✅ | Client-side redirect to `/login` |
 | Orders list + status updates | ✅ | Table with fulfillment transition buttons |
-| Products CRUD UI | ✅ | List + create implemented (`/dashboard/products`) |
+| Products CRUD UI | ✅ | Form accepts standard currency inputs and handles image uploads properly |
+| Promotions CRUD UI | ✅ | Admin form added with standard currency inputs for discounts |
 | Fulfillment queue UI | ⬜ | Stub page |
-| Inventory, customers, promotions, settings | ⬜ | Routes not created |
+| Inventory, customers, settings | ⬜ | Routes not created |
 | Auth guard / JWT middleware | ⬜ | `middleware.ts` is HTTPS-only |
 
 ---
@@ -241,6 +243,7 @@ pnpm dev:web-admin    # http://localhost:3002
 | 2026-06-26 | Noeve Visual Parity & Sync | Standardized login, registration, cart, product detail, account, and checkout layouts using global CSS classes matching ReferenceDesign. Updated shared UI tokens color theme and fully styled the mobile-store applications screens. Staged & committed changes. | Phase 2: Payment Gateway Integration |
 | 2026-06-30 | Wishlist & Sandbox Payments | Refactored web-store wishlist to use unified apiClient, implemented sandbox payment simulation with signature verification on mobile checkout screen, added comprehensive unit tests for WishlistService, and fixed TS compilation warnings. | Phase 2: Native payment SDKs (optional) |
 | 2026-07-01 | Mobile Polish & Production Infra | Implemented real-time order history for the mobile Account screen. Created production Docker infrastructure (`docker-compose.prod.yml`, Dockerfiles), Nginx TLS configs, a GitHub Actions CI pipeline, and a comprehensive deployment guide. | Phase 2: Finalize email notifications & web-admin fulfillment UI |
+| 2026-07-02 | Admin Stability & Storefront UX | Fixed Multer image upload paths and added ServeStaticModule to API. Fixed web-store gallery thumbnails and zoom jitter. Refactored Admin product/promotions forms to use standard currency values. Standardized shipping calculations/text. Added dynamic authentication checking to header. | Phase 2: Implement dynamic Product Variants on Web-Store |
 
 ---
 

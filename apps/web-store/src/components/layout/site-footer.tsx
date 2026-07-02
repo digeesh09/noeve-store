@@ -27,7 +27,9 @@ export function SiteFooter(): React.JSX.Element {
       <div className="wrap">
         <div className="footer__top">
           <div className="footer__brand">
-            <Link href="/" className="nav__logo" style={{ color: 'var(--cream)' }}>NOEVE</Link>
+            <Link href="/" className="nav__logo" style={{ color: 'var(--cream)', display: 'flex', alignItems: 'center' }}>
+              <img src="/images/logo.png" alt="NOEVE" style={{ height: '56px', width: 'auto', filter: 'invert(1) brightness(2)' }} />
+            </Link>
             <p className="footer__tagline">
               Considered fashion, beauty and lifestyle, made to outlast the season.
             </p>

@@ -49,22 +49,44 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  orders Order[]
-  cart   Cart?
-  wishlist WishlistItem[]
+  orders    Order[]
+  cart      Cart?
+  wishlist  WishlistItem[]
+  reviews   Review[]
+  addresses Address[]
 
   @@map("users")
 }
 
-model Category {
-  id          String    @id @default(uuid())
+model Address {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
   name        String
-  slug        String    @unique
+  phone       String
+  streetLine1 String   @map("street_line_1")
+  streetLine2 String?  @map("street_line_2")
+  city        String
+  state       String
+  postalCode  String   @map("postal_code")
+  country     String   @default("IN")
+  isDefault   Boolean  @default(false) @map("is_default")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
   description String?
-  imageUrl    String?   @map("image_url")
-  sortOrder   Int       @default(0) @map("sort_order")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  imageUrl    String?  @map("image_url")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   products Product[]
 
@@ -90,11 +112,12 @@ model Product {
   createdAt        DateTime      @default(now()) @map("created_at")
   updatedAt        DateTime      @updatedAt @map("updated_at")
 
-  category Category       @relation(fields: [categoryId], references: [id])
-  images   ProductImage[]
-  variants ProductVariant[]
-  cartLines CartLine[]
+  category      Category         @relation(fields: [categoryId], references: [id])
+  images        ProductImage[]
+  variants      ProductVariant[]
+  cartLines     CartLine[]
   wishlistItems WishlistItem[]
+  reviews       Review[]
 
   @@map("products")
 }
@@ -169,24 +192,24 @@ model Order {
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @updatedAt @map("updated_at")
 
-  user   User                 @relation(fields: [userId], references: [id])
-  lines  OrderLine[]
+  user          User                 @relation(fields: [userId], references: [id])
+  lines         OrderLine[]
   statusHistory OrderStatusHistory[]
-  payment Payment?
+  payment       Payment?
 
   @@map("orders")
 }
 
 model OrderLine {
-  id              String @id @default(uuid())
-  orderId         String @map("order_id")
-  productId       String @map("product_id")
-  variantId       String? @map("variant_id")
-  productName     String @map("product_name")
-  sku             String
-  quantity        Int
-  unitPriceCents  Int    @map("unit_price_cents")
-  lineTotalCents  Int    @map("line_total_cents")
+  id             String  @id @default(uuid())
+  orderId        String  @map("order_id")
+  productId      String  @map("product_id")
+  variantId      String? @map("variant_id")
+  productName    String  @map("product_name")
+  sku            String
+  quantity       Int
+  unitPriceCents Int     @map("unit_price_cents")
+  lineTotalCents Int     @map("line_total_cents")
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -207,16 +230,16 @@ model OrderStatusHistory {
 }
 
 model Payment {
-  id              String        @id @default(uuid())
-  orderId         String        @unique @map("order_id")
-  amountCents     Int           @map("amount_cents")
-  currency        String        @default("INR")
-  status          PaymentStatus @default(PENDING)
-  provider        String        @default("RAZORPAY")
-  providerOrderId String?       @map("provider_order_id")
-  providerPaymentId String?     @map("provider_payment_id")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  id                String        @id @default(uuid())
+  orderId           String        @unique @map("order_id")
+  amountCents       Int           @map("amount_cents")
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  provider          String        @default("RAZORPAY")
+  providerOrderId   String?       @map("provider_order_id")
+  providerPaymentId String?       @map("provider_payment_id")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -249,4 +272,29 @@ model Promotion {
   updatedAt          DateTime  @updatedAt @map("updated_at")
 
   @@map("promotions")
+}
+
+model StoreSettings {
+  id                     String   @id @default(uuid())
+  shippingThresholdCents Int      @default(1500000) @map("shipping_threshold_cents")
+  shippingRateCents      Int      @default(100000) @map("shipping_rate_cents")
+  taxRatePercentage      Float    @default(0) @map("tax_rate_percentage")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  @@map("store_settings")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  userId    String   @map("user_id")
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
 }

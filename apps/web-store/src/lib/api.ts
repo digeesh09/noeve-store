@@ -19,7 +19,12 @@ export const apiClient = new NoeveApiClient({
     if (typeof window !== 'undefined') {
       const { clearAccessToken } = require('./auth');
       clearAccessToken();
-      window.location.href = '/login?session_expired=true';
+      const path = window.location.pathname;
+      if (path.startsWith('/account') || path.startsWith('/checkout')) {
+        window.location.href = '/login?session_expired=true';
+      } else {
+        window.location.reload();
+      }
     }
   }
 });
