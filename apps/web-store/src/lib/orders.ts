@@ -12,6 +12,8 @@ export interface OrderLine {
   quantity: number;
   unitPriceCents: number;
   lineTotalCents: number;
+  imageUrl?: string | null;
+  productSlug?: string;
 }
 
 export interface Order {

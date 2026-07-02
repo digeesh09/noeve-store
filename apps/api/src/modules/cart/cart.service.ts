@@ -212,7 +212,9 @@ export class CartService {
       include: {
         lines: {
           include: {
-            product: true,
+            product: {
+              include: { category: true }
+            },
             variant: true,
           },
         },

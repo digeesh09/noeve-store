@@ -87,6 +87,10 @@ export interface Product {
   purity: string | null;
   gemstone: string | null;
   weightGrams: number | null;
+  composition?: string | null;
+  careInstructions?: string | null;
+  sizeAndFit?: string | null;
+  shippingAndReturns?: string | null;
   createdAt: string;
   variants?: ProductVariant[];
   images?: ProductImage[];
@@ -121,11 +125,27 @@ export interface Category {
   name: string;
   slug: string;
   description: string | null;
+  taxRatePercentage?: number | null;
+  returnPolicy?: string | null;
 }
 
 export async function fetchCategories(): Promise<Category[]> {
   const res = await apiClient.store.getCategories();
   return res.data as unknown as Category[];
+}
+
+export async function createCategory(data: any): Promise<Category> {
+  const res = await apiClient.admin.createCategory(data);
+  return res.data as unknown as Category;
+}
+
+export async function updateCategory(id: string, data: any): Promise<Category> {
+  const res = await apiClient.admin.updateCategory(id, data);
+  return res.data as unknown as Category;
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  await apiClient.admin.deleteCategory(id);
 }
 
 export interface Promotion {

@@ -18,6 +18,7 @@ export const API_PATHS = {
       login: '/admin/auth/login',
     },
     products: '/admin/products',
+    categories: '/admin/categories',
     orders: '/admin/orders',
     fulfillment: '/admin/fulfillment',
   },

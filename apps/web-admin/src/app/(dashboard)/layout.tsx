@@ -10,6 +10,7 @@ const nav = [
   { href: '/dashboard', label: 'Overview' },
   { href: '/dashboard/orders', label: 'Orders' },
   { href: '/dashboard/products', label: 'Products' },
+  { href: '/dashboard/categories', label: 'Categories' },
   { href: '/dashboard/promotions', label: 'Promotions' },
   { href: '/dashboard/fulfillment', label: 'Fulfillment' },
   { href: '/dashboard/settings', label: 'Settings' },

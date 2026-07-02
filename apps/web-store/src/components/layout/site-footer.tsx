@@ -9,9 +9,9 @@ const shopLinks = [
 ];
 const supportLinks = [
   { href: '/account', label: 'Order Status' },
-  { href: '#', label: 'Shipping & Returns' },
+  { href: '/return-policy', label: 'Returns Policy' },
   { href: '#', label: 'Size Guide' },
-  { href: '#', label: 'Contact Us' },
+  { href: '/grievance-redressal', label: 'Grievance Redressal' },
   { href: '#', label: 'FAQs' },
 ];
 const studioLinks = [
@@ -81,8 +81,10 @@ export function SiteFooter(): React.JSX.Element {
         <div className="footer__bottom">
           <p>© {new Date().getFullYear()} NOEVE. All rights reserved. — www.noeve.store</p>
           <div className="footer__legal">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
+            <Link href="/payment-security">Payment Security</Link>
+            <Link href="/e-waste-compliance">E-Waste</Link>
+            <Link href="/privacy-policy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
           </div>
         </div>
       </div>

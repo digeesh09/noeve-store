@@ -185,13 +185,25 @@ export class OrdersService {
     const currency = cart.lines[0]?.product.currency ?? 'INR';
     
     // Taxation & Shipping logic
-    const taxRate = 0.18; // 18% GST
-    const taxCents = Math.round(subtotalCents * taxRate);
+    const storeSettings = await this.prisma.storeSettings.findFirst();
+    const defaultTaxRate = storeSettings ? storeSettings.taxRatePercentage / 100 : 0.18;
     
-    // Free shipping on orders over 15000 INR ($150 USD equivalent), otherwise 1000 INR
+    let taxCents = 0;
+    for (const line of cart.lines) {
+      const unitPriceCents = line.variant?.priceCents ?? line.product.basePriceCents;
+      const lineTotalCents = unitPriceCents * line.quantity;
+      const catTaxRate = line.product.category?.taxRatePercentage;
+      const rateToUse = (catTaxRate !== null && catTaxRate !== undefined) ? (catTaxRate / 100) : defaultTaxRate;
+      taxCents += Math.round(lineTotalCents * rateToUse);
+    }
+    
+    // Shipping threshold from settings, default to 15000 INR
+    const shippingThresholdCents = storeSettings ? storeSettings.shippingThresholdCents : 1500000;
+    const shippingRateCentsFallback = storeSettings ? storeSettings.shippingRateCents : 100000;
+    
     let shippingCents = 0;
-    if (subtotalCents < 1500000) { 
-      shippingCents = 100000; // $10 or 1000 INR flat rate
+    if (subtotalCents < shippingThresholdCents) { 
+      shippingCents = shippingRateCentsFallback;
     }
 
     const totalCents = Math.max(0, subtotalCents + shippingCents + taxCents - ((input as any).discountCents || 0));

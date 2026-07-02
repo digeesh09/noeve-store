@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProductStatus } from '@prisma/client';
-import { createProductSchema, updateProductSchema } from '@noeve/validation';
-import type { CreateProductInput, UpdateProductInput } from '@noeve/validation';
+import { createProductSchema, updateProductSchema, createCategorySchema, updateCategorySchema } from '@noeve/validation';
+import type { CreateProductInput, UpdateProductInput, CreateCategoryInput, UpdateCategoryInput } from '@noeve/validation';
 import { paginationQuerySchema } from '@noeve/validation';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -14,6 +14,23 @@ export class CatalogService {
       orderBy: { sortOrder: 'asc' },
     });
     return { data: categories };
+  }
+
+  async createCategory(input: CreateCategoryInput) {
+    const data = createCategorySchema.parse(input);
+    const category = await this.prisma.category.create({ data: { ...data, imageUrl: data.imageUrl || null } });
+    return { data: category };
+  }
+
+  async updateCategory(id: string, input: UpdateCategoryInput) {
+    const data = updateCategorySchema.parse(input);
+    const category = await this.prisma.category.update({ where: { id }, data: { ...data, imageUrl: data.imageUrl || null } });
+    return { data: category };
+  }
+
+  async deleteCategory(id: string) {
+    await this.prisma.category.delete({ where: { id } });
+    return { success: true };
   }
 
   async listProducts(query: Record<string, unknown>, activeOnly = true) {

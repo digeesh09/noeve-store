@@ -147,6 +147,13 @@ export class NoeveApiClient {
       this.request<Order>(`/admin/orders/${orderId}/status`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
 
     getProducts: (options?: RequestInit) => this.request<Product[]>('/admin/products', options),
+    getCategories: (options?: RequestInit) => this.request<Category[]>('/admin/categories', options),
+    createCategory: (body: any, options?: RequestInit) =>
+      this.request<Category>('/admin/categories', { ...options, method: 'POST', body: JSON.stringify(body) }),
+    updateCategory: (id: string, body: any, options?: RequestInit) =>
+      this.request<Category>(`/admin/categories/${id}`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+    deleteCategory: (id: string, options?: RequestInit) =>
+      this.request<void>(`/admin/categories/${id}`, { ...options, method: 'DELETE' }),
     createProduct: (body: any, options?: RequestInit) =>
       this.request<Product>('/admin/products', { ...options, method: 'POST', body: JSON.stringify(body) }),
     updateProduct: (id: string, body: any, options?: RequestInit) =>

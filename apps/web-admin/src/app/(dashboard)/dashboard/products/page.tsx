@@ -22,6 +22,10 @@ export default function ProductsPage(): React.JSX.Element {
   const [variants, setVariants] = useState<any[]>([]);
   const [images, setImages] = useState<any[]>([]);
 
+  // Filtering State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategoryId, setFilterCategoryId] = useState('');
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
@@ -33,6 +37,10 @@ export default function ProductsPage(): React.JSX.Element {
     purity: '',
     gemstone: '',
     weightGrams: '',
+    composition: '',
+    careInstructions: '',
+    sizeAndFit: '',
+    shippingAndReturns: '',
   });
 
   const load = useCallback(async () => {
@@ -67,6 +75,10 @@ export default function ProductsPage(): React.JSX.Element {
       purity: product.purity || '',
       gemstone: product.gemstone || '',
       weightGrams: product.weightGrams ? String(product.weightGrams) : '',
+      composition: product.composition || '',
+      careInstructions: product.careInstructions || '',
+      sizeAndFit: product.sizeAndFit || '',
+      shippingAndReturns: product.shippingAndReturns || '',
     });
     setVariants(product.variants?.map((v: any) => ({ ...v, price: v.priceCents / 100 })) || []);
     setImages(product.images || []);
@@ -79,7 +91,7 @@ export default function ProductsPage(): React.JSX.Element {
     setVariants([]);
     setImages([]);
     setFormData({
-      name: '', slug: '', description: '', categoryId: categories[0]?.id || '', basePrice: 0, material: '', purity: '', gemstone: '', weightGrams: ''
+      name: '', slug: '', description: '', categoryId: categories[0]?.id || '', basePrice: 0, material: '', purity: '', gemstone: '', weightGrams: '', composition: '', careInstructions: '', sizeAndFit: '', shippingAndReturns: ''
     });
   };
 
@@ -95,6 +107,10 @@ export default function ProductsPage(): React.JSX.Element {
         material: formData.material || undefined,
         purity: formData.purity || undefined,
         gemstone: formData.gemstone || undefined,
+        composition: formData.composition || undefined,
+        careInstructions: formData.careInstructions || undefined,
+        sizeAndFit: formData.sizeAndFit || undefined,
+        shippingAndReturns: formData.shippingAndReturns || undefined,
         basePriceCents: Math.round(Number(formData.basePrice) * 100),
         weightGrams: formData.weightGrams ? Number(formData.weightGrams) : undefined,
         variants: variants.map(v => ({ ...v, priceCents: Math.round(Number(v.price) * 100), stockQuantity: Number(v.stockQuantity) })),
@@ -178,6 +194,26 @@ export default function ProductsPage(): React.JSX.Element {
               <label className="block text-sm font-medium text-neutral-700">Description</label>
               <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
             </div>
+            
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-neutral-700">Composition</label>
+              <textarea value={formData.composition} onChange={e => setFormData({...formData, composition: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-neutral-700">Care Instructions</label>
+              <textarea value={formData.careInstructions} onChange={e => setFormData({...formData, careInstructions: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-neutral-700">Size & Fit</label>
+              <textarea value={formData.sizeAndFit} onChange={e => setFormData({...formData, sizeAndFit: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-neutral-700">Shipping & Returns</label>
+              <textarea value={formData.shippingAndReturns} onChange={e => setFormData({...formData, shippingAndReturns: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+            </div>
 
             {/* Images */}
             <div className="md:col-span-2 border-t pt-4">
@@ -242,6 +278,28 @@ export default function ProductsPage(): React.JSX.Element {
         </form>
       )}
 
+      {!isCreating && (
+        <div className="mt-6 flex flex-col sm:flex-row gap-4 mb-4">
+          <input 
+            type="text" 
+            placeholder="Search products by name or slug..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="block w-full sm:w-1/3 rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm"
+          />
+          <select 
+            value={filterCategoryId}
+            onChange={(e) => setFilterCategoryId(e.target.value)}
+            className="block w-full sm:w-1/4 rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm"
+          >
+            <option value="">All Categories</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {loading ? (
         <p className="mt-8 text-sm text-neutral-500">Loading products…</p>
       ) : products.length === 0 ? (
@@ -258,7 +316,10 @@ export default function ProductsPage(): React.JSX.Element {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {products
+                .filter(p => !filterCategoryId || p.categoryId === filterCategoryId)
+                .filter(p => !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.slug.toLowerCase().includes(searchQuery.toLowerCase()))
+                .map((product) => (
                 <tr key={product.id} className="border-b border-neutral-100">
                   <td className="px-4 py-3">
                     <p className="font-medium">{product.name}</p>

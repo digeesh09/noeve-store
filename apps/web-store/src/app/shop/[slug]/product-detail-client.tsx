@@ -339,10 +339,11 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                   <path d={openAccordion === 0 ? 'M5 12h14' : 'M12 5v14M5 12h14'} />
                 </svg>
               </button>
-              <div className="accordion__panel" style={{ maxHeight: openAccordion === 0 ? '120px' : '0' }}>
+              <div className="accordion__panel" style={{ maxHeight: openAccordion === 0 ? '400px' : '0' }}>
                 <div className="accordion__panel-inner">
-                  {product.careInstructions ||
-                    '100% premium quality composition. Hand wash cold and lay flat to dry. Cool iron on the reverse side only.'}
+                  {product.composition && <p style={{ marginBottom: '0.5rem' }}><strong>Composition:</strong> {product.composition}</p>}
+                  {product.careInstructions ? <p>{product.careInstructions}</p> :
+                    <p>100% premium quality composition. Hand wash cold and lay flat to dry. Cool iron on the reverse side only.</p>}
                 </div>
               </div>
             </div>
@@ -354,9 +355,9 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                   <path d={openAccordion === 1 ? 'M5 12h14' : 'M12 5v14M5 12h14'} />
                 </svg>
               </button>
-              <div className="accordion__panel" style={{ maxHeight: openAccordion === 1 ? '120px' : '0' }}>
+              <div className="accordion__panel" style={{ maxHeight: openAccordion === 1 ? '400px' : '0' }}>
                 <div className="accordion__panel-inner">
-                  Relaxed through the body, true to size. Our model is 5&apos;9&quot; wearing a size S. Size up for an oversized drape.
+                  {product.sizeAndFit || "Relaxed through the body, true to size. Our model is 5'9\" wearing a size S. Size up for an oversized drape."}
                 </div>
               </div>
             </div>
@@ -368,9 +369,9 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                   <path d={openAccordion === 2 ? 'M5 12h14' : 'M12 5v14M5 12h14'} />
                 </svg>
               </button>
-              <div className="accordion__panel" style={{ maxHeight: openAccordion === 2 ? '120px' : '0' }}>
+              <div className="accordion__panel" style={{ maxHeight: openAccordion === 2 ? '400px' : '0' }}>
                 <div className="accordion__panel-inner">
-                  Dispatched within 1–2 business days. Free standard shipping on orders over {settings ? formatPrice(settings.shippingThresholdCents, product.currency) : '₹15,000'}. Unworn items may be returned within 30 days for a full refund.
+                  {product.shippingAndReturns || product.category?.returnPolicy || `Dispatched within 1–2 business days. Free standard shipping on orders over ${settings ? formatPrice(settings.shippingThresholdCents, product.currency) : '₹15,000'}. Unworn items may be returned within 30 days for a full refund.`}
                 </div>
               </div>
             </div>

@@ -29,6 +29,8 @@ export interface Category {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  taxRatePercentage?: number | null;
+  returnPolicy?: string | null;
 }
 
 export interface Product {
@@ -45,6 +47,9 @@ export interface Product {
   purity: string | null;
   gemstone: string | null;
   weightGrams: number | null;
+  composition: string | null;
+  sizeAndFit: string | null;
+  shippingAndReturns: string | null;
   careInstructions: string | null;
   images: ProductImage[];
   variants: ProductVariant[];

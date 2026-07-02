@@ -4,6 +4,8 @@ export interface Category {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  returnPolicy?: string | null;
+  taxRatePercentage?: number | null;
 }
 
 export interface ProductImage {
@@ -31,6 +33,9 @@ export interface Product {
   purity: string | null;
   gemstone: string | null;
   weightGrams: number | null;
+  composition?: string | null;
+  sizeAndFit?: string | null;
+  shippingAndReturns?: string | null;
   careInstructions: string | null;
   images?: ProductImage[];
   variants?: ProductVariant[];

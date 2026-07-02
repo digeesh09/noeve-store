@@ -217,7 +217,7 @@ export default function CheckoutPage(): React.JSX.Element {
   }
 
   if (!isLoggedIn()) {
-    return null;
+    return <></>;
   }
 
   if (success) {
