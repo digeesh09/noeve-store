@@ -102,6 +102,7 @@ noeve/                              # repo root (this Code/ directory)
 ├── docs/
 │   ├── ARCHITECTURE.md             # This file
 │   ├── SYSTEM_ARCHITECTURE_AND_TECHNOLOGIES.md # Detailed tech stack and system frameworks
+│   ├── HORIZONTAL_SCALING.md       # Guidelines for horizontal scaling and load balancers
 │   ├── USER_MANUAL.md              # User and Admin Manual
 │   ├── api/                        # OpenAPI exports, ADRs
 │   └── runbooks/                   # Fulfillment, incident playbooks
