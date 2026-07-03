@@ -142,8 +142,16 @@ export function AccountPanel(): React.JSX.Element {
                   </div>
                   <span className="order-card__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg></span>
                 </div>
-                {isOpen && (
-                  <div className="order-card__body" style={{maxHeight:'600px'}}>
+                <div 
+                  className="order-card__body" 
+                  style={{ 
+                    maxHeight: isOpen ? '2000px' : '0px',
+                    opacity: isOpen ? 1 : 0,
+                    overflow: 'hidden',
+                    transition: 'all 0.4s ease',
+                    borderTop: isOpen ? '1px solid rgba(33,29,25,.1)' : 'none'
+                  }}
+                >
                     <div className="order-card__body-inner">
                       <div>
                         {order.lines?.map((line, i) => (
@@ -273,7 +281,6 @@ export function AccountPanel(): React.JSX.Element {
                       <a href="#" className="btn btn--outline">Need Help?</a>
                     </div>
                   </div>
-                )}
               </article>
             );
           })}
