@@ -101,6 +101,8 @@ noeve/                              # repo root (this Code/ directory)
 │
 ├── docs/
 │   ├── ARCHITECTURE.md             # This file
+│   ├── SYSTEM_ARCHITECTURE_AND_TECHNOLOGIES.md # Detailed tech stack and system frameworks
+│   ├── USER_MANUAL.md              # User and Admin Manual
 │   ├── api/                        # OpenAPI exports, ADRs
 │   └── runbooks/                   # Fulfillment, incident playbooks
 │
