@@ -7,6 +7,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/v1';
 
 export interface OrderLine {
   id: string;
+  productId: string;
+  variantId?: string | null;
   productName: string;
   sku: string;
   quantity: number;

@@ -8,6 +8,8 @@ import { fetchMyOrders, type Order } from '@/lib/orders';
 import { formatPrice } from '@/lib/format';
 import { fetchWishlist, removeFromWishlist, type WishlistItem } from '@/lib/wishlist';
 import { fetchAddresses, addAddress, updateAddress, deleteAddress, type Address } from '@/lib/addresses';
+import { useCart } from '@/components/cart/cart-provider';
+import { useRouter } from 'next/navigation';
 
 export function AccountPanel(): React.JSX.Element {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -29,6 +31,33 @@ export function AccountPanel(): React.JSX.Element {
   const [activeTicket, setActiveTicket] = useState<any>(null);
   const [replyMessage, setReplyMessage] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
+
+  const [addingToCart, setAddingToCart] = useState<string | null>(null);
+  const router = useRouter();
+  const { addItem } = useCart();
+
+  const handleBuyAgain = async (order: Order) => {
+    setAddingToCart(order.id);
+    try {
+      for (const line of order.lines) {
+        if (line.productId) {
+          await addItem(line.productId, line.variantId || undefined, line.quantity);
+        }
+      }
+      router.push('/cart');
+    } catch (err) {
+      alert('Could not add some items to cart.');
+    } finally {
+      setAddingToCart(null);
+    }
+  };
+
+  const handleNeedHelp = (order: Order) => {
+    setTab('inbox');
+    setInboxForm(true);
+    setInboxSubject(`Question about Order #${order.orderNumber}`);
+    setInboxMessage(`Hi Noeve Support,\n\nI need help with my order ${order.orderNumber} placed on ${new Date(order.createdAt).toLocaleDateString()}.\n\n`);
+  };
 
   useEffect(() => { 
     setLoggedIn(isLoggedIn()); 
@@ -277,8 +306,19 @@ export function AccountPanel(): React.JSX.Element {
                       </div>
                     </div>
                     <div className="order-card__actions">
-                      <Link href="/#edit" className="btn btn--primary">Buy Again</Link>
-                      <a href="#" className="btn btn--outline">Need Help?</a>
+                      <button 
+                        onClick={() => handleBuyAgain(order)} 
+                        disabled={addingToCart === order.id}
+                        className="btn btn--primary"
+                      >
+                        {addingToCart === order.id ? 'Adding to Cart...' : 'Buy Again'}
+                      </button>
+                      <button 
+                        onClick={() => handleNeedHelp(order)} 
+                        className="btn btn--outline"
+                      >
+                        Need Help?
+                      </button>
                     </div>
                   </div>
               </article>
