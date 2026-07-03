@@ -266,12 +266,17 @@ function TicketDrawer({
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
+import { useSearchParams } from 'next/navigation';
+
 export default function SupportAdminPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [drawerLoading, setDrawerLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  
+  const searchParams = useSearchParams();
+  const ticketIdParam = searchParams.get('ticketId');
 
   useEffect(() => {
     loadTickets();
@@ -282,6 +287,13 @@ export default function SupportAdminPage() {
     try {
       const res = await fetchSupportTickets(1, 100);
       setTickets(res.data);
+      
+      if (ticketIdParam) {
+        const t = res.data.find((x: Ticket) => x.id === ticketIdParam);
+        if (t && !selectedTicket) {
+          openTicket(t);
+        }
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -333,7 +345,19 @@ export default function SupportAdminPage() {
       {/* Page header */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Support Tickets</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-gray-900">Support Tickets</h1>
+            <button 
+              onClick={() => { setLoading(true); loadTickets(); }}
+              disabled={loading}
+              className="p-2 rounded-full hover:bg-neutral-100 text-neutral-500 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 disabled:opacity-50"
+              title="Refresh Tickets"
+            >
+              <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
           <p className="mt-1 text-sm text-gray-500">
             Manage customer inquiries — click any row to view details and reply.
           </p>

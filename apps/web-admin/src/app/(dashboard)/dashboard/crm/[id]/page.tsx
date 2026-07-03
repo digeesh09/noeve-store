@@ -56,16 +56,18 @@ export default function CustomerInsightsPage({ params }: { params: Promise<{ id:
           <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
             <ul className="divide-y divide-neutral-200">
               {insights.recentTickets?.map((ticket: any) => (
-                <li key={ticket.id} className="p-4 hover:bg-neutral-50">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm font-medium text-neutral-900">{ticket.subject}</p>
-                      <p className="text-xs text-neutral-500 line-clamp-2 mt-1">{ticket.message}</p>
+                <li key={ticket.id} className="hover:bg-neutral-50 transition-colors">
+                  <Link href={`/dashboard/support?ticketId=${ticket.id}`} className="block p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-medium text-neutral-900 group-hover:text-brand-primary">{ticket.subject}</p>
+                        <p className="text-xs text-neutral-500 line-clamp-2 mt-1">{ticket.message}</p>
+                      </div>
+                      <span className="ml-2 inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">
+                        {ticket.status}
+                      </span>
                     </div>
-                    <span className="ml-2 inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-800">
-                      {ticket.status}
-                    </span>
-                  </div>
+                  </Link>
                 </li>
               ))}
               {(!insights.recentTickets || insights.recentTickets.length === 0) && (
