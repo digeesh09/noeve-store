@@ -24,7 +24,7 @@ export default function CartPage(): React.JSX.Element {
   if (loading || !settings || !cart) return <div className="wrap"><p style={{padding:'5rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>Loading your bag…</p></div>;
 
   const subtotal = cart.subtotalCents;
-  const shipping = subtotal >= settings.shippingThresholdCents ? 0 : settings.shippingRateCents;
+  const shipping = (cart.lines.length === 0 || subtotal >= settings.shippingThresholdCents) ? 0 : settings.shippingRateCents;
   const total = subtotal + shipping;
 
   return (

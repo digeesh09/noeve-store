@@ -63,4 +63,38 @@ export class ReportsService {
         }
      });
   }
+
+  async getDailyRevenue(startDate?: string, endDate?: string) {
+    const end = endDate ? new Date(endDate) : new Date();
+    const start = startDate ? new Date(startDate) : new Date(new Date().setDate(end.getDate() - 30));
+
+    const orders = await this.prisma.order.findMany({
+      where: {
+        createdAt: { gte: start, lte: end },
+        status: { notIn: [OrderStatus.PENDING_PAYMENT, OrderStatus.CANCELLED, OrderStatus.REFUNDED] }
+      },
+      select: { createdAt: true, totalCents: true }
+    });
+
+    // Group by YYYY-MM-DD
+    const dailyMap = new Map<string, number>();
+    for (const o of orders) {
+      const dateKey = o.createdAt.toISOString().split('T')[0];
+      dailyMap.set(dateKey, (dailyMap.get(dateKey) || 0) + (o.totalCents || 0));
+    }
+
+    const data = Array.from(dailyMap.entries())
+      .map(([date, revenueCents]) => ({ date, revenueCents }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    return data;
+  }
+
+  async getOrdersByStatus() {
+    const stats = await this.prisma.order.groupBy({
+      by: ['status'],
+      _count: { id: true }
+    });
+    return stats.map(s => ({ status: s.status, count: s._count.id }));
+  }
 }

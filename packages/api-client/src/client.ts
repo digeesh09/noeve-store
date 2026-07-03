@@ -138,6 +138,9 @@ export class NoeveApiClient {
       this.request<any>('/store/support', { ...options, method: 'POST', body: JSON.stringify(body) }),
     getMySupportTickets: (options?: RequestInit) =>
       this.request<any[]>('/store/support/my-tickets', options),
+      
+    replyToSupportTicket: (ticketId: string, body: { message: string }, options?: RequestInit) =>
+      this.request<any>(`/store/support/${ticketId}/reply`, { ...options, method: 'POST', body: JSON.stringify(body) }),
   };
 
   admin = {
@@ -247,6 +250,10 @@ export class NoeveApiClient {
     },
     updateSupportTicketStatus: (id: string, body: { status: string }, options?: RequestInit) =>
       this.request<any>(`/admin/support/${id}/status`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+    getSupportTicket: (id: string, options?: RequestInit) =>
+      this.request<any>(`/admin/support/${id}`, options),
+    addSupportTicketReply: (id: string, body: { message: string }, options?: RequestInit) =>
+      this.request<any>(`/admin/support/${id}/reply`, { ...options, method: 'POST', body: JSON.stringify(body) }),
   };
 }
 

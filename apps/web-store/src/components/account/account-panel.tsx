@@ -26,6 +26,9 @@ export function AccountPanel(): React.JSX.Element {
   const [inboxForm, setInboxForm] = useState(false);
   const [inboxSubject, setInboxSubject] = useState('');
   const [inboxMessage, setInboxMessage] = useState('');
+  const [activeTicket, setActiveTicket] = useState<any>(null);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
 
   useEffect(() => { 
     setLoggedIn(isLoggedIn()); 
@@ -50,7 +53,7 @@ export function AccountPanel(): React.JSX.Element {
   const fetchOrders = () => fetchMyOrders().then(setOrders).catch(() => setOrders([]));
   const fetchWishlistData = () => fetchWishlist().then(setWishlist).catch(() => setWishlist([]));
   const fetchAddressesData = () => fetchAddresses().then(setAddresses).catch(() => setAddresses([]));
-  const fetchInbox = () => import('@/lib/api').then(({ apiClient }) => apiClient.store.getMySupportTickets().then(res => setInbox(res.data)).catch(() => setInbox([])));
+  const fetchInbox = () => import('@/lib/api').then(({ apiClient }) => apiClient.store.getMySupportTickets().then(res => setInbox(res.data || res || [])).catch(() => setInbox([])));
 
   useEffect(() => {
     if (loggedIn && tab === 'wishlist') fetchWishlistData();
@@ -189,9 +192,70 @@ export function AccountPanel(): React.JSX.Element {
                           <h4 style={{ fontSize: '.9rem', fontWeight: 600, marginBottom: '.25rem' }}>Fulfillment Status</h4>
                           <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.8)' }}>{order.status}</p>
                           {order.trackingNumber && (
-                            <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.7)', marginTop: '.25rem' }}>
-                              Tracking: {order.trackingNumber} {order.carrier ? `(${order.carrier})` : ''}
-                            </p>
+                            <div style={{
+                              marginTop: '.75rem',
+                              border: '1px solid rgba(99,102,241,.25)',
+                              borderRadius: '8px',
+                              background: 'rgba(99,102,241,.05)',
+                              padding: '.75rem',
+                            }}>
+                              <p style={{ fontSize: '.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', color: 'rgba(99,102,241,.9)', marginBottom: '.4rem' }}>
+                                📦 Track Your Shipment
+                              </p>
+                              {order.carrier && (
+                                <span style={{
+                                  display: 'inline-block',
+                                  background: 'rgba(99,102,241,.12)',
+                                  color: 'rgba(67,56,202,1)',
+                                  borderRadius: '999px',
+                                  padding: '.15rem .6rem',
+                                  fontSize: '.72rem',
+                                  fontWeight: 600,
+                                  marginBottom: '.4rem',
+                                }}>
+                                  {order.carrier}
+                                </span>
+                              )}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', marginTop: '.25rem' }}>
+                                <code style={{
+                                  fontFamily: 'var(--mono)',
+                                  fontSize: '.8rem',
+                                  fontWeight: 600,
+                                  color: 'rgba(55,48,163,1)',
+                                  letterSpacing: '.03em',
+                                  flex: 1,
+                                  wordBreak: 'break-all',
+                                }}>
+                                  {order.trackingNumber}
+                                </code>
+                                <button
+                                  type="button"
+                                  title="Copy tracking number"
+                                  onClick={() => navigator.clipboard?.writeText(order.trackingNumber!)}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'rgba(99,102,241,.8)', flexShrink: 0 }}
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                  </svg>
+                                </button>
+                              </div>
+                              <a
+                                href={`https://www.google.com/search?q=${encodeURIComponent((order.carrier ?? '') + ' ' + order.trackingNumber)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  display: 'inline-block',
+                                  marginTop: '.5rem',
+                                  fontSize: '.72rem',
+                                  color: 'rgba(99,102,241,.9)',
+                                  textDecoration: 'underline',
+                                  fontFamily: 'var(--mono)',
+                                  letterSpacing: '.03em',
+                                }}
+                              >
+                                Track online →
+                              </a>
+                            </div>
                           )}
                         </div>
                         {order.statusHistory && order.statusHistory.length > 0 && order.statusHistory[0].note && (
@@ -424,19 +488,51 @@ export function AccountPanel(): React.JSX.Element {
               } catch (err) {
                 console.error(err);
               }
-            }} style={{ marginBottom: '2rem', padding: '1.5rem', border: '1px solid var(--bone)', borderRadius: '4px' }}>
-              <h3 style={{ marginBottom: '1rem' }}>New Message</h3>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Subject</label>
-                <input required value={inboxSubject} onChange={e => setInboxSubject(e.target.value)} style={{ width: '100%', padding: '0.8rem', border: '1px solid var(--bone)', background: 'transparent' }} />
+            }} style={{ 
+              marginBottom: '3rem', padding: '2rem', border: '1px solid var(--bone)', 
+              borderRadius: '8px', background: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+            }}>
+              <h3 style={{ marginBottom: '1.5rem', fontSize: '1.25rem', fontFamily: 'var(--serif)', color: 'var(--ink)' }}>Create a New Ticket</h3>
+              <div style={{ marginBottom: '1.2rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'rgba(33,29,25,.8)' }}>Subject</label>
+                <input 
+                  required 
+                  value={inboxSubject} 
+                  onChange={e => setInboxSubject(e.target.value)} 
+                  placeholder="What do you need help with?"
+                  style={{ 
+                    width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--bone)', 
+                    background: '#fafafa', borderRadius: '6px', outline: 'none', 
+                    fontFamily: 'inherit', fontSize: '0.95rem'
+                  }} 
+                  onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--oxblood)'; e.currentTarget.style.background = '#fff'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--bone)'; e.currentTarget.style.background = '#fafafa'; }}
+                />
               </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Message</label>
-                <textarea required rows={4} value={inboxMessage} onChange={e => setInboxMessage(e.target.value)} style={{ width: '100%', padding: '0.8rem', border: '1px solid var(--bone)', background: 'transparent' }} />
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'rgba(33,29,25,.8)' }}>Message</label>
+                <textarea 
+                  required 
+                  rows={5} 
+                  value={inboxMessage} 
+                  onChange={e => setInboxMessage(e.target.value)} 
+                  placeholder="Describe your issue in detail..."
+                  style={{ 
+                    width: '100%', padding: '1rem', border: '1px solid var(--bone)', 
+                    background: '#fafafa', borderRadius: '6px', outline: 'none', 
+                    fontFamily: 'inherit', fontSize: '0.95rem', resize: 'vertical'
+                  }} 
+                  onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--oxblood)'; e.currentTarget.style.background = '#fff'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--bone)'; e.currentTarget.style.background = '#fafafa'; }}
+                />
               </div>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button type="submit" className="btn btn--primary">Send</button>
-                <button type="button" className="btn btn--secondary" onClick={() => setInboxForm(false)}>Cancel</button>
+              <div style={{ display: 'flex', gap: '1rem', justifyItems: 'flex-end', justifyContent: 'flex-end' }}>
+                <button type="button" onClick={() => setInboxForm(false)} style={{ background: 'transparent', border: 'none', color: 'rgba(33,29,25,.6)', cursor: 'pointer', fontWeight: 'bold', padding: '0.6rem 1.5rem' }}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn--primary" style={{ padding: '0.6rem 2rem', borderRadius: '4px' }}>
+                  Submit Ticket
+                </button>
               </div>
             </form>
           )}
@@ -444,19 +540,204 @@ export function AccountPanel(): React.JSX.Element {
           {inbox.length === 0 && !inboxForm ? (
             <p style={{padding:'3rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>You have no messages.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {inbox.map(ticket => (
-                <div key={ticket.id} style={{ padding: '1.5rem', border: '1px solid var(--bone)', borderRadius: '4px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <h3 style={{ fontSize: '1.1rem' }}>{ticket.subject}</h3>
-                    <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: ticket.status === 'OPEN' ? 'var(--oxblood)' : 'var(--ink)', background: 'var(--bone)', padding: '0.2rem 0.5rem', borderRadius: '2px' }}>{ticket.status}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              {(() => {
+                const openTickets = inbox.filter(t => t.status !== 'CLOSED' && t.status !== 'RESOLVED');
+                const closedTickets = inbox.filter(t => t.status === 'CLOSED' || t.status === 'RESOLVED');
+
+                const renderTicket = (ticket: any) => (
+                  <div 
+                    key={ticket.id} 
+                    onClick={() => setActiveTicket(ticket)}
+                    style={{ 
+                      padding: '1.2rem', border: '1px solid var(--bone)', borderRadius: '4px', cursor: 'pointer',
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff',
+                      transition: 'background 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--cream)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
+                  >
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', margin: '0 0 0.4rem 0' }}>{ticket.subject}</h3>
+                      <span style={{ fontSize: '0.85rem', color: 'rgba(33,29,25,.6)' }}>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: ticket.status === 'OPEN' ? 'var(--oxblood)' : 'var(--ink)', background: 'var(--bone)', padding: '0.3rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>{ticket.status}</span>
                   </div>
-                  <p style={{ color: 'rgba(33,29,25,.7)', fontSize: '0.9rem', marginBottom: '1rem' }}>{new Date(ticket.createdAt).toLocaleString()}</p>
-                  <p>{ticket.message}</p>
-                </div>
-              ))}
+                );
+
+                return (
+                  <>
+                    {openTickets.length > 0 && (
+                      <div>
+                        <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', color: 'var(--ink)', marginBottom: '1rem', fontWeight: 'bold' }}>Open Tickets</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          {openTickets.map(renderTicket)}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {closedTickets.length > 0 && (
+                      <div>
+                        <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', color: 'rgba(33,29,25,.55)', marginBottom: '1rem', fontWeight: 'bold' }}>Closed & Resolved</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', opacity: 0.85 }}>
+                          {closedTickets.map(renderTicket)}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Active Ticket Drawer Modal */}
+      {activeTicket && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', justifyContent: 'flex-end' }}>
+          {/* Backdrop */}
+          <div 
+            onClick={() => { setActiveTicket(null); setReplyMessage(''); }}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }}
+          />
+          {/* Drawer Panel */}
+          <aside style={{ position: 'relative', width: '100%', maxWidth: '600px', background: '#fff', height: '100%', display: 'flex', flexDirection: 'column', boxShadow: '-4px 0 24px rgba(0,0,0,0.1)', animation: 'slideIn 0.3s ease-out' }}>
+            <style>{`
+              @keyframes slideIn {
+                from { transform: translateX(100%); }
+                to { transform: translateX(0); }
+              }
+            `}</style>
+            
+            {/* Drawer Header */}
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--bone)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: 'var(--cream)' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: activeTicket.status === 'OPEN' ? '#fff' : 'var(--ink)', background: activeTicket.status === 'OPEN' ? 'var(--oxblood)' : 'var(--bone)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 'bold' }}>{activeTicket.status}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'rgba(33,29,25,.5)' }}>{new Date(activeTicket.createdAt).toLocaleString()}</span>
+                </div>
+                <h2 style={{ fontSize: '1.3rem', margin: 0, color: 'var(--ink)' }}>{activeTicket.subject}</h2>
+              </div>
+              <button 
+                onClick={() => { setActiveTicket(null); setReplyMessage(''); }}
+                style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--ink)', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Conversation Thread */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#fafafa' }}>
+              {/* Original Message Bubble */}
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(33,29,25,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem', flexShrink: 0, color: 'var(--ink)' }}>
+                  Y
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>You</span>
+                    <span style={{ fontSize: '0.75rem', color: 'rgba(33,29,25,.5)' }}>{new Date(activeTicket.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div style={{ background: '#fff', padding: '1rem', borderRadius: '1rem', borderTopLeftRadius: '0', fontSize: '0.95rem', whiteSpace: 'pre-wrap', color: 'var(--ink)', border: '1px solid var(--bone)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                    {activeTicket.message}
+                  </div>
+                </div>
+              </div>
+
+              {/* Replies */}
+              {activeTicket.replies?.map((reply: any) => {
+                const isMe = !reply.isAdmin;
+                return (
+                  <div key={reply.id} style={{ display: 'flex', gap: '0.75rem', flexDirection: isMe ? 'row' : 'row-reverse' }}>
+                    <div style={{ 
+                      width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                      background: isMe ? 'rgba(33,29,25,0.1)' : 'var(--oxblood)', 
+                      color: isMe ? 'var(--ink)' : '#fff',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem'
+                    }}>
+                      {isMe ? 'Y' : 'S'}
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-start' : 'flex-end' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', flexDirection: isMe ? 'row' : 'row-reverse' }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{isMe ? 'You' : 'Noeve Support'}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'rgba(33,29,25,.5)' }}>{new Date(reply.createdAt).toLocaleString()}</span>
+                      </div>
+                      <div style={{ 
+                        background: isMe ? '#fff' : 'var(--cream)', 
+                        color: 'var(--ink)',
+                        padding: '1rem', borderRadius: '1rem', 
+                        borderTopLeftRadius: isMe ? '0' : '1rem',
+                        borderTopRightRadius: isMe ? '1rem' : '0',
+                        fontSize: '0.95rem', whiteSpace: 'pre-wrap',
+                        maxWidth: '85%',
+                        border: isMe ? '1px solid var(--bone)' : 'none',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                      }}>
+                        {reply.message}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Reply Input Box */}
+            {activeTicket.status !== 'CLOSED' && activeTicket.status !== 'RESOLVED' && (
+              <div style={{ padding: '1.5rem', borderTop: '1px solid var(--bone)', background: '#fff' }}>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!replyMessage.trim()) return;
+                  setSendingReply(true);
+                  try {
+                    const { apiClient } = await import('@/lib/api');
+                    await apiClient.store.replyToSupportTicket(activeTicket.id, { message: replyMessage });
+                    
+                    // Re-fetch to update the active ticket
+                    const res = await apiClient.store.getMySupportTickets();
+                    const updatedTickets = res.data || [];
+                    setInbox(updatedTickets);
+                    
+                    const updatedActive = updatedTickets.find((t: any) => t.id === activeTicket.id);
+                    if (updatedActive) setActiveTicket(updatedActive);
+                    
+                    setReplyMessage('');
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    setSendingReply(false);
+                  }
+                }}>
+                  <textarea 
+                    required 
+                    rows={3} 
+                    placeholder="Type your reply here..."
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    style={{ 
+                      width: '100%', padding: '1rem', border: '1px solid var(--bone)', 
+                      background: '#fff', marginBottom: '1rem', borderRadius: '8px',
+                      fontFamily: 'inherit', fontSize: '0.95rem', resize: 'none',
+                      outline: 'none', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)'
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                        const target = e.target as HTMLTextAreaElement;
+                        target.form?.requestSubmit();
+                      }
+                    }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'rgba(33,29,25,.4)' }}>Press Ctrl+Enter or Cmd+Enter to send</span>
+                    <button type="submit" disabled={sendingReply} className="btn btn--primary" style={{ padding: '0.6rem 1.5rem', borderRadius: '4px' }}>
+                      {sendingReply ? 'Sending...' : 'Send Reply'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </aside>
         </div>
       )}
     </div>

@@ -81,6 +81,20 @@ export class MailService {
     await this.sendMail(email, subject, html);
   }
 
+  async sendTicketClosedEmail(email: string, ticketSubject: string) {
+    const subject = `Support Ticket Closed: ${ticketSubject}`;
+    const html = `
+      <h1>Support Ticket Update</h1>
+      <p>Your support ticket regarding <strong>"${ticketSubject}"</strong> has been marked as closed/resolved.</p>
+      <p>If you need further assistance, please feel free to create a new ticket or reply to the existing conversation in your account dashboard.</p>
+      <br>
+      <p>Thank you,</p>
+      <p><strong>The Noeve Support Team</strong></p>
+    `;
+
+    await this.sendMail(email, subject, html);
+  }
+
   async sendMarketingCampaign(emails: string[], subject: string, html: string) {
     if (!this.transporter && process.env.NODE_ENV !== 'test') {
       this.logger.warn('Transporter not initialized yet. Skipping campaign email.');

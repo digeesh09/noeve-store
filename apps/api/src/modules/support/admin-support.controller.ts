@@ -1,12 +1,14 @@
-import { Controller, Get, Patch, Param, Body, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, UseGuards, Query } from '@nestjs/common';
 import { SupportService } from './support.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
+import { UserRole } from '@prisma/client';
+
 @Controller('admin/support')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN')
+@Roles(UserRole.ADMIN)
 export class AdminSupportController {
   constructor(private supportService: SupportService) {}
 
@@ -20,11 +22,28 @@ export class AdminSupportController {
     return this.supportService.listAdminTickets(p, size);
   }
 
+  @Get(':id')
+  async getTicket(@Param('id') id: string) {
+    const data = await this.supportService.getTicketById(id);
+    return { data };
+  }
+
+  @Post(':id/reply')
+  async addReply(
+    @Param('id') id: string,
+    @Body('message') message: string,
+  ) {
+    const data = await this.supportService.addReply(id, message, true);
+    return { data };
+  }
+
   @Patch(':id/status')
   async updateTicketStatus(
     @Param('id') id: string,
     @Body('status') status: string
   ) {
-    return this.supportService.updateTicketStatus(id, status);
+    const data = await this.supportService.updateTicketStatus(id, status);
+    return { data };
   }
 }
+

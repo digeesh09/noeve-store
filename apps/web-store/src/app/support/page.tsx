@@ -27,71 +27,113 @@ export default function SupportPage(): React.JSX.Element {
   };
 
   return (
-    <div className="wrap" style={{ padding: '4rem 0', maxWidth: '600px', margin: '0 auto' }}>
-      <h1 className="text-3xl font-bold mb-4">Contact Us</h1>
-      <p className="mb-8 text-gray-600">Have a question or need assistance? Reach out to our support team and we will get back to you as soon as possible.</p>
+    <div className="wrap" style={{ padding: '6rem 0', maxWidth: '640px', margin: '0 auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h1 style={{ fontFamily: 'var(--serif)', fontSize: '2.5rem', margin: '0 0 1rem 0', color: 'var(--ink)' }}>Contact Us</h1>
+        <p style={{ color: 'rgba(33,29,25,.6)', fontSize: '1.1rem', lineHeight: '1.6', maxWidth: '500px', margin: '0 auto' }}>
+          Have a question or need assistance? Reach out to our support team and we will get back to you as soon as possible.
+        </p>
+      </div>
       
       {status === 'success' && (
-        <div className="mb-6 p-4 bg-green-50 text-green-800 border border-green-200 rounded">
-          Your message has been sent successfully. We will be in touch shortly.
+        <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center' }}>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>Your message has been sent successfully.</p>
+          <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', opacity: 0.9 }}>We will be in touch shortly via email.</p>
         </div>
       )}
 
       {status === 'error' && (
-        <div className="mb-6 p-4 bg-red-50 text-red-800 border border-red-200 rounded">
-          An error occurred while sending your message. Please try again later.
+        <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: '8px', textAlign: 'center' }}>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>An error occurred.</p>
+          <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', opacity: 0.9 }}>Please try sending your message again later.</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
+      <form onSubmit={handleSubmit} style={{ 
+        background: '#fff', padding: '2.5rem', border: '1px solid var(--bone)', 
+        borderRadius: '12px', boxShadow: '0 8px 30px rgba(0,0,0,0.04)'
+      }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label htmlFor="name" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'rgba(33,29,25,.8)' }}>Full Name</label>
           <input
             id="name"
             type="text"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black"
+            placeholder="Jane Doe"
+            style={{ 
+              width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--bone)', 
+              background: '#fafafa', borderRadius: '6px', outline: 'none', 
+              fontFamily: 'inherit', fontSize: '0.95rem', transition: 'all 0.2s'
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--oxblood)'; e.currentTarget.style.background = '#fff'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--bone)'; e.currentTarget.style.background = '#fafafa'; }}
           />
         </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
+
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label htmlFor="email" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'rgba(33,29,25,.8)' }}>Email Address</label>
           <input
             id="email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black"
+            placeholder="jane@example.com"
+            style={{ 
+              width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--bone)', 
+              background: '#fafafa', borderRadius: '6px', outline: 'none', 
+              fontFamily: 'inherit', fontSize: '0.95rem', transition: 'all 0.2s'
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--oxblood)'; e.currentTarget.style.background = '#fff'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--bone)'; e.currentTarget.style.background = '#fafafa'; }}
           />
         </div>
-        <div>
-          <label htmlFor="subject" className="block text-sm font-medium mb-1">Subject</label>
+
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label htmlFor="subject" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'rgba(33,29,25,.8)' }}>Subject</label>
           <input
             id="subject"
             type="text"
             required
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black"
+            placeholder="How can we help?"
+            style={{ 
+              width: '100%', padding: '0.8rem 1rem', border: '1px solid var(--bone)', 
+              background: '#fafafa', borderRadius: '6px', outline: 'none', 
+              fontFamily: 'inherit', fontSize: '0.95rem', transition: 'all 0.2s'
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--oxblood)'; e.currentTarget.style.background = '#fff'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--bone)'; e.currentTarget.style.background = '#fafafa'; }}
           />
         </div>
-        <div>
-          <label htmlFor="message" className="block text-sm font-medium mb-1">Message</label>
+
+        <div style={{ marginBottom: '2rem' }}>
+          <label htmlFor="message" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 'bold', color: 'rgba(33,29,25,.8)' }}>Message</label>
           <textarea
             id="message"
             required
-            rows={5}
+            rows={6}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black"
+            placeholder="Describe your issue in detail..."
+            style={{ 
+              width: '100%', padding: '1rem', border: '1px solid var(--bone)', 
+              background: '#fafafa', borderRadius: '6px', outline: 'none', 
+              fontFamily: 'inherit', fontSize: '0.95rem', transition: 'all 0.2s', resize: 'vertical'
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--oxblood)'; e.currentTarget.style.background = '#fff'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--bone)'; e.currentTarget.style.background = '#fafafa'; }}
           />
         </div>
+
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="btn btn--primary w-full"
+          className="btn btn--primary"
+          style={{ width: '100%', padding: '0.8rem', fontSize: '1rem', borderRadius: '6px' }}
         >
           {status === 'loading' ? 'Sending...' : 'Send Message'}
         </button>

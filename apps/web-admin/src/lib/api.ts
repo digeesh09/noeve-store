@@ -263,6 +263,17 @@ export async function updateSupportTicketStatus(id: string, status: string) {
   return res.data;
 }
 
+export async function fetchSupportTicket(id: string) {
+  const res = await apiClient.admin.getSupportTicket(id);
+  return res.data as any;
+}
+
+export async function addSupportTicketReply(id: string, message: string) {
+  const res = await apiClient.admin.addSupportTicketReply(id, { message });
+  return res.data as any;
+}
+
+
 export async function fetchReportsData(type: string, query: Record<string, string> = {}) {
   const params = new URLSearchParams(query).toString();
   const token = getAccessToken();

@@ -28,4 +28,17 @@ export class AdminReportsController {
   getRecentTransactions(@Query('limit') limit?: string) {
     return this.reportsService.getRecentTransactions(limit ? parseInt(limit, 10) : 10);
   }
+
+  @Get('daily-revenue')
+  getDailyRevenue(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.reportsService.getDailyRevenue(startDate, endDate);
+  }
+
+  @Get('orders-by-status')
+  getOrdersByStatus() {
+    return this.reportsService.getOrdersByStatus();
+  }
 }

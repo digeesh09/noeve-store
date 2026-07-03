@@ -213,9 +213,35 @@ export default function OrdersPage(): React.JSX.Element {
                           <div className="flex-1">
                             <h4 className="font-semibold text-sm mb-2 text-neutral-800">Tracking Info</h4>
                             {order.trackingNumber ? (
-                              <p className="text-sm text-neutral-600">{order.carrier} - {order.trackingNumber}</p>
+                              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 space-y-2">
+                                {order.carrier && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                                      {order.carrier}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="font-mono text-sm font-medium text-blue-900 break-all">
+                                    {order.trackingNumber}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    title="Copy tracking number"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigator.clipboard.writeText(order.trackingNumber!);
+                                    }}
+                                    className="flex-shrink-0 rounded p-1 text-blue-500 hover:bg-blue-100 hover:text-blue-700"
+                                  >
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
                             ) : (
-                              <p className="text-sm text-neutral-400 italic">No tracking info provided</p>
+                              <p className="text-sm text-neutral-400 italic">No tracking info yet</p>
                             )}
                           </div>
                         </div>
