@@ -58,7 +58,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
     try {
       const { apiClient } = await import('@/lib/api');
       const res = await apiClient.store.addReview(product.id, { rating: reviewRating, comment: reviewText });
-      setReviews([res.data, ...reviews]);
+      alert('Your review has been submitted and is pending approval.');
       setReviewText('');
     } catch (err) {
       console.error(err);

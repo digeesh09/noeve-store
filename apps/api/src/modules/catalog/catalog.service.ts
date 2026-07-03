@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProductStatus } from '@prisma/client';
+import { ProductStatus, ReviewStatus } from '@prisma/client';
 import { createProductSchema, updateProductSchema, createCategorySchema, updateCategorySchema } from '@noeve/validation';
 import type { CreateProductInput, UpdateProductInput, CreateCategoryInput, UpdateCategoryInput } from '@noeve/validation';
 import { paginationQuerySchema } from '@noeve/validation';
@@ -51,7 +51,7 @@ export class CatalogService {
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
-        include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true, category: true },
+        include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true, category: true, reviews: { where: { status: ReviewStatus.APPROVED }, select: { rating: true } } },
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: query.sort === 'popular' ? { viewCount: 'desc' } : { createdAt: 'desc' },
@@ -73,7 +73,7 @@ export class CatalogService {
   async getProductBySlug(slug: string) {
     const product = await this.prisma.product.findUnique({
       where: { slug },
-      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true, category: true },
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true, category: true, reviews: { where: { status: ReviewStatus.APPROVED }, select: { rating: true } } },
     });
     if (!product || product.status !== ProductStatus.ACTIVE) {
       throw new NotFoundException('Product not found');

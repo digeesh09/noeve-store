@@ -77,8 +77,8 @@ export async function fetchOrders(status?: string, page = 1, pageSize = 20): Pro
   return { data: res.data as unknown as Order[], meta: res.meta! };
 }
 
-export async function updateOrderStatus(orderId: string, status: string, note?: string): Promise<Order> {
-  const res = await apiClient.admin.updateOrderStatus(orderId, { status, note });
+export async function updateOrderStatus(orderId: string, status: string, note?: string, trackingNumber?: string, carrier?: string): Promise<Order> {
+  const res = await apiClient.admin.updateOrderStatus(orderId, { status, note, trackingNumber, carrier });
   return res.data as unknown as Order;
 }
 
@@ -116,6 +116,7 @@ export interface Product {
   createdAt: string;
   variants?: ProductVariant[];
   images?: ProductImage[];
+  reviews?: { rating: number }[];
 }
 
 export async function fetchProducts(page = 1, pageSize = 20): Promise<PaginatedResponse<Product>> {

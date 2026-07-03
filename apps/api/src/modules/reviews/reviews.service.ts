@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ReviewStatus } from '@prisma/client';
 
 @Injectable()
 export class ReviewsService {
@@ -7,7 +8,7 @@ export class ReviewsService {
 
   async listStoreReviews(productId: string) {
     return this.prisma.review.findMany({
-      where: { productId, status: 'APPROVED' },
+      where: { productId, status: ReviewStatus.APPROVED },
       include: {
         user: {
           select: { firstName: true, lastName: true },
@@ -24,7 +25,7 @@ export class ReviewsService {
         productId,
         rating,
         comment,
-        status: 'PENDING',
+        status: ReviewStatus.PENDING,
       },
     });
   }

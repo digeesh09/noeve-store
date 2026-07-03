@@ -40,4 +40,5 @@ export interface Product {
   images?: ProductImage[];
   variants?: ProductVariant[];
   category?: Category;
+  reviews?: { rating: number }[];
 }

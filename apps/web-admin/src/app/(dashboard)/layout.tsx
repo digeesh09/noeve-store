@@ -56,7 +56,12 @@ export default function DashboardLayout({ children }: { children: any }) {
             Sign out
           </button>
         </aside>
-        <div className="flex-1 p-8">{children}</div>
+        <div className="flex flex-1 flex-col">
+          <main className="flex-1 p-8">{children}</main>
+          <footer className="border-t border-neutral-200 p-4 text-center text-sm text-neutral-500">
+            &copy; {new Date().getFullYear()} Noeve Web Admin. All rights reserved.
+          </footer>
+        </div>
       </div>
     </AuthGuard>
   );

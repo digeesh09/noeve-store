@@ -14,6 +14,12 @@ export function ProductCard({ product, priority }: ProductCardProps): React.JSX.
   const categoryLabel = product.category?.name || 'Apparel';
   const materialLabel = product.material || 'Premium Material';
 
+  const reviews = product.reviews || [];
+  const reviewCount = reviews.length;
+  const avgRating = reviewCount > 0 
+    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviewCount).toFixed(1) 
+    : '5.0';
+
   return (
     <Link href={`/shop/${product.slug}`} className="card outline outline-1 outline-[rgba(33,29,25,0.1)] p-4 rounded-sm hover:shadow-md transition-shadow">
       <div
@@ -48,8 +54,8 @@ export function ProductCard({ product, priority }: ProductCardProps): React.JSX.
         {categoryLabel} — {materialLabel} — {formatPrice(product.basePriceCents, product.currency)}
       </p>
       <div className="card__rating">
-        <span className="card__stars">★★★★★</span>
-        <span className="card__rating-text">4.9 (184)</span>
+        <span className="card__stars">{'★'.repeat(Math.round(Number(avgRating)))}{'☆'.repeat(5 - Math.round(Number(avgRating)))}</span>
+        <span className="card__rating-text">{avgRating} ({reviewCount})</span>
       </div>
     </Link>
   );

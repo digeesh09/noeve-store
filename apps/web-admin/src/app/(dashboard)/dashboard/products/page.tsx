@@ -318,6 +318,7 @@ export default function ProductsPage(): React.JSX.Element {
                 <th className="px-4 py-3 font-medium">Product</th>
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium">Price</th>
+                <th className="px-4 py-3 font-medium">Rating</th>
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
@@ -336,6 +337,16 @@ export default function ProductsPage(): React.JSX.Element {
                   </td>
                   <td className="px-4 py-3 font-medium">
                     {formatPrice(product.basePriceCents, product.currency)}
+                  </td>
+                  <td className="px-4 py-3 text-neutral-600">
+                    {(() => {
+                      const reviews = product.reviews || [];
+                      const reviewCount = reviews.length;
+                      const avgRating = reviewCount > 0 
+                        ? (reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / reviewCount).toFixed(1) 
+                        : '-';
+                      return reviewCount > 0 ? `${avgRating} ★ (${reviewCount})` : 'No reviews';
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
