@@ -17,6 +17,9 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { SupportModule } from './modules/support/support.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { CrmModule } from './modules/crm/crm.module';
 
 @Module({
   imports: [
@@ -40,6 +43,9 @@ import { SupportModule } from './modules/support/support.module';
     UsersModule,
     ReviewsModule,
     SupportModule,
+    ReportsModule,
+    InventoryModule,
+    CrmModule,
   ],
 })
 export class AppModule {}

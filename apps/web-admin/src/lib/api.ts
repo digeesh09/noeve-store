@@ -262,3 +262,49 @@ export async function updateSupportTicketStatus(id: string, status: string) {
   return res.data;
 }
 
+export async function fetchReportsData(type: string, query: Record<string, string> = {}) {
+  const params = new URLSearchParams(query).toString();
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/reports/${type}${params ? `?${params}` : ''}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+
+export async function fetchInventory(threshold = 10) {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/inventory/low-stock?threshold=${threshold}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+
+export async function updateInventoryStock(variantId: string, quantity: number) {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/inventory/stock/${variantId}`, {
+    method: 'PATCH',
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ quantity })
+  });
+  return res.json();
+}
+
+export async function fetchCrmCustomers(page = 1, limit = 20, search = '') {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/crm/customers?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+
+export async function fetchCrmCustomerInsights(id: string) {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/crm/customers/${id}/insights`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+

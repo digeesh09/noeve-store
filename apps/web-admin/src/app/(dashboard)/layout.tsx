@@ -8,10 +8,13 @@ import { logout } from '@/lib/auth';
 
 const nav = [
   { href: '/dashboard', label: 'Overview' },
+  { href: '/dashboard/reports', label: 'Reports' },
   { href: '/dashboard/orders', label: 'Orders' },
   { href: '/dashboard/products', label: 'Products' },
+  { href: '/dashboard/inventory', label: 'Inventory' },
   { href: '/dashboard/categories', label: 'Categories' },
   { href: '/dashboard/promotions', label: 'Promotions' },
+  { href: '/dashboard/crm', label: 'CRM' },
   { href: '/dashboard/marketing', label: 'Marketing' },
   { href: '/dashboard/reviews', label: 'Reviews' },
   { href: '/dashboard/support', label: 'Support' },
