@@ -46,7 +46,7 @@ export default function CartPage(): React.JSX.Element {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
               <h3 style={{fontFamily:'var(--display)',fontSize:'1.6rem'}}>Your bag is empty</h3>
               <p>Pieces you add will show up here.</p>
-              <Link href="/#edit" className="btn btn--primary">Continue Shopping</Link>
+              <Link href="/shop" className="btn btn--primary">Continue Shopping</Link>
             </div>
           ) : (
             <div className="cart-items">
@@ -80,7 +80,7 @@ export default function CartPage(): React.JSX.Element {
           <div className="summary__row"><span>Shipping</span><span>{subtotal === 0 ? '—' : shipping === 0 ? 'Free' : formatPrice(shipping, cart.currency)}</span></div>
           <div className="summary__row summary__row--total"><span>Total</span><span>{formatPrice(total, cart.currency)}</span></div>
 
-          <Link href={cart.lines.length > 0 ? '/checkout' : '/#edit'} className="btn btn--primary">Proceed to Checkout</Link>
+          <Link href={cart.lines.length > 0 ? '/checkout' : '/shop'} className="btn btn--primary">Proceed to Checkout</Link>
           <p className="summary__note">Free shipping automatically applied over {formatPrice(settings.shippingThresholdCents, cart.currency)}</p>
 
           <div className="trust-row">

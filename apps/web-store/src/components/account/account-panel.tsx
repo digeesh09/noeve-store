@@ -154,7 +154,7 @@ export function AccountPanel(): React.JSX.Element {
       {tab === 'orders' && (
         <div className="orders-list">
           {orders.length === 0 ? (
-            <p style={{padding:'3rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>No orders yet. <Link href="/#edit" style={{textDecoration:'underline',color:'var(--oxblood)'}}>Start shopping</Link></p>
+            <p style={{padding:'3rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>No orders yet. <Link href="/shop" style={{textDecoration:'underline',color:'var(--oxblood)'}}>Start shopping</Link></p>
           ) : orders.map(order => {
             const isOpen = openOrder === order.id;
             const statusClass = order.status === 'DELIVERED' ? 'status--delivered' : order.status === 'SHIPPED' ? 'status--shipped' : 'status--processing';
