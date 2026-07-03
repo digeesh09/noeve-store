@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { fetchOrders, updateOrderStatus, type Order } from '@/lib/api';
 import { Pagination } from '@/components/Pagination';
 

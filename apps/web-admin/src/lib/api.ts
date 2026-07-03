@@ -78,7 +78,7 @@ export async function fetchOrders(status?: string, page = 1, pageSize = 20): Pro
 }
 
 export async function updateOrderStatus(orderId: string, status: string, note?: string, trackingNumber?: string, carrier?: string): Promise<Order> {
-  const res = await apiClient.admin.updateOrderStatus(orderId, { status, note, trackingNumber, carrier });
+  const res = await apiClient.admin.updateOrderStatus(orderId, { status, note });
   return res.data as unknown as Order;
 }
 

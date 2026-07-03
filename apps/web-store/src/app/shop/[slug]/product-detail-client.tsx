@@ -9,6 +9,7 @@ import { formatPrice } from '@/lib/format';
 import type { Product } from '@/lib/types';
 import { isLoggedIn } from '@/lib/auth';
 import { fetchWishlist, addToWishlist, removeFromWishlist } from '@/lib/wishlist';
+import parse from 'html-react-parser';
 
 
 interface ProductDetailClientProps {
@@ -57,7 +58,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
     setSubmittingReview(true);
     try {
       const { apiClient } = await import('@/lib/api');
-      const res = await apiClient.store.addReview(product.id, { rating: reviewRating, comment: reviewText });
+      await apiClient.store.addReview(product.id, { rating: reviewRating, comment: reviewText });
       alert('Your review has been submitted and is pending approval.');
       setReviewText('');
     } catch (err) {
@@ -229,10 +230,11 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
 
           <p className="pdp__price">{formatPrice(activeVariant ? activeVariant.priceCents : product.basePriceCents, product.currency)}</p>
 
-          <p className="pdp__desc">
-            {product.description ||
-              'A beautifully detailed and premium quality addition to our curated drops, designed with clean silhouettes and made to last.'}
-          </p>
+          <div className="pdp__desc prose prose-sm max-w-none text-ink-muted">
+            {product.description ? parse(product.description) : (
+              <p>A beautifully detailed and premium quality addition to our curated drops, designed with clean silhouettes and made to last.</p>
+            )}
+          </div>
 
           {/* Variants */}
           {product.variants && product.variants.length > 0 && (
@@ -333,9 +335,9 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                 </svg>
               </button>
               <div className="accordion__panel" style={{ maxHeight: openAccordion === 0 ? '400px' : '0' }}>
-                <div className="accordion__panel-inner">
-                  {product.composition && <p style={{ marginBottom: '0.5rem' }}><strong>Composition:</strong> {product.composition}</p>}
-                  {product.careInstructions ? <p>{product.careInstructions}</p> :
+                <div className="accordion__panel-inner prose prose-sm max-w-none text-ink-muted">
+                  {product.composition && <div><strong>Composition:</strong> {parse(product.composition)}</div>}
+                  {product.careInstructions ? parse(product.careInstructions) :
                     <p>100% premium quality composition. Hand wash cold and lay flat to dry. Cool iron on the reverse side only.</p>}
                 </div>
               </div>
@@ -349,8 +351,8 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                 </svg>
               </button>
               <div className="accordion__panel" style={{ maxHeight: openAccordion === 1 ? '400px' : '0' }}>
-                <div className="accordion__panel-inner">
-                  {product.sizeAndFit || "Relaxed through the body, true to size. Our model is 5'9\" wearing a size S. Size up for an oversized drape."}
+                <div className="accordion__panel-inner prose prose-sm max-w-none text-ink-muted">
+                  {product.sizeAndFit ? parse(product.sizeAndFit) : "Relaxed through the body, true to size. Our model is 5'9\" wearing a size S. Size up for an oversized drape."}
                 </div>
               </div>
             </div>
@@ -363,8 +365,8 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                 </svg>
               </button>
               <div className="accordion__panel" style={{ maxHeight: openAccordion === 2 ? '400px' : '0' }}>
-                <div className="accordion__panel-inner">
-                  {product.shippingAndReturns || product.category?.returnPolicy || `Dispatched within 1–2 business days. Free standard shipping on orders over ${settings ? formatPrice(settings.shippingThresholdCents, product.currency) : '₹15,000'}. Unworn items may be returned within 30 days for a full refund.`}
+                <div className="accordion__panel-inner prose prose-sm max-w-none text-ink-muted">
+                  {product.shippingAndReturns ? parse(product.shippingAndReturns) : (product.category?.returnPolicy ? parse(product.category.returnPolicy) : `Dispatched within 1–2 business days. Free standard shipping on orders over ${settings ? formatPrice(settings.shippingThresholdCents, product.currency) : '₹15,000'}. Unworn items may be returned within 30 days for a full refund.`)}
                 </div>
               </div>
             </div>

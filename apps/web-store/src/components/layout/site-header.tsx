@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CartBadge } from '@/components/cart/cart-badge';
-import { isLoggedIn } from '@/lib/auth';
+
 
 const nav = [
   { href: '/shop', label: 'The Edit' },
@@ -19,11 +19,9 @@ export function SiteHeader(): React.JSX.Element {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showShopBtn, setShowShopBtn] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
   const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
-    setLoggedIn(isLoggedIn());
     import('@/lib/api').then(({ apiClient }) => {
       apiClient.store.getSettings().then(res => setSettings(res.data)).catch(console.error);
     });

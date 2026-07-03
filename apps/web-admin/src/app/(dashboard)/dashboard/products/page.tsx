@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { fetchProducts, createProduct, updateProduct, deleteProduct, fetchCategories, uploadFile, type Product, type Category } from '@/lib/api';
 import { Pagination } from '@/components/Pagination';
-
+import { RichTextEditor } from '@/components/RichTextEditor';
 function formatPrice(cents: number, currency = 'INR') {
   return (cents / 100).toLocaleString('en-IN', {
     style: 'currency',
@@ -197,28 +197,28 @@ export default function ProductsPage(): React.JSX.Element {
               <input required type="number" step="0.01" value={formData.basePrice} onChange={e => setFormData({...formData, basePrice: Number(e.target.value)})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-neutral-700">Description</label>
-              <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Description</label>
+              <RichTextEditor value={formData.description} onChange={val => setFormData({...formData, description: val})} />
             </div>
             
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-neutral-700">Composition</label>
-              <textarea value={formData.composition} onChange={e => setFormData({...formData, composition: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Composition</label>
+              <RichTextEditor value={formData.composition} onChange={val => setFormData({...formData, composition: val})} />
             </div>
             
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-neutral-700">Care Instructions</label>
-              <textarea value={formData.careInstructions} onChange={e => setFormData({...formData, careInstructions: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Care Instructions</label>
+              <RichTextEditor value={formData.careInstructions} onChange={val => setFormData({...formData, careInstructions: val})} />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-neutral-700">Size & Fit</label>
-              <textarea value={formData.sizeAndFit} onChange={e => setFormData({...formData, sizeAndFit: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Size & Fit</label>
+              <RichTextEditor value={formData.sizeAndFit} onChange={val => setFormData({...formData, sizeAndFit: val})} />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-neutral-700">Shipping & Returns</label>
-              <textarea value={formData.shippingAndReturns} onChange={e => setFormData({...formData, shippingAndReturns: e.target.value})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Shipping & Returns</label>
+              <RichTextEditor value={formData.shippingAndReturns} onChange={val => setFormData({...formData, shippingAndReturns: val})} />
             </div>
 
             {/* Images */}

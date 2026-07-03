@@ -12,9 +12,11 @@ import {
 } from '@nestjs/common';
 import type { AddToCartInput, UpdateCartLineInput } from '@noeve/validation';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtOptionalAuthGuard } from '../../common/guards/jwt-optional-auth.guard';
 import { CartService } from './cart.service';
 
 @Controller('store/cart')
+@UseGuards(JwtOptionalAuthGuard)
 export class StoreCartController {
   constructor(private cart: CartService) {}
 
