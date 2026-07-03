@@ -116,8 +116,9 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
     }
   };
 
-  const images = product.images?.length ? product.images : undefined;
-  const activeImage = images ? (images[activeThumb] || images[0]) : undefined;
+  const FALLBACK_IMAGE = { url: '/public/uploads/placeholder.png', alt: 'Placeholder' };
+  const images = product.images?.length ? product.images : [FALLBACK_IMAGE, FALLBACK_IMAGE, FALLBACK_IMAGE];
+  const activeImage = images[activeThumb] || images[0];
 
   const handleAddToBag = async () => {
     if (!activeVariant || (activeVariant.stockQuantity ?? 0) <= 0) return;
@@ -170,7 +171,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
             <div
               className="pdp__main-image"
               style={{
-                background: images ? 'transparent' : (activeThumb < FALLBACK_GALLERY_BGS.length ? FALLBACK_GALLERY_BGS[activeThumb] : FALLBACK_GALLERY_BGS[0]),
+                background: 'transparent',
                 position: 'relative',
                 overflow: 'hidden',
                 cursor: 'zoom-in',
@@ -179,7 +180,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
               onMouseLeave={handleMouseLeave}
             >
               {activeImage && (
-                <div style={{ position: 'absolute', inset: 0, transition: 'transform 0.1s ease-out', ...zoomStyle, pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', inset: 0, transition: 'transform 0.1s ease-out', ...zoomStyle, pointerEvents: 'none', background: 'transparent' }}>
                   <Image
                     src={activeImage.url}
                     alt={activeImage.alt || product.name}
@@ -194,7 +195,7 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
             </div>
 
           <div className="pdp__thumbs">
-            {images ? images.map((img, idx) => (
+            {images.map((img, idx) => (
               <button
                 key={idx}
                 className={`pdp__thumb ${activeThumb === idx ? 'is-active' : ''}`}
@@ -210,14 +211,6 @@ export function ProductDetailClient({ product, relatedProducts }: ProductDetailC
                   sizes="100px"
                 />
               </button>
-            )) : FALLBACK_GALLERY_BGS.map((bg, idx) => (
-              <button
-                key={idx}
-                className={`pdp__thumb ${activeThumb === idx ? 'is-active' : ''}`}
-                style={{ background: bg }}
-                onClick={() => setActiveThumb(idx)}
-                aria-label={`View image ${idx + 1}`}
-              />
             ))}
           </div>
         </div>

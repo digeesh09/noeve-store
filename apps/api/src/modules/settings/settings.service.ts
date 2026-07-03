@@ -24,6 +24,7 @@ export class SettingsService {
     shippingThresholdCents?: number;
     shippingRateCents?: number;
     taxRatePercentage?: number;
+    marqueeText?: string;
   }): Promise<StoreSettings> {
     const settings = await this.getSettings();
     return this.prisma.storeSettings.update({

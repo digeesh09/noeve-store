@@ -78,9 +78,13 @@ export interface Order {
   subtotalCents: number;
   shippingCents: number;
   taxCents: number;
+  discountCents?: number;
   totalCents: number;
   currency: string;
+  trackingNumber?: string | null;
+  carrier?: string | null;
   lines: OrderLine[];
+  user?: User & { addresses?: Address[] };
   createdAt: string;
   updatedAt: string;
 }

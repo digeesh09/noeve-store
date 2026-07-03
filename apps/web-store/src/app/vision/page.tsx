@@ -18,7 +18,7 @@ export default function VisionPage() {
           At NOEVE, we envision a world where luxury is defined not by excess, but by intentionality and enduring quality.
         </p>
         <p className="text-[rgba(33,29,25,0.78)] mb-4">
-          Our vision is to build a modern heritage brand that stands the test of time, creating pieces that become a meaningful part of our customers' lives, passed down rather than discarded.
+          Our vision is to build a modern heritage brand that stands the test of time, creating pieces that become a meaningful part of our customers&apos; lives, passed down rather than discarded.
         </p>
       </div>
     </main>

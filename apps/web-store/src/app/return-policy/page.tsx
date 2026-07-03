@@ -18,7 +18,7 @@ export default function ReturnPolicyPage() {
         <section className="mb-10">
           <h2 className="font-display text-2xl mb-4">Our Commitment</h2>
           <p className="text-[rgba(33,29,25,0.78)] mb-4">
-            At NOEVE, we curate considered fashion, beauty, and lifestyle pieces designed to outlast the season. If a piece isn't quite right for you, our returns policy ensures a seamless experience. 
+            At NOEVE, we curate considered fashion, beauty, and lifestyle pieces designed to outlast the season. If a piece isn&apos;t quite right for you, our returns policy ensures a seamless experience. 
           </p>
         </section>
 
@@ -43,14 +43,14 @@ export default function ReturnPolicyPage() {
             <li>Intimates, swimwear, and pierced jewelry.</li>
             <li>Opened beauty or skincare products.</li>
             <li>Customized or made-to-order pieces.</li>
-            <li>Items marked as "Final Sale".</li>
+            <li>Items marked as &quot;Final Sale&quot;.</li>
           </ul>
         </section>
 
         <section className="mb-10">
           <h2 className="font-display text-2xl mb-4">How to Initiate a Return</h2>
           <ol className="list-decimal pl-5 text-[rgba(33,29,25,0.78)] space-y-2">
-            <li>Log into your NOEVE account and navigate to "Order Status".</li>
+            <li>Log into your NOEVE account and navigate to &quot;Order Status&quot;.</li>
             <li>Select the items you wish to return and state the reason.</li>
             <li>Pack the items securely in their original packaging.</li>
             <li>Our courier partner will pick up the package within 2-3 business days.</li>

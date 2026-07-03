@@ -66,6 +66,55 @@ export class MailService {
     await this.sendMail(email, subject, html);
   }
 
+  async sendNewsletterWelcome(email: string) {
+    const subject = `Welcome to the Noeve Journal`;
+    const html = `
+      <h1>Welcome to Noeve!</h1>
+      <p>Thank you for subscribing to our journal.</p>
+      <p>You'll now receive first access to new drops, early entry to sales, and a short note from our studio.</p>
+      <p>We are excited to have you with us.</p>
+      <br>
+      <p>Best regards,</p>
+      <p><strong>The Noeve Studio</strong></p>
+    `;
+
+    await this.sendMail(email, subject, html);
+  }
+
+  async sendMarketingCampaign(emails: string[], subject: string, html: string) {
+    if (!this.transporter && process.env.NODE_ENV !== 'test') {
+      this.logger.warn('Transporter not initialized yet. Skipping campaign email.');
+      return;
+    }
+
+    const from = process.env.MAIL_FROM || '"Noeve Store" <noreply@noeve.store>';
+
+    // Send emails concurrently or in batches.
+    // For a real production app, we would use a queue system (BullMQ) or a transactional email API (SendGrid, Postmark).
+    // Here we use Promise.all for simplicity.
+    await Promise.all(
+      emails.map(async (email) => {
+        try {
+          if (process.env.NODE_ENV === 'test') {
+            this.logger.log(`[Mock Campaign Email] To: ${email} | Subject: ${subject}`);
+            return;
+          }
+          
+          const info = await this.transporter!.sendMail({
+            from,
+            to: email,
+            subject,
+            html,
+          });
+          
+          this.logger.log(`Campaign email sent to ${email}: ${info.messageId}`);
+        } catch (error) {
+          this.logger.error(`Failed to send campaign email to ${email}:`, error);
+        }
+      })
+    );
+  }
+
   private async sendMail(to: string, subject: string, html: string) {
     try {
       if (process.env.NODE_ENV === 'test') {

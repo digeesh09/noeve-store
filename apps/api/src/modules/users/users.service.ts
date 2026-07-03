@@ -1,10 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
+import { paginationQuerySchema } from '@noeve/validation';
 import type { AddressInput } from '@noeve/validation';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService
+  ) {}
 
   async getAddresses(userId: string) {
     return this.prisma.address.findMany({
@@ -76,10 +81,100 @@ export class UsersService {
   }
 
   async subscribeNewsletter(email: string) {
-    return this.prisma.newsletterSubscriber.upsert({
+    const existing = await this.prisma.newsletterSubscriber.findUnique({
+      where: { email },
+    });
+
+    const subscriber = await this.prisma.newsletterSubscriber.upsert({
       where: { email },
       update: { isActive: true },
       create: { email },
     });
+
+    if (!existing) {
+      // It's a brand new subscriber, send a welcome email
+      await this.mailService.sendNewsletterWelcome(email);
+    } else if (!existing.isActive) {
+      // Was unsubscribed, now resubscribed. We can optionally send an email, but usually don't.
+    }
+
+    return subscriber;
+  }
+
+  // --- ADMIN METHODS FOR NEWSLETTER ---
+  
+  async listSubscribers(query: Record<string, unknown>) {
+    const { page, pageSize } = paginationQuerySchema.parse(query);
+
+    const [subscribers, total] = await Promise.all([
+      this.prisma.newsletterSubscriber.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.newsletterSubscriber.count(),
+    ]);
+
+    return {
+      data: subscribers,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+    };
+  }
+
+  async toggleSubscriber(id: string, isActive: boolean) {
+    const subscriber = await this.prisma.newsletterSubscriber.findUnique({
+      where: { id },
+    });
+    if (!subscriber) throw new NotFoundException('Subscriber not found');
+
+    return this.prisma.newsletterSubscriber.update({
+      where: { id },
+      data: { isActive },
+    });
+  }
+
+  async deleteSubscriber(id: string) {
+    const subscriber = await this.prisma.newsletterSubscriber.findUnique({
+      where: { id },
+    });
+    if (!subscriber) throw new NotFoundException('Subscriber not found');
+
+    return this.prisma.newsletterSubscriber.delete({
+      where: { id },
+    });
+  }
+
+  async sendMarketingCampaign(subject: string, html: string) {
+    const activeSubscribers = await this.prisma.newsletterSubscriber.findMany({
+      where: { isActive: true },
+      select: { email: true },
+    });
+
+    const inactiveSubscribers = await this.prisma.newsletterSubscriber.findMany({
+      where: { isActive: false },
+      select: { email: true },
+    });
+
+    const users = await this.prisma.user.findMany({
+      select: { email: true },
+    });
+
+    const inactiveEmails = new Set(inactiveSubscribers.map(s => s.email));
+
+    const emailSet = new Set([
+      ...activeSubscribers.map(s => s.email),
+      ...users.map(u => u.email)
+    ]);
+
+    // Remove explicitly unsubscribed emails
+    inactiveEmails.forEach(email => emailSet.delete(email));
+
+    const emails = Array.from(emailSet);
+
+    if (emails.length > 0) {
+      await this.mailService.sendMarketingCampaign(emails, subject, html);
+    }
+    
+    return { success: true, count: emails.length };
   }
 }

@@ -17,9 +17,9 @@ export class AdminOrdersController {
   }
 
   @Get('promotions')
-  @Roles(UserRole.ADMIN)
-  listPromotions() {
-    return this.orders.listPromotions();
+  @Roles(UserRole.ADMIN, UserRole.SUPPORT)
+  listPromotions(@Query() query: Record<string, unknown>) {
+    return this.orders.listPromotions(query);
   }
 
   @Post('promotions')

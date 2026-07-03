@@ -16,8 +16,8 @@ export class AdminCatalogController {
 
   @Get('categories')
   @Roles(UserRole.ADMIN, UserRole.SUPPORT)
-  listCategories() {
-    return this.catalog.listCategories();
+  listCategories(@Query() query: Record<string, unknown>) {
+    return this.catalog.listCategories(query);
   }
 
   @Post('categories')

@@ -70,7 +70,7 @@ export class OrdersService {
     const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
         where,
-        include: { lines: true, user: { select: { id: true, email: true, firstName: true, lastName: true } } },
+        include: { lines: true, user: { select: { id: true, email: true, firstName: true, lastName: true, addresses: { where: { isDefault: true }, take: 1 } } } },
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' },
@@ -258,11 +258,22 @@ export class OrdersService {
   }
 
   // --- PROMOTIONS ---
-  async listPromotions() {
-    const promotions = await this.prisma.promotion.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
-    return { data: promotions };
+  async listPromotions(query: Record<string, unknown>) {
+    const { page, pageSize } = paginationQuerySchema.parse(query);
+
+    const [promotions, total] = await Promise.all([
+      this.prisma.promotion.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.promotion.count(),
+    ]);
+
+    return {
+      data: promotions,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+    };
   }
 
   async createPromotion(data: { code: string, description?: string, discountPercentage?: number, discountCents?: number, minOrderValue?: number }) {

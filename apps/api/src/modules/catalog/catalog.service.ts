@@ -9,11 +9,22 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class CatalogService {
   constructor(private prisma: PrismaService) {}
 
-  async listCategories() {
-    const categories = await this.prisma.category.findMany({
-      orderBy: { sortOrder: 'asc' },
-    });
-    return { data: categories };
+  async listCategories(query: Record<string, unknown> = {}) {
+    const { page, pageSize } = paginationQuerySchema.parse(query);
+    
+    const [categories, total] = await Promise.all([
+      this.prisma.category.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: { sortOrder: 'asc' },
+      }),
+      this.prisma.category.count(),
+    ]);
+    
+    return { 
+      data: categories,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }
+    };
   }
 
   async createCategory(input: CreateCategoryInput) {

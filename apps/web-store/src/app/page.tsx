@@ -48,19 +48,19 @@ export default async function HomePage(): Promise<React.JSX.Element> {
               <span className="pillar__tag tag">Apparel</span>
               <h3 className="pillar__title">Cut to move,<br/>built to keep.</h3>
               <p className="pillar__desc">Silk, wool and linen pieces made for daily wear, not one season.</p>
-              <a href="#" className="pillar__link">Shop Apparel <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+              <Link href="/shop?category=apparel" className="pillar__link">Shop Apparel <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></Link>
             </div>
             <div className="pillar pillar--beauty">
               <span className="pillar__tag tag">Beauty</span>
               <h3 className="pillar__title">Skincare that<br/>does less, better.</h3>
               <p className="pillar__desc">Short formulas, fewer steps, results you can actually see.</p>
-              <a href="#" className="pillar__link">Shop Beauty <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+              <Link href="/shop?category=beauty" className="pillar__link">Shop Beauty <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></Link>
             </div>
             <div className="pillar pillar--lifestyle">
               <span className="pillar__tag tag">Lifestyle</span>
               <h3 className="pillar__title">Objects worth<br/>living with.</h3>
               <p className="pillar__desc">Ceramics, candles and small things that earn their shelf space.</p>
-              <a href="#" className="pillar__link">Shop Lifestyle <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+              <Link href="/shop?category=lifestyle" className="pillar__link">Shop Lifestyle <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></Link>
             </div>
           </div>
         </section>

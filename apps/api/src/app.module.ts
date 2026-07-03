@@ -15,6 +15,8 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
+import { SupportModule } from './modules/support/support.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { UsersModule } from './modules/users/users.module';
     WishlistModule,
     SettingsModule,
     UsersModule,
+    ReviewsModule,
+    SupportModule,
   ],
 })
 export class AppModule {}

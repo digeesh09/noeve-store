@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'placehold.co' },
       { protocol: 'http',  hostname: 'localhost',   port: '9000' },
       { protocol: 'http',  hostname: 'localhost',   port: '3001' },
+      { protocol: 'http',  hostname: 'localhost',   port: '4000' },
+      { protocol: 'http',  hostname: 'localhost',   port: '3000' },
       // Production MinIO / S3 CDN
       { protocol: 'https', hostname: 'media.noeve.store' },
     ],
@@ -27,6 +29,14 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options',            value: 'DENY' },
           { key: 'Referrer-Policy',            value: 'strict-origin-when-cross-origin' },
         ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/public/:path*',
+        destination: 'http://localhost:4000/public/:path*',
       },
     ];
   },

@@ -1,4 +1,4 @@
-import type { ApiErrorBody, ApiResponse, AuthTokens, LoginRequest, RegisterRequest, Category, Product, Cart, Order, WishlistItem } from '@noeve/shared-types';
+import type { ApiErrorBody, ApiResponse, AuthTokens, LoginRequest, RegisterRequest, Category, Product, Cart, Order, WishlistItem, PaginationQuery } from '@noeve/shared-types';
 
 export interface ApiClientConfig {
   baseUrl: string;
@@ -133,6 +133,11 @@ export class NoeveApiClient {
 
     subscribeNewsletter: (body: { email: string }, options?: RequestInit) =>
       this.request<void>('/store/newsletter/subscribe', { ...options, method: 'POST', body: JSON.stringify(body) }),
+
+    createSupportTicket: (body: { name: string; email: string; subject: string; message: string }, options?: RequestInit) =>
+      this.request<any>('/store/support', { ...options, method: 'POST', body: JSON.stringify(body) }),
+    getMySupportTickets: (options?: RequestInit) =>
+      this.request<any[]>('/store/support/my-tickets', options),
   };
 
   admin = {
@@ -144,13 +149,31 @@ export class NoeveApiClient {
         body: JSON.stringify(body),
       }),
 
-    getOrders: (status?: string, options?: RequestInit) => 
-      this.request<Order[]>(status ? `/admin/orders?status=${status}` : '/admin/orders', options),
+    getOrders: (params?: PaginationQuery & { status?: string }, options?: RequestInit) => {
+      const q = new URLSearchParams();
+      if (params?.status) q.append('status', params.status);
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.pageSize) q.append('pageSize', String(params.pageSize));
+      const qs = q.toString();
+      return this.request<Order[]>(qs ? `/admin/orders?${qs}` : '/admin/orders', options);
+    },
     updateOrderStatus: (orderId: string, body: { status: string; note?: string }, options?: RequestInit) =>
       this.request<Order>(`/admin/orders/${orderId}/status`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
 
-    getProducts: (options?: RequestInit) => this.request<Product[]>('/admin/products', options),
-    getCategories: (options?: RequestInit) => this.request<Category[]>('/admin/categories', options),
+    getProducts: (params?: PaginationQuery, options?: RequestInit) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.pageSize) q.append('pageSize', String(params.pageSize));
+      const qs = q.toString();
+      return this.request<Product[]>(qs ? `/admin/products?${qs}` : '/admin/products', options);
+    },
+    getCategories: (params?: PaginationQuery, options?: RequestInit) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.pageSize) q.append('pageSize', String(params.pageSize));
+      const qs = q.toString();
+      return this.request<Category[]>(qs ? `/admin/categories?${qs}` : '/admin/categories', options);
+    },
     createCategory: (body: any, options?: RequestInit) =>
       this.request<Category>('/admin/categories', { ...options, method: 'POST', body: JSON.stringify(body) }),
     updateCategory: (id: string, body: any, options?: RequestInit) =>
@@ -169,7 +192,13 @@ export class NoeveApiClient {
       return this.request<{ url: string }>('/admin/upload', { ...options, method: 'POST', body: formData });
     },
 
-    getPromotions: (options?: RequestInit) => this.request<any[]>('/admin/orders/promotions', options),
+    getPromotions: (params?: PaginationQuery, options?: RequestInit) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.pageSize) q.append('pageSize', String(params.pageSize));
+      const qs = q.toString();
+      return this.request<any[]>(qs ? `/admin/orders/promotions?${qs}` : '/admin/orders/promotions', options);
+    },
     createPromotion: (body: any, options?: RequestInit) =>
       this.request<any>('/admin/orders/promotions', { ...options, method: 'POST', body: JSON.stringify(body) }),
     deletePromotion: (id: string, options?: RequestInit) =>
@@ -178,6 +207,46 @@ export class NoeveApiClient {
     getSettings: (options?: RequestInit) => this.request<any>('/admin/settings', options),
     updateSettings: (body: any, options?: RequestInit) =>
       this.request<any>('/admin/settings', { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+
+    getMarketingSubscribers: (params?: PaginationQuery, options?: RequestInit) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.pageSize) q.append('pageSize', String(params.pageSize));
+      const qs = q.toString();
+      return this.request<any[]>(qs ? `/admin/marketing/subscribers?${qs}` : '/admin/marketing/subscribers', options);
+    },
+    toggleMarketingSubscriber: (id: string, body: { isActive: boolean }, options?: RequestInit) =>
+      this.request<any>(`/admin/marketing/subscribers/${id}`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+    deleteMarketingSubscriber: (id: string, options?: RequestInit) =>
+      this.request<void>(`/admin/marketing/subscribers/${id}`, { ...options, method: 'DELETE' }),
+    sendMarketingCampaign: (body: { subject: string; html: string }, options?: RequestInit) =>
+      this.request<{ success: boolean; count: number }>('/admin/marketing/subscribers/campaign', {
+        ...options,
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    
+    getReviews: (params?: PaginationQuery, options?: RequestInit) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.pageSize) q.append('pageSize', String(params.pageSize));
+      const qs = q.toString();
+      return this.request<any[]>(qs ? `/admin/reviews?${qs}` : '/admin/reviews', options);
+    },
+    updateReviewStatus: (id: string, body: { status: 'APPROVED' | 'REJECTED' | 'PENDING' }, options?: RequestInit) =>
+      this.request<any>(`/admin/reviews/${id}/status`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
+    deleteReview: (id: string, options?: RequestInit) =>
+      this.request<void>(`/admin/reviews/${id}`, { ...options, method: 'DELETE' }),
+
+    getSupportTickets: (params?: PaginationQuery, options?: RequestInit) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.pageSize) q.append('pageSize', String(params.pageSize));
+      const qs = q.toString();
+      return this.request<any[]>(qs ? `/admin/support?${qs}` : '/admin/support', options);
+    },
+    updateSupportTicketStatus: (id: string, body: { status: string }, options?: RequestInit) =>
+      this.request<any>(`/admin/support/${id}/status`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),
   };
 }
 

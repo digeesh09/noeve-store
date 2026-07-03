@@ -32,11 +32,14 @@ export function ProductCard({ product, priority }: ProductCardProps): React.JSX.
             sizes="(max-width: 768px) 50vw, 25vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center">
-            <svg viewBox="0 0 200 200" className="w-24 opacity-30">
-              <path d="M40 20 C100 5, 160 60, 150 120 C140 180, 80 190, 50 160 C20 130, 10 60, 40 20 Z" fill="var(--champagne)" />
-            </svg>
-          </div>
+          <Image
+            src="/public/uploads/placeholder.png"
+            alt={product.name}
+            fill
+            priority={priority}
+            className="object-cover"
+            sizes="(max-width: 768px) 50vw, 25vw"
+          />
         )}
       </div>
 

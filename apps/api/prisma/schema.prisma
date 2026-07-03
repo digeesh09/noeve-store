@@ -33,6 +33,12 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum ProductStatus {
   DRAFT
   ACTIVE
@@ -54,6 +60,7 @@ model User {
   wishlist  WishlistItem[]
   reviews   Review[]
   addresses Address[]
+  supportTickets SupportTicket[]
 
   @@map("users")
 }
@@ -294,6 +301,7 @@ model StoreSettings {
   shippingThresholdCents Int      @default(1500000) @map("shipping_threshold_cents")
   shippingRateCents      Int      @default(100000) @map("shipping_rate_cents")
   taxRatePercentage      Float    @default(0) @map("tax_rate_percentage")
+  marqueeText            String?  @map("marquee_text")
   updatedAt              DateTime @updatedAt @map("updated_at")
 
   @@map("store_settings")
@@ -305,6 +313,7 @@ model Review {
   userId    String   @map("user_id")
   rating    Int
   comment   String?
+  status    ReviewStatus @default(PENDING)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -313,3 +322,20 @@ model Review {
 
   @@map("reviews")
 }
+
+model SupportTicket {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    String   @default("OPEN")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("support_tickets")
+}
+

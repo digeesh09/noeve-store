@@ -24,14 +24,14 @@ export default function TermsOfUsePage() {
         <section className="mb-10">
           <h2 className="font-display text-2xl mb-4">1. General</h2>
           <p className="text-[rgba(33,29,25,0.78)] mb-4">
-            The platform is operated by NOEVE, a complete ladies' store offering premium apparel, beauty, and lifestyle products. The terms "we", "us", and "our" refer to NOEVE.
+            The platform is operated by NOEVE, a complete ladies&apos; store offering premium apparel, beauty, and lifestyle products. The terms &quot;we&quot;, &quot;us&quot;, and &quot;our&quot; refer to NOEVE.
           </p>
         </section>
 
         <section className="mb-10">
           <h2 className="font-display text-2xl mb-4">2. Product Accuracy</h2>
           <p className="text-[rgba(33,29,25,0.78)] mb-4">
-            We have made every effort to display as accurately as possible the colors and images of our products. However, we cannot guarantee that your computer monitor's display of any color will be accurate. All descriptions of products or product pricing are subject to change at any time without notice.
+            We have made every effort to display as accurately as possible the colors and images of our products. However, we cannot guarantee that your computer monitor&apos;s display of any color will be accurate. All descriptions of products or product pricing are subject to change at any time without notice.
           </p>
         </section>
 

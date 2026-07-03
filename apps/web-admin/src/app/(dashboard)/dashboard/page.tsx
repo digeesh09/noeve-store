@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { fetchOrders, type Order } from '@/lib/api';
+import Link from 'next/link';
 
 export default function DashboardPage(): React.JSX.Element {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -13,7 +14,7 @@ export default function DashboardPage(): React.JSX.Element {
 
   useEffect(() => {
     fetchOrders()
-      .then((data) => setOrders(data))
+      .then((res) => setOrders(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -28,9 +29,9 @@ export default function DashboardPage(): React.JSX.Element {
   }).length;
 
   const stats = [
-    { label: 'Open orders', value: loading ? '—' : openOrders },
-    { label: 'Processing', value: loading ? '—' : processing },
-    { label: 'Shipped today', value: loading ? '—' : shippedToday },
+    { label: 'Open orders', value: loading ? '—' : openOrders, href: '/dashboard/orders?status=CONFIRMED' },
+    { label: 'Processing', value: loading ? '—' : processing, href: '/dashboard/orders?status=PROCESSING' },
+    { label: 'Shipped today', value: loading ? '—' : shippedToday, href: '/dashboard/orders?status=SHIPPED' },
   ];
 
   // Reports
@@ -50,10 +51,10 @@ export default function DashboardPage(): React.JSX.Element {
       </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-neutral-200 bg-white p-6">
+          <Link key={stat.label} href={stat.href} className="block rounded-lg border border-neutral-200 bg-white p-6 hover:border-brand-primary hover:bg-neutral-50 transition-colors">
             <p className="text-sm text-neutral-500">{stat.label}</p>
-            <p className="mt-2 text-3xl font-semibold">{stat.value}</p>
-          </div>
+            <p className="mt-2 text-3xl font-semibold text-neutral-900">{stat.value}</p>
+          </Link>
         ))}
       </div>
       
@@ -64,6 +65,26 @@ export default function DashboardPage(): React.JSX.Element {
             <p className="text-sm text-neutral-600">{stat.label}</p>
             <p className="mt-2 text-3xl font-semibold text-brand-primary">{stat.value}</p>
           </div>
+        ))}
+      </div>
+      
+      <h2 className="text-xl font-semibold mt-12 mb-4">Quick Access</h2>
+      <div className="grid gap-4 sm:grid-cols-4">
+        {[
+          { name: 'Orders', href: '/dashboard/orders', icon: '📦' },
+          { name: 'Products', href: '/dashboard/products', icon: '🛍️' },
+          { name: 'Marketing', href: '/dashboard/marketing', icon: '📢' },
+          { name: 'Categories', href: '/dashboard/categories', icon: '📑' },
+          { name: 'Promotions', href: '/dashboard/promotions', icon: '🏷️' },
+          { name: 'Settings', href: '/dashboard/settings', icon: '⚙️' },
+        ].map((link) => (
+          <Link key={link.name} href={link.href} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-4 hover:border-brand-primary hover:bg-neutral-50 transition-colors">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{link.icon}</span>
+              <span className="font-medium text-neutral-800 group-hover:text-brand-primary">{link.name}</span>
+            </div>
+            <span className="text-neutral-400 group-hover:text-brand-primary transition-transform group-hover:translate-x-1">→</span>
+          </Link>
         ))}
       </div>
     </div>

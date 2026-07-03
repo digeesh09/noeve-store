@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { fetchPromotions, createPromotion, deletePromotion, type Promotion } from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 
 function formatPrice(cents: number, currency = 'INR') {
   return (cents / 100).toLocaleString('en-IN', {
@@ -25,11 +26,15 @@ export default function PromotionsPage(): React.JSX.Element {
     minOrderValue: '0',
   });
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const load = async () => {
     setError(null);
     try {
-      const data = await fetchPromotions();
-      setPromotions(data);
+      const res = await fetchPromotions(page);
+      setPromotions(res.data);
+      setTotalPages(res.meta.totalPages || 1);
     } catch (err) {
       setError('Failed to load promotions');
     } finally {
@@ -39,7 +44,7 @@ export default function PromotionsPage(): React.JSX.Element {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [page]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +161,8 @@ export default function PromotionsPage(): React.JSX.Element {
           </table>
         </div>
       )}
+      
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

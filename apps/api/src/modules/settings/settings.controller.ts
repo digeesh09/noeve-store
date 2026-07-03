@@ -30,6 +30,7 @@ export class SettingsController {
       shippingThresholdCents?: number;
       shippingRateCents?: number;
       taxRatePercentage?: number;
+      marqueeText?: string;
     }
   ) {
     const settings = await this.settingsService.updateSettings(body);

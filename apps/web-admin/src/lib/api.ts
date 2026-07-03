@@ -25,11 +25,23 @@ export interface OrderLine {
   lineTotalCents: number;
 }
 
+export interface OrderUserAddress {
+  name: string;
+  phone: string;
+  streetLine1: string;
+  streetLine2: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
 export interface OrderUser {
   id: string;
   email: string;
   firstName: string | null;
   lastName: string | null;
+  addresses?: OrderUserAddress[];
 }
 
 export interface Order {
@@ -50,9 +62,19 @@ export interface Order {
   promotionCode?: string | null;
 }
 
-export async function fetchOrders(status?: string): Promise<Order[]> {
-  const res = await apiClient.admin.getOrders(status);
-  return res.data as unknown as Order[];
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export async function fetchOrders(status?: string, page = 1, pageSize = 20): Promise<PaginatedResponse<Order>> {
+  const res = await apiClient.admin.getOrders({ status, page, pageSize });
+  return { data: res.data as unknown as Order[], meta: res.meta! };
 }
 
 export async function updateOrderStatus(orderId: string, status: string, note?: string): Promise<Order> {
@@ -96,9 +118,9 @@ export interface Product {
   images?: ProductImage[];
 }
 
-export async function fetchProducts(): Promise<Product[]> {
-  const res = await apiClient.admin.getProducts();
-  return res.data as unknown as Product[];
+export async function fetchProducts(page = 1, pageSize = 20): Promise<PaginatedResponse<Product>> {
+  const res = await apiClient.admin.getProducts({ page, pageSize });
+  return { data: res.data as unknown as Product[], meta: res.meta! };
 }
 
 export async function createProduct(payload: any): Promise<Product> {
@@ -129,9 +151,9 @@ export interface Category {
   returnPolicy?: string | null;
 }
 
-export async function fetchCategories(): Promise<Category[]> {
-  const res = await apiClient.store.getCategories();
-  return res.data as unknown as Category[];
+export async function fetchCategories(page = 1, pageSize = 20): Promise<PaginatedResponse<Category>> {
+  const res = await apiClient.admin.getCategories({ page, pageSize });
+  return { data: res.data as unknown as Category[], meta: res.meta! };
 }
 
 export async function createCategory(data: any): Promise<Category> {
@@ -160,9 +182,9 @@ export interface Promotion {
   createdAt: string;
 }
 
-export async function fetchPromotions(): Promise<Promotion[]> {
-  const res = await apiClient.admin.getPromotions();
-  return res.data as unknown as Promotion[];
+export async function fetchPromotions(page = 1, pageSize = 20): Promise<PaginatedResponse<Promotion>> {
+  const res = await apiClient.admin.getPromotions({ page, pageSize });
+  return { data: res.data as unknown as Promotion[], meta: res.meta! };
 }
 
 export async function createPromotion(payload: any): Promise<Promotion> {
@@ -179,6 +201,7 @@ export interface StoreSettings {
   shippingThresholdCents: number;
   shippingRateCents: number;
   taxRatePercentage: number;
+  marqueeText?: string | null;
   updatedAt: string;
 }
 
@@ -190,5 +213,52 @@ export async function fetchSettings(): Promise<StoreSettings> {
 export async function updateSettings(payload: any): Promise<StoreSettings> {
   const res = await apiClient.admin.updateSettings(payload);
   return res.data as unknown as StoreSettings;
+}
+
+export interface MarketingSubscriber {
+  id: string;
+  email: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export async function fetchMarketingSubscribers(page = 1, pageSize = 20): Promise<PaginatedResponse<MarketingSubscriber>> {
+  const res = await apiClient.admin.getMarketingSubscribers({ page, pageSize });
+  return { data: res.data as unknown as MarketingSubscriber[], meta: res.meta! };
+}
+
+export async function toggleMarketingSubscriber(id: string, isActive: boolean) {
+  const res = await apiClient.admin.toggleMarketingSubscriber(id, { isActive });
+  return res.data;
+}
+
+export async function deleteMarketingSubscriber(id: string) {
+  await apiClient.admin.deleteMarketingSubscriber(id);
+}
+
+import type { ReviewResponse } from '@noeve/shared-types';
+
+export async function fetchReviews(page = 1, pageSize = 20): Promise<PaginatedResponse<ReviewResponse>> {
+  const res = await apiClient.admin.getReviews({ page, pageSize });
+  return { data: res.data as unknown as ReviewResponse[], meta: res.meta! };
+}
+
+export async function updateReviewStatus(id: string, status: 'APPROVED' | 'REJECTED' | 'PENDING') {
+  const res = await apiClient.admin.updateReviewStatus(id, { status });
+  return res.data;
+}
+
+export async function deleteReview(id: string) {
+  await apiClient.admin.deleteReview(id);
+}
+
+export async function fetchSupportTickets(page = 1, pageSize = 20): Promise<PaginatedResponse<any>> {
+  const res = await apiClient.admin.getSupportTickets({ page, pageSize });
+  return { data: res.data as unknown as any[], meta: res.meta! };
+}
+
+export async function updateSupportTicketStatus(id: string, status: string) {
+  const res = await apiClient.admin.updateSupportTicketStatus(id, { status });
+  return res.data;
 }
 

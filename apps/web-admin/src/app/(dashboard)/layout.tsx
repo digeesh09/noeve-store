@@ -12,6 +12,9 @@ const nav = [
   { href: '/dashboard/products', label: 'Products' },
   { href: '/dashboard/categories', label: 'Categories' },
   { href: '/dashboard/promotions', label: 'Promotions' },
+  { href: '/dashboard/marketing', label: 'Marketing' },
+  { href: '/dashboard/reviews', label: 'Reviews' },
+  { href: '/dashboard/support', label: 'Support' },
   { href: '/dashboard/fulfillment', label: 'Fulfillment' },
   { href: '/dashboard/settings', label: 'Settings' },
 ];

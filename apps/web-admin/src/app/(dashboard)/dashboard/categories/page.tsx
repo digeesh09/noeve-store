@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { fetchCategories, createCategory, updateCategory, deleteCategory, type Category } from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 
 export default function CategoriesPage(): React.JSX.Element {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -19,17 +20,21 @@ export default function CategoriesPage(): React.JSX.Element {
     returnPolicy: '',
   });
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const load = useCallback(async () => {
     setError(null);
     try {
-      const data = await fetchCategories();
-      setCategories(data);
+      const res = await fetchCategories(page);
+      setCategories(res.data);
+      setTotalPages(res.meta.totalPages || 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load categories');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     load();
@@ -183,6 +188,8 @@ export default function CategoriesPage(): React.JSX.Element {
           </table>
         </div>
       )}
+      
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

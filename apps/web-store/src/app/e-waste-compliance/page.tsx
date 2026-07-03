@@ -38,7 +38,7 @@ export default function EWasteCompliancePage() {
         <section className="mb-10">
           <h2 className="font-display text-2xl mb-4">How to Dispose of E-Waste</h2>
           <p className="text-[rgba(33,29,25,0.78)] mb-4">
-            We urge our customers not to dispose of electronic products in regular municipal waste bins. Look for the "crossed-out wheeled bin" symbol on the product or packaging, which indicates it should not be treated as normal household waste.
+            We urge our customers not to dispose of electronic products in regular municipal waste bins. Look for the &quot;crossed-out wheeled bin&quot; symbol on the product or packaging, which indicates it should not be treated as normal household waste.
           </p>
           <ul className="list-disc pl-5 text-[rgba(33,29,25,0.78)] space-y-2">
             <li>Drop off the product at an authorized e-waste collection center.</li>

@@ -6,8 +6,8 @@ export class StoreCatalogController {
   constructor(private catalog: CatalogService) {}
 
   @Get('categories')
-  listCategories() {
-    return this.catalog.listCategories();
+  listCategories(@Query() query: Record<string, unknown>) {
+    return this.catalog.listCategories(query);
   }
 
   @Get('products')

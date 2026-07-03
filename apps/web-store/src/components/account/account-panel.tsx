@@ -11,7 +11,7 @@ import { fetchAddresses, addAddress, updateAddress, deleteAddress, type Address 
 
 export function AccountPanel(): React.JSX.Element {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [tab, setTab] = useState<'orders'|'profile'|'wishlist'|'addresses'>('orders');
+  const [tab, setTab] = useState<'orders'|'profile'|'wishlist'|'addresses'|'inbox'>('orders');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string|null>(null);
@@ -22,6 +22,10 @@ export function AccountPanel(): React.JSX.Element {
   const [addressForm, setAddressForm] = useState<Partial<Address> | null>(null);
   const [savingAddress, setSavingAddress] = useState(false);
   const [openOrder, setOpenOrder] = useState<string|null>(null);
+  const [inbox, setInbox] = useState<any[]>([]);
+  const [inboxForm, setInboxForm] = useState(false);
+  const [inboxSubject, setInboxSubject] = useState('');
+  const [inboxMessage, setInboxMessage] = useState('');
 
   useEffect(() => { 
     setLoggedIn(isLoggedIn()); 
@@ -37,18 +41,21 @@ export function AccountPanel(): React.JSX.Element {
   }, []);
   useEffect(() => {
     if (!loggedIn) return;
-    fetchMyOrders().then(setOrders).catch(() => setOrders([]));
-    fetchWishlist().then(setWishlist).catch(() => setWishlist([]));
-    fetchAddresses().then(setAddresses).catch(() => setAddresses([]));
+    fetchOrders();
+    fetchWishlistData();
+    fetchAddressesData();
+    fetchInbox();
   }, [loggedIn]);
 
+  const fetchOrders = () => fetchMyOrders().then(setOrders).catch(() => setOrders([]));
+  const fetchWishlistData = () => fetchWishlist().then(setWishlist).catch(() => setWishlist([]));
+  const fetchAddressesData = () => fetchAddresses().then(setAddresses).catch(() => setAddresses([]));
+  const fetchInbox = () => import('@/lib/api').then(({ apiClient }) => apiClient.store.getMySupportTickets().then(res => setInbox(res.data)).catch(() => setInbox([])));
+
   useEffect(() => {
-    if (loggedIn && tab === 'wishlist') {
-      fetchWishlist().then(setWishlist).catch(() => setWishlist([]));
-    }
-    if (loggedIn && tab === 'addresses') {
-      fetchAddresses().then(setAddresses).catch(() => setAddresses([]));
-    }
+    if (loggedIn && tab === 'wishlist') fetchWishlistData();
+    if (loggedIn && tab === 'addresses') fetchAddressesData();
+    if (loggedIn && tab === 'inbox') fetchInbox();
   }, [loggedIn, tab]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -109,6 +116,7 @@ export function AccountPanel(): React.JSX.Element {
         <a href="#" className={tab==='addresses'?'is-active':''} onClick={e=>{e.preventDefault();setTab('addresses')}}>Addresses</a>
         <a href="#" className={tab==='profile'?'is-active':''} onClick={e=>{e.preventDefault();setTab('profile')}}>Account Details</a>
         <a href="#" className={tab==='wishlist'?'is-active':''} onClick={e=>{e.preventDefault();setTab('wishlist')}}>Wishlist</a>
+        <a href="#" className={tab==='inbox'?'is-active':''} onClick={e=>{e.preventDefault();setTab('inbox')}}>Inbox</a>
       </nav>
 
       {tab === 'orders' && (
@@ -393,6 +401,61 @@ export function AccountPanel(): React.JSX.Element {
                 </Link>
               </article>
             ))
+          )}
+        </div>
+      )}
+      {tab === 'inbox' && (
+        <div className="addresses-list">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <h2 className="text-xl">Your Messages</h2>
+            <button className="btn btn--primary" onClick={() => setInboxForm(true)}>New Message</button>
+          </div>
+
+          {inboxForm && (
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              try {
+                const { apiClient } = await import('@/lib/api');
+                await apiClient.store.createSupportTicket({ name: 'User', email: 'user@example.com', subject: inboxSubject, message: inboxMessage });
+                setInboxForm(false);
+                setInboxSubject('');
+                setInboxMessage('');
+                fetchInbox();
+              } catch (err) {
+                console.error(err);
+              }
+            }} style={{ marginBottom: '2rem', padding: '1.5rem', border: '1px solid var(--bone)', borderRadius: '4px' }}>
+              <h3 style={{ marginBottom: '1rem' }}>New Message</h3>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Subject</label>
+                <input required value={inboxSubject} onChange={e => setInboxSubject(e.target.value)} style={{ width: '100%', padding: '0.8rem', border: '1px solid var(--bone)', background: 'transparent' }} />
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Message</label>
+                <textarea required rows={4} value={inboxMessage} onChange={e => setInboxMessage(e.target.value)} style={{ width: '100%', padding: '0.8rem', border: '1px solid var(--bone)', background: 'transparent' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button type="submit" className="btn btn--primary">Send</button>
+                <button type="button" className="btn btn--secondary" onClick={() => setInboxForm(false)}>Cancel</button>
+              </div>
+            </form>
+          )}
+
+          {inbox.length === 0 && !inboxForm ? (
+            <p style={{padding:'3rem 0',textAlign:'center',color:'rgba(33,29,25,.55)'}}>You have no messages.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {inbox.map(ticket => (
+                <div key={ticket.id} style={{ padding: '1.5rem', border: '1px solid var(--bone)', borderRadius: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <h3 style={{ fontSize: '1.1rem' }}>{ticket.subject}</h3>
+                    <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: ticket.status === 'OPEN' ? 'var(--oxblood)' : 'var(--ink)', background: 'var(--bone)', padding: '0.2rem 0.5rem', borderRadius: '2px' }}>{ticket.status}</span>
+                  </div>
+                  <p style={{ color: 'rgba(33,29,25,.7)', fontSize: '0.9rem', marginBottom: '1rem' }}>{new Date(ticket.createdAt).toLocaleString()}</p>
+                  <p>{ticket.message}</p>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

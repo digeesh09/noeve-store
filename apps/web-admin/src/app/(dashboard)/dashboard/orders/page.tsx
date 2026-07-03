@@ -2,6 +2,8 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { fetchOrders, updateOrderStatus, type Order } from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const STATUS_OPTIONS = [
   'CONFIRMED',
@@ -30,27 +32,51 @@ function formatPrice(cents: number, currency = 'INR') {
 }
 
 export default function OrdersPage(): React.JSX.Element {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const initialStatus = searchParams.get('status') || '';
+  
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [openOrder, setOpenOrder] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
+  const [filterStatus, setFilterStatus] = useState<string>(initialStatus);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      const data = await fetchOrders();
-      setOrders(data);
+      const res = await fetchOrders(filterStatus || undefined, page);
+      setOrders(res.data);
+      setTotalPages(res.meta.totalPages || 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load orders');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, filterStatus]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setFilterStatus(val);
+    setPage(1);
+    
+    // Update URL without reloading page
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) {
+      params.set('status', val);
+    } else {
+      params.delete('status');
+    }
+    router.replace(`/dashboard/orders?${params.toString()}`);
+  };
 
   const handleStatus = async (orderId: string, status: string) => {
     setUpdating(orderId);
@@ -66,8 +92,22 @@ export default function OrdersPage(): React.JSX.Element {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Orders</h1>
-      <p className="mt-2 text-sm text-neutral-600">Manage customer orders and fulfillment status.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Orders</h1>
+          <p className="mt-2 text-sm text-neutral-600">Manage customer orders and fulfillment status.</p>
+        </div>
+        <select 
+          value={filterStatus}
+          onChange={handleFilterChange}
+          className="rounded-md border-neutral-300 py-1.5 pl-3 pr-8 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
+        >
+          <option value="">All Statuses</option>
+          {STATUS_OPTIONS.map(status => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </select>
+      </div>
 
       {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
       {loading ? (
@@ -99,7 +139,10 @@ export default function OrdersPage(): React.JSX.Element {
                         {new Date(order.createdAt).toLocaleString('en-IN')}
                       </p>
                     </td>
-                    <td className="px-4 py-3 text-neutral-600">{order.user?.email ?? '—'}</td>
+                    <td className="px-4 py-3 text-neutral-600">
+                      <div>{order.user?.firstName} {order.user?.lastName}</div>
+                      <div className="text-xs text-neutral-500">{order.user?.email ?? '—'}</div>
+                    </td>
                     <td className="px-4 py-3">
                       <span className="rounded-full bg-brand-accent-light px-2 py-0.5 text-xs font-medium text-brand-primary">
                         {order.status}
@@ -152,6 +195,20 @@ export default function OrdersPage(): React.JSX.Element {
                                 <span>Total:</span><span>{formatPrice(order.totalCents, order.currency)}</span>
                               </div>
                             </div>
+                            
+                            <h4 className="font-semibold text-sm mb-2 mt-6 text-neutral-800">Shipping Address</h4>
+                            {order.user?.addresses?.[0] ? (
+                              <div className="text-sm text-neutral-600 space-y-1">
+                                <p className="font-medium text-neutral-800">{order.user.addresses[0].name}</p>
+                                <p>{order.user.addresses[0].streetLine1}</p>
+                                {order.user.addresses[0].streetLine2 && <p>{order.user.addresses[0].streetLine2}</p>}
+                                <p>{order.user.addresses[0].city}, {order.user.addresses[0].state} {order.user.addresses[0].postalCode}</p>
+                                <p>{order.user.addresses[0].country}</p>
+                                <p className="mt-1">Phone: {order.user.addresses[0].phone}</p>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-neutral-400 italic">No default address found</p>
+                            )}
                           </div>
                           <div className="flex-1">
                             <h4 className="font-semibold text-sm mb-2 text-neutral-800">Tracking Info</h4>
@@ -177,6 +234,7 @@ export default function OrdersPage(): React.JSX.Element {
         <summary>All status values</summary>
         <p className="mt-2">{STATUS_OPTIONS.join(' · ')}</p>
       </details>
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

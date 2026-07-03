@@ -13,6 +13,7 @@ export default function SettingsPage() {
   const [shippingThreshold, setShippingThreshold] = useState('');
   const [shippingRate, setShippingRate] = useState('');
   const [taxRate, setTaxRate] = useState('');
+  const [marqueeText, setMarqueeText] = useState('');
 
   useEffect(() => {
     loadSettings();
@@ -27,6 +28,7 @@ export default function SettingsPage() {
       setShippingThreshold((data.shippingThresholdCents / 100).toString());
       setShippingRate((data.shippingRateCents / 100).toString());
       setTaxRate(data.taxRatePercentage.toString());
+      setMarqueeText(data.marqueeText || '');
     } catch (err: any) {
       setError(err.message || 'Failed to load settings');
     } finally {
@@ -44,6 +46,7 @@ export default function SettingsPage() {
         shippingThresholdCents: Math.round(parseFloat(shippingThreshold || '0') * 100),
         shippingRateCents: Math.round(parseFloat(shippingRate || '0') * 100),
         taxRatePercentage: parseFloat(taxRate || '0'),
+        marqueeText: marqueeText || null,
       });
       setSuccess('Settings updated successfully');
       await loadSettings();
@@ -112,6 +115,26 @@ export default function SettingsPage() {
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">The flat rate applied to orders below the free shipping threshold.</p>
+          </div>
+        </div>
+
+        <div className="space-y-4 mt-8 pt-6 border-t">
+          <h2 className="text-lg font-semibold text-gray-900 border-b pb-2">Appearance</h2>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Header Marquee Text
+            </label>
+            <textarea
+              rows={3}
+              value={marqueeText}
+              onChange={(e) => setMarqueeText(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black"
+              placeholder="e.g. THE NEW EDIT IS NOW LIVE. Separate messages with a newline."
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              The scrolling text displayed at the top of the store. If left blank, default text will be used.
+            </p>
           </div>
         </div>
 

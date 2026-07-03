@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { fetchProducts, createProduct, updateProduct, deleteProduct, fetchCategories, uploadFile, type Product, type Category } from '@/lib/api';
+import { Pagination } from '@/components/Pagination';
 
 function formatPrice(cents: number, currency = 'INR') {
   return (cents / 100).toLocaleString('en-IN', {
@@ -43,21 +44,26 @@ export default function ProductsPage(): React.JSX.Element {
     shippingAndReturns: '',
   });
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const load = useCallback(async () => {
     setError(null);
     try {
-      const [prodData, catData] = await Promise.all([fetchProducts(), fetchCategories()]);
-      setProducts(prodData);
-      setCategories(catData);
-      if (catData.length > 0 && !formData.categoryId) {
-        setFormData(prev => ({ ...prev, categoryId: catData[0].id }));
+      const [prodRes, catRes] = await Promise.all([fetchProducts(page), fetchCategories(1, 100)]);
+      setProducts(prodRes.data);
+      setTotalPages(prodRes.meta.totalPages || 1);
+      
+      setCategories(catRes.data);
+      if (catRes.data.length > 0 && !formData.categoryId) {
+        setFormData(prev => ({ ...prev, categoryId: catRes.data[0].id }));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
       setLoading(false);
     }
-  }, [formData.categoryId]);
+  }, [formData.categoryId, page]);
 
   useEffect(() => {
     load();
@@ -351,6 +357,8 @@ export default function ProductsPage(): React.JSX.Element {
           </table>
         </div>
       )}
+      
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

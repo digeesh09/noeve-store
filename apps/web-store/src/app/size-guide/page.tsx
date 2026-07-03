@@ -18,7 +18,7 @@ export default function SizeGuidePage() {
           Find your perfect fit. Our apparel is designed with a relaxed, modern silhouette. 
         </p>
         <p className="text-[rgba(33,29,25,0.78)] mb-4">
-          Detailed sizing charts and measurement guides will be available here soon. For specific product inquiries, please refer to the "Fit & Sizing" tab on the product detail page.
+          Detailed sizing charts and measurement guides will be available here soon. For specific product inquiries, please refer to the &quot;Fit &amp; Sizing&quot; tab on the product detail page.
         </p>
       </div>
     </main>

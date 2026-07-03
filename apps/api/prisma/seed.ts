@@ -3,8 +3,8 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-const IMG = (text: string, bg = 'F3E8FF', fg = '4A148C') =>
-  `https://placehold.co/800x800/${bg}/${fg}?text=${encodeURIComponent(text)}`;
+const IMG = (_text?: string, _bg?: string, _fg?: string) =>
+  `/public/uploads/placeholder.png`;
 
 type ProductSeed = {
   slug: string;

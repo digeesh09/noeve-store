@@ -6,11 +6,13 @@ import { CartBadge } from '@/components/cart/cart-badge';
 import { isLoggedIn } from '@/lib/auth';
 
 const nav = [
-  { href: '/shop', label: 'Shop' },
-  { href: '/#edit', label: 'New' },
-  { href: '/#pillars', label: 'Apparel' },
-  { href: '/#pillars', label: 'Beauty' },
+  { href: '/shop', label: 'The Edit' },
+  { href: '/#edit', label: 'Trending' },
+  { href: '/shop?category=apparel', label: 'Apparel' },
+  { href: '/shop?category=jewellery', label: 'Jewellery' },
+  { href: '/shop?category=beauty', label: 'Beauty' },
   { href: '/#newsletter', label: 'Journal' },
+  { href: '/support', label: 'Contact' },
 ];
 
 export function SiteHeader(): React.JSX.Element {
@@ -38,18 +40,30 @@ export function SiteHeader(): React.JSX.Element {
       {/* Announcement marquee */}
       <div className="marquee">
         <div className="marquee__track">
-          <span>FREE SHIPPING ON ORDERS OVER {settings ? `₹${(settings.shippingThresholdCents / 100).toLocaleString()}` : '₹15,000'}</span>
-          <span>○</span>
-          <span>THE NEW EDIT IS NOW LIVE</span>
-          <span>○</span>
-          <span>EARLY ACCESS FOR LIST MEMBERS</span>
-          <span>○</span>
-          <span>FREE SHIPPING ON ORDERS OVER {settings ? `₹${(settings.shippingThresholdCents / 100).toLocaleString()}` : '₹15,000'}</span>
-          <span>○</span>
-          <span>THE NEW EDIT IS NOW LIVE</span>
-          <span>○</span>
-          <span>EARLY ACCESS FOR LIST MEMBERS</span>
-          <span>○</span>
+          {settings?.marqueeText ? (
+            // Duplicate the text to ensure continuous scrolling
+            [...settings.marqueeText.split('\n'), ...settings.marqueeText.split('\n'), ...settings.marqueeText.split('\n')].map((text, i) => (
+              <React.Fragment key={i}>
+                <span>{text.trim()}</span>
+                <span>○</span>
+              </React.Fragment>
+            ))
+          ) : (
+            <>
+              <span>FREE SHIPPING ON ORDERS OVER {settings ? `₹${(settings.shippingThresholdCents / 100).toLocaleString()}` : '₹15,000'}</span>
+              <span>○</span>
+              <span>THE NEW EDIT IS NOW LIVE</span>
+              <span>○</span>
+              <span>EARLY ACCESS FOR LIST MEMBERS</span>
+              <span>○</span>
+              <span>FREE SHIPPING ON ORDERS OVER {settings ? `₹${(settings.shippingThresholdCents / 100).toLocaleString()}` : '₹15,000'}</span>
+              <span>○</span>
+              <span>THE NEW EDIT IS NOW LIVE</span>
+              <span>○</span>
+              <span>EARLY ACCESS FOR LIST MEMBERS</span>
+              <span>○</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -78,11 +92,6 @@ export function SiteHeader(): React.JSX.Element {
               </svg>
             </Link>
 
-            <Link href={loggedIn ? "/account" : "/login"} aria-label={loggedIn ? "Account" : "Sign in"} className="nav__icon-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"/>
-              </svg>
-            </Link>
 
             <CartBadge />
 
@@ -122,7 +131,6 @@ export function SiteHeader(): React.JSX.Element {
             <Link key={item.label} href={item.href} onClick={() => setMobileOpen(false)}>{item.label}</Link>
           ))}
           <Link href="/cart" onClick={() => setMobileOpen(false)}>Bag</Link>
-          <Link href={loggedIn ? "/account" : "/login"} onClick={() => setMobileOpen(false)}>{loggedIn ? 'Account' : 'Sign In'}</Link>
         </div>
       </div>
     </>
