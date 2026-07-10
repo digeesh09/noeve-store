@@ -157,7 +157,7 @@
 - [x] 69. Make the progress bar spinner of color var(--oxblood); and increase its thickness.
   - **Resolution**: Updated `NextTopLoader` in `apps/web-store/src/app/layout.tsx` to use `color="var(--oxblood)"`, `height={4}` (thicker), and enabled `showSpinner={true}`.
 - [x] 70. The pdf invoice should have the noeve logo, name, company address, email etc. It should look more professional.
-  - **Resolution**: Enhanced the PDF generation in `orders.service.ts` to include the NOEVE brand typography, company address, contact email, phone number, and GSTIN, with improved layout and styling.
+  - **Resolution**: Enhanced the PDF generation in `orders.service.ts` to include the actual `logo.png` from `apps/api/public/images/logo.png`, company address, contact email, phone number, and GSTIN. Added a professional footer with return policy and support email.
   - [x] 71. http://localhost:3002/dashboard/content
         ./src/app/(dashboard)/dashboard/content/page.tsx:5:1
         Module not found: Can't resolve '@/components/ui/card'
