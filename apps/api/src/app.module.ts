@@ -23,6 +23,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { CrmModule } from './modules/crm/crm.module';
 import { FulfillmentModule } from './modules/fulfillment/fulfillment.module';
+import { BlogsModule } from './modules/blogs/blogs.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { FulfillmentModule } from './modules/fulfillment/fulfillment.module';
     InventoryModule,
     CrmModule,
     FulfillmentModule,
+    BlogsModule,
   ],
 })
 export class AppModule {}

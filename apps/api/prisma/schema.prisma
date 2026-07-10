@@ -368,3 +368,32 @@ model Shipment {
   @@map("shipments")
 }
 
+model BlogCategory {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("blog_categories")
+}
+
+model Post {
+  id          String        @id @default(uuid())
+  title       String
+  slug        String        @unique
+  excerpt     String?
+  content     String        @db.Text
+  published   Boolean       @default(false)
+  author      String
+  imageUrl    String?
+  categoryId  String?
+  category    BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@map("posts")
+}
+

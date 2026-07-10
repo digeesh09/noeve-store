@@ -321,3 +321,33 @@ export async function fetchCrmCustomerInsights(id: string) {
   return res.json();
 }
 
+export async function fetchBlogs(page = 1, pageSize = 20) {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/blogs?page=${page}&pageSize=${pageSize}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+
+export async function createBlog(data: any) {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/blogs`, {
+    method: 'POST',
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+export async function deleteBlog(id: string) {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/blogs/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+

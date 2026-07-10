@@ -60,3 +60,29 @@ export function filterByCategory(products: Product[], categorySlug?: string) {
   if (!categorySlug) return products;
   return products.filter((p) => p.category?.slug === categorySlug);
 }
+
+export async function getBlogs(page = 1, pageSize = 20, category?: string) {
+  try {
+    const url = new URL(`${API_URL}/store/blogs`);
+    url.searchParams.append('page', page.toString());
+    url.searchParams.append('pageSize', pageSize.toString());
+    if (category) url.searchParams.append('category', category);
+    
+    const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+    if (!res.ok) throw new Error('Failed to fetch blogs');
+    return res.json();
+  } catch (err) {
+    return { data: [], meta: { page, pageSize, total: 0, totalPages: 0 } };
+  }
+}
+
+export async function getBlog(slug: string) {
+  try {
+    const res = await fetch(`${API_URL}/store/blogs/${slug}`, { next: { revalidate: 60 } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data;
+  } catch (err) {
+    return null;
+  }
+}

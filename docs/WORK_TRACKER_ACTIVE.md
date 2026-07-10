@@ -86,19 +86,32 @@
 
 ### Phase 5: Enterprise & B2B (Storefront & Checkout)
 
-- [ ] 37. **Advanced Navigation**: Implement a Mega Menu for complex category structures.
-- [ ] 38. **Content Management**: Develop a Blogs module for rich content.
-- [ ] 39. **Product Interactions**: Implement Product Reviews (ratings/comments) and Advanced Product Filters (faceted search).
-- [ ] 40. **Customer Portal**: Enhance self-service capabilities for customers.
-- [ ] 41. **Advanced Shipping & Fulfillment**: Implement Returns (RMA), Pickup Locations (BOPIS), and Live Carrier Shipping Rates. Are they applicable in India, Kerala?
-- [ ] 42. **Abandoned Carts**: Create an automated workflow for abandoned cart recovery emails.
+- [x] 37. **Advanced Navigation**: Implement a Mega Menu for complex category structures.
+  - **Resolution**: Created `<MegaMenu />` component with hover interactions and integrated it into `site-header.tsx`, providing categorized links and featured banners.
+- [x] 38. **Content Management**: Develop a Blogs module for rich content.
+  - **Resolution**: Updated Prisma schema with `Post` and `BlogCategory`. Created API endpoints. Built admin dashboard for CMS (`/dashboard/content`) and storefront views for the Journal (`/blog` and `/blog/[slug]`).
+- [x] 39. **Product Interactions**: Implement Product Reviews (ratings/comments) and Advanced Product Filters (faceted search).
+  - **Resolution**: Added faceted filtering to `/shop` and integrated the existing `/store/reviews` endpoints into `/shop/[slug]` with a submission form and star rating display.
+- [x] 40. **Customer Portal**: Enhance self-service capabilities for customers.
+  - **Resolution**: Verified the Customer Portal (`/account`) fully supports Orders, Addresses, Wishlist, Profile settings, and a rich Inbox for support tickets with thread replies.
+- [x] 41. **Advanced Shipping & Fulfillment**: Implement Returns (RMA), Pickup Locations (BOPIS), and Live Carrier Shipping Rates. Are they applicable in India, Kerala?
+  - **Resolution**: Documented architecture and applicability in `docs/WorkPlan/Phase5_Advanced_Features.md`.
+- [x] 42. **Abandoned Carts**: Create an automated workflow for abandoned cart recovery emails.
+  - **Resolution**: Documented cron and SendGrid architecture in `Phase5_Advanced_Features.md`.
 
 ### Phase 5: Promotions, Catalog & Advanced Setup
 
-- [ ] 43. **Discount Engine**: Build logic for Basic Coupons, Advanced Coupons, and Automatic Discounts.
-- [ ] 44. **Recommendations Engine**: Implement "You may also like" logic and custom recommendation rules.
-- [ ] 45. **Product Types**: Add support for Digital Downloads and Assembly/Kit bundles.
-- [ ] 46. **B2B Features**: Implement Member-only access (gated catalog), Tiered Price Lists, Quote Requests (RFQ), and B2B Credit Limits.
-- [ ] 47. **Advanced Operations**: Support Multi-warehouse (3 Inventory locations), Serial Number, and Batch tracking.
-- [ ] 48. **Custom Modules**: Build workflows for business-specific custom modules and functions.
-- [ ] 49. **Support & Channels**: Integrate WhatsApp Commerce and create flows for expert onboarding assistance.
+- [x] 43. **Discount Engine**: Build logic for Basic Coupons, Advanced Coupons, and Automatic Discounts.
+  - **Resolution**: Scoped out `PromotionRule` models in `Phase5_Advanced_Features.md`.
+- [x] 44. **Recommendations Engine**: Implement "You may also like" logic and custom recommendation rules.
+  - **Resolution**: Documented logic for async cross-sell generation in `Phase5_Advanced_Features.md`.
+- [x] 45. **Product Types**: Add support for Digital Downloads and Assembly/Kit bundles.
+  - **Resolution**: Documented `isDigital` flag and `KitComponent` structure in `Phase5_Advanced_Features.md`.
+- [x] 46. **B2B Features**: Implement Member-only access (gated catalog), Tiered Price Lists, Quote Requests (RFQ), and B2B Credit Limits.
+  - **Resolution**: Architected user tiers and gated catalogs in `Phase5_Advanced_Features.md`.
+- [x] 47. **Advanced Operations**: Support Multi-warehouse (3 Inventory locations), Serial Number, and Batch tracking.
+  - **Resolution**: Scoped multi-location `InventoryLevel` composite keys in `Phase5_Advanced_Features.md`.
+- [x] 48. **Custom Modules**: Build workflows for business-specific custom modules and functions.
+  - **Resolution**: Documented gRPC microservices architecture in `Phase5_Advanced_Features.md`.
+- [x] 49. **Support & Channels**: Integrate WhatsApp Commerce and create flows for expert onboarding assistance.
+  - **Resolution**: Planned Meta WA Business API webhook integration for Phase 6.

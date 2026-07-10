@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { isLoggedIn, logout } from '@/lib/auth';
 import { CartBadge } from '@/components/cart/cart-badge';
+import { MegaMenu } from './mega-menu';
 
 
 const nav = [
@@ -78,12 +79,12 @@ export function SiteHeader(): React.JSX.Element {
             <img src="/images/logo.png" alt="NOEVE" style={{ height: '44px', width: 'auto', mixBlendMode: 'multiply' }} />
           </Link>
 
-          <nav className="nav__links">
-            {nav.map((item) => (
-              <Link key={item.label} href={item.href} className="nav__link">
-                {item.label}
-              </Link>
-            ))}
+          <nav className="nav__links" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <MegaMenu />
+            <Link href="/shop" className="nav__link">The Edit</Link>
+            <Link href="/#edit" className="nav__link">Trending</Link>
+            <Link href="/#newsletter" className="nav__link">Journal</Link>
+            <Link href="/support" className="nav__link">Contact</Link>
           </nav>
 
           <div className="nav__actions">

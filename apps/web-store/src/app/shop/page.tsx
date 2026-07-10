@@ -50,8 +50,24 @@ export default async function ShopPage({ searchParams }: ShopPageProps): Promise
       <div style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
         <CategoryNav categories={categories} activeSlug={categorySlug} />
         
-        <form method="GET" action="/shop" style={{ display: 'flex' }}>
+        <form method="GET" action="/shop" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           {categorySlug && <input type="hidden" name="category" value={categorySlug} />}
+          <div className="filter-group">
+            <select name="sort" style={{ padding: '0.5rem', border: '1px solid var(--border)', borderRadius: '4px' }}>
+              <option value="">Sort By</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="newest">Newest Arrivals</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <select name="priceRange" style={{ padding: '0.5rem', border: '1px solid var(--border)', borderRadius: '4px' }}>
+              <option value="">Any Price</option>
+              <option value="0-5000">Under ₹5,000</option>
+              <option value="5000-15000">₹5,000 - ₹15,000</option>
+              <option value="15000+">Over ₹15,000</option>
+            </select>
+          </div>
           <input 
             type="text" 
             name="q" 
@@ -59,7 +75,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps): Promise
             placeholder="Search pieces..." 
             style={{ padding: '0.5rem 1rem', border: '1px solid var(--border)', borderRadius: '4px 0 0 4px', fontSize: '0.85rem' }} 
           />
-          <button type="submit" className="btn btn--primary" style={{ padding: '0.5rem 1rem', borderRadius: '0 4px 4px 0', minHeight: 'auto' }}>
+          <button type="submit" className="btn btn--primary" style={{ padding: '0.5rem 1rem', borderRadius: '0 4px 4px 0', minHeight: 'auto', marginLeft: '-1rem' }}>
             Search
           </button>
         </form>
