@@ -2,11 +2,14 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { ProductStatus } from '@prisma/client';
 import { addToCartSchema, updateCartLineSchema } from '@noeve/validation';
 import type { AddToCartInput, UpdateCartLineInput } from '@noeve/validation';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import { randomUUID } from 'crypto';
 
 export interface CartContext {
@@ -16,7 +19,12 @@ export interface CartContext {
 
 @Injectable()
 export class CartService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(CartService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   async getOrCreateSession(): Promise<string> {
     return randomUUID();
@@ -278,5 +286,42 @@ export class CartService {
         currency: lines[0]?.currency ?? 'INR',
       },
     };
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async handleAbandonedCarts() {
+    this.logger.log('Running abandoned cart recovery job...');
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+    const abandonedCarts = await this.prisma.cart.findMany({
+      where: {
+        updatedAt: {
+          lte: oneDayAgo,
+          gt: twoDaysAgo,
+        },
+        userId: {
+          not: null,
+        },
+      },
+      include: {
+        user: true,
+        lines: true,
+      },
+    });
+
+    if (abandonedCarts.length === 0) {
+      this.logger.log('No abandoned carts found.');
+      return;
+    }
+
+    this.logger.log(`Found ${abandonedCarts.length} abandoned carts. Sending recovery emails.`);
+
+    for (const cart of abandonedCarts) {
+      if (cart.lines.length === 0 || !cart.user?.email) continue;
+      
+      const cartUrl = `${process.env.STORE_URL || 'http://localhost:3000'}/cart`;
+      await this.mailService.sendAbandonedCartEmail(cart.user.email, cartUrl);
+    }
   }
 }

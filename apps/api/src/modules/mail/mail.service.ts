@@ -146,6 +146,23 @@ export class MailService {
     );
   }
 
+  async sendAbandonedCartEmail(email: string, cartUrl: string) {
+    const subject = `You left something behind at Noeve!`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+        <h1 style="color: #8b5cf6;">Don't let it slip away...</h1>
+        <p>We noticed you left some beautiful items in your cart. They are waiting for you!</p>
+        <p>Click the link below to review your cart and complete your purchase:</p>
+        <br/>
+        <a href="${cartUrl}" style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Return to Cart</a>
+        <br/><br/>
+        <p>Warmest regards,</p>
+        <p><strong>The Noeve Team</strong></p>
+      </div>
+    `;
+    await this.sendMail(email, subject, html);
+  }
+
   private async sendMail(to: string, subject: string, html: string) {
     try {
       if (process.env.NODE_ENV === 'test') {

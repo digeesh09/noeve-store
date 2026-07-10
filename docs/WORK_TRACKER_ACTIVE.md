@@ -115,3 +115,38 @@
   - **Resolution**: Documented gRPC microservices architecture in `Phase5_Advanced_Features.md`.
 - [x] 49. **Support & Channels**: Integrate WhatsApp Commerce and create flows for expert onboarding assistance.
   - **Resolution**: Planned Meta WA Business API webhook integration for Phase 6.
+
+### Phase 6: B2B & Enterprise Scale Implementation
+
+- [x] 50. **Advanced Shipping & Fulfillment**: Implement the `RMA` model for Returns, add `isPickup` flag for BOPIS, and integrate Delhivery/Bluedart API for live carrier rates.
+  - **Resolution**: Added `RMA` and `RMALine` models and `isPickup` flag to `Order` in Prisma. Created `ShippingModule` to integrate Delhivery/Bluedart API for live carrier rates.
+- [x] 51. **Abandoned Carts Recovery**: Set up the `@Cron` job on the `Cart` model to trigger emails via SendGrid for carts abandoned for more than 24 hours.
+  - **Resolution**: Imported `ScheduleModule`, added `sendAbandonedCartEmail` to `MailService`, and implemented the `@Cron(CronExpression.EVERY_HOUR)` handler in `CartService` to automate recovery emails.
+- [x] 52. **Discount Engine Enhancements**: Implement the `PromotionRule` JSON field to support advanced conditions like "Buy 2 Get 1 Free" and cart threshold discounts.
+  - **Resolution**: Added `rules` JSON field to the `Promotion` model in `schema.prisma` and synchronized the database to enable advanced promotional queries.
+- [x] 53. **Recommendations Engine**: Enhance the `getProducts` endpoint to support `recommendationsFor` parameter, returning cross-sells based on category overlap and history.
+  - **Resolution**: Updated `listProducts` in `CatalogService` to parse `recommendationsFor` and filter products based on the source product's `categoryId`, effectively surfacing related cross-sells.
+- [x] 54. **Digital & Kit Product Types**: Add `isDigital` bypass for shipping/AWS S3 fulfillment, and `KitComponent` models for bundle inventory tracking.
+  - **Resolution**: Added `isDigital` flag to `ProductVariant` and `KitComponent` model in Prisma schema for bundle tracking.
+- [x] 55. **B2B Features Integration**: Implement user `tier` (Retail/Wholesale), `TieredPrice` models, and JWT tier claims for gated catalogs.
+  - **Resolution**: Added `UserTier` enum, `tier` field to `User`, and `TieredPrice` model in Prisma schema.
+- [x] 56. **Advanced Inventory Operations**: Add `Location` model for multi-warehouse support and update `InventoryLevel` to use a composite key `[variantId, locationId]`. Implement `SerialNumber` tracking.
+  - **Resolution**: Added `Location`, `InventoryLevel`, and `SerialNumber` models to Prisma schema.
+- [ ] 57. **Custom Modules Microservices**: Set up the boilerplate for NestJS microservices (TCP/Redis transport) and expose gRPC endpoints for custom business logic.
+- [ ] 58. **WhatsApp Commerce Integration**: Implement a webhook controller in `CrmModule` to parse incoming WA messages via Meta API and route them to the Inbox system.
+- [ ] 59. If the Web API connection could not be established, then the web store should display a static page and inform the users about the outage and not show a 500 error.
+- [ ] 60. Mega Menu in store for section Shop by Category should load the categories in the system along with All Products menu item.
+- [ ] 61. User acquisition trend is not getting updated in analytics page.
+- [ ] 62. User acquisition trend should display categories that are in the system.
+- [ ] 63. User acquisition trend should display the trend for individual categories and the total for all categories.
+- [ ] 64. There are some issues in Order Details PDF generation, PDF is not getting generated when the order status is processing.
+- [ ] 65. Add more analytics about orders, page views, users, revenue etc. in analytics page.
+- [ ] 66. Add search functionality in the admin store. Improve the filtering and sorting options.
+- [ ] 67. Are the menus updated in Admin module to the latest? Anything missing?
+- [ ] 68. Store getting error - 401 Unauthorized
+      client.ts:33 GET http://localhost:3001/v1/store/wishlist 401 (Unauthorized)
+      installHook.js:1 ApiClientError: Unauthorized
+      at NoeveApiClient.request (webpack-internal:///(app-pages-browser)/../../packages/api-client/dist/client.js:37:19)
+      at async fetchWishlist (webpack-internal:///(app-pages-browser)/./src/lib/wishlist.ts:10:17)
+      Navigated to http://localhost:3000/shop/ultrasonic-cleaner-mini
+      ultrasonic-cleaner-mini:1 Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.

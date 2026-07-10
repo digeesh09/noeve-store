@@ -46,7 +46,21 @@ export class CatalogService {
 
   async listProducts(query: Record<string, unknown>, activeOnly = true) {
     const { page, pageSize } = paginationQuerySchema.parse(query);
-    const where = activeOnly ? { status: ProductStatus.ACTIVE } : {};
+    let where: any = activeOnly ? { status: ProductStatus.ACTIVE } : {};
+
+    if (query.category) {
+      where.category = { slug: query.category as string };
+    }
+
+    if (query.recommendationsFor) {
+      const sourceProduct = await this.prisma.product.findUnique({
+        where: { id: query.recommendationsFor as string },
+      });
+      if (sourceProduct) {
+        where.categoryId = sourceProduct.categoryId;
+        where.id = { not: sourceProduct.id };
+      }
+    }
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({

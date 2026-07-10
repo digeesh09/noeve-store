@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -24,6 +25,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { CrmModule } from './modules/crm/crm.module';
 import { FulfillmentModule } from './modules/fulfillment/fulfillment.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
+import { ShippingModule } from './modules/shipping/shipping.module';
 
 @Module({
   imports: [
@@ -62,6 +64,8 @@ import { BlogsModule } from './modules/blogs/blogs.module';
     CrmModule,
     FulfillmentModule,
     BlogsModule,
+    ShippingModule,
+    ScheduleModule.forRoot(),
   ],
 })
 export class AppModule {}

@@ -14,6 +14,11 @@ enum UserRole {
   SUPPORT
 }
 
+enum UserTier {
+  RETAIL
+  WHOLESALE
+}
+
 enum OrderStatus {
   PENDING_PAYMENT
   CONFIRMED
@@ -45,6 +50,14 @@ enum ProductStatus {
   ARCHIVED
 }
 
+enum RMAStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  RECEIVED
+  REFUNDED
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -52,6 +65,7 @@ model User {
   firstName    String?  @map("first_name")
   lastName     String?  @map("last_name")
   role         UserRole @default(CUSTOMER)
+  tier         UserTier @default(RETAIL)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -163,9 +177,15 @@ model ProductVariant {
   name          String
   priceCents    Int    @map("price_cents")
   stockQuantity Int    @default(0) @map("stock_quantity")
+  isDigital     Boolean @default(false) @map("is_digital")
 
-  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  cartLines CartLine[]
+  product         Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartLines       CartLine[]
+  tieredPrices    TieredPrice[]
+  inventoryLevels InventoryLevel[]
+  serialNumbers   SerialNumber[]
+  kitParent       KitComponent[]   @relation("KitParent")
+  kitChild        KitComponent[]   @relation("KitChild")
 
   @@map("product_variants")
 }
@@ -211,6 +231,7 @@ model Order {
   promotionCode  String?     @map("promotion_code")
   trackingNumber String?     @map("tracking_number")
   carrier        String?
+  isPickup       Boolean     @default(false) @map("is_pickup")
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @updatedAt @map("updated_at")
 
@@ -219,6 +240,8 @@ model Order {
   statusHistory OrderStatusHistory[]
   payment       Payment?
   shipment      Shipment?
+  rmas          RMA[]
+  serialNumbers SerialNumber[]
 
   @@map("orders")
 }
@@ -235,6 +258,7 @@ model OrderLine {
   lineTotalCents Int     @map("line_total_cents")
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rmaLines RMALine[]
 
   @@map("order_lines")
 }
@@ -289,6 +313,7 @@ model Promotion {
   discountPercentage Int?      @map("discount_percentage")
   discountCents      Int?      @map("discount_cents")
   minOrderValue      Int       @default(0) @map("min_order_value")
+  rules              Json?     @map("rules")
   isActive           Boolean   @default(true) @map("is_active")
   expiresAt          DateTime? @map("expires_at")
   createdAt          DateTime  @default(now()) @map("created_at")
@@ -396,4 +421,93 @@ model Post {
   
   @@map("posts")
 }
+
+model RMA {
+  id          String    @id @default(uuid())
+  orderId     String    @map("order_id")
+  status      RMAStatus @default(REQUESTED)
+  reason      String
+  note        String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  lines       RMALine[]
+
+  @@map("rmas")
+}
+
+model RMALine {
+  id          String    @id @default(uuid())
+  rmaId       String    @map("rma_id")
+  orderLineId String    @map("order_line_id")
+  quantity    Int
+
+  rma         RMA       @relation(fields: [rmaId], references: [id], onDelete: Cascade)
+  orderLine   OrderLine @relation(fields: [orderLineId], references: [id], onDelete: Cascade)
+
+  @@map("rma_lines")
+}
+
+model TieredPrice {
+  id          String   @id @default(uuid())
+  variantId   String   @map("variant_id")
+  tier        UserTier
+  priceCents  Int      @map("price_cents")
+  
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  @@unique([variantId, tier])
+  @@map("tiered_prices")
+}
+
+model Location {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   @default("WAREHOUSE")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  inventory   InventoryLevel[]
+  
+  @@map("locations")
+}
+
+model InventoryLevel {
+  variantId     String @map("variant_id")
+  locationId    String @map("location_id")
+  stockQuantity Int    @default(0) @map("stock_quantity")
+  
+  variant       ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  location      Location       @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  
+  @@id([variantId, locationId])
+  @@map("inventory_levels")
+}
+
+model SerialNumber {
+  id          String   @id @default(uuid())
+  variantId   String   @map("variant_id")
+  serial      String   @unique
+  status      String   @default("IN_STOCK")
+  orderId     String?  @map("order_id")
+  
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  order       Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  
+  @@map("serial_numbers")
+}
+
+model KitComponent {
+  id              String         @id @default(uuid())
+  parentVariantId String         @map("parent_variant_id")
+  childVariantId  String         @map("child_variant_id")
+  quantity        Int            @default(1)
+  
+  parentVariant   ProductVariant @relation("KitParent", fields: [parentVariantId], references: [id], onDelete: Cascade)
+  childVariant    ProductVariant @relation("KitChild", fields: [childVariantId], references: [id], onDelete: Cascade)
+  
+  @@map("kit_components")
+}
+
 
