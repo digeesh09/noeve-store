@@ -44,10 +44,13 @@ export const metadata: Metadata = {
   },
 };
 
+import NextTopLoader from 'nextjs-toploader';
+
 export default function RootLayout({ children }: { children: any }): React.JSX.Element {
   return (
     <html lang="en">
       <body>
+        <NextTopLoader color="var(--ink)" showSpinner={false} height={2} />
         <CartProvider>
           <SiteHeader />
           <main className="flex-1">{children}</main>

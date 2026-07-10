@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { fetchOrders, updateOrderStatus, type Order } from '@/lib/api';
+import { fetchOrders, updateOrderStatus, fetchSupportTickets, type Order } from '@/lib/api';
 import { Pagination } from '@/components/Pagination';
 import { useSearchParams, useRouter } from 'next/navigation';
 
@@ -43,15 +43,20 @@ export default function OrdersPage(): React.JSX.Element {
   const [openOrder, setOpenOrder] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [openTickets, setOpenTickets] = useState<any[]>([]);
   
   const [filterStatus, setFilterStatus] = useState<string>(initialStatus);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetchOrders(filterStatus || undefined, page);
+      const [res, ticketsRes] = await Promise.all([
+        fetchOrders(filterStatus || undefined, page),
+        fetchSupportTickets(1, 100).catch(() => ({ data: [] }))
+      ]);
       setOrders(res.data);
       setTotalPages(res.meta.totalPages || 1);
+      setOpenTickets(ticketsRes.data.filter((t: any) => t.status === 'OPEN'));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load orders');
     } finally {
@@ -142,11 +147,29 @@ export default function OrdersPage(): React.JSX.Element {
               {orders.map((order) => {
                 const next = NEXT_STATUS[order.status] ?? [];
                 const isOpen = openOrder === order.id;
+                
+                // Check if there is an open ticket for this user or order
+                const hasOpenTicket = openTickets.some(t => 
+                  (t.userId && order.user?.id && t.userId === order.user.id) || 
+                  (t.email && order.user?.email && t.email === order.user.email) ||
+                  (t.subject && t.subject.includes(order.orderNumber)) ||
+                  (t.message && t.message.includes(order.orderNumber))
+                );
+
                 return (
                   <React.Fragment key={order.id}>
                   <tr className="border-b border-neutral-100 hover:bg-neutral-50/50 cursor-pointer" onClick={() => setOpenOrder(isOpen ? null : order.id)}>
                     <td className="px-4 py-3">
-                      <p className="font-medium">{order.orderNumber}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{order.orderNumber}</p>
+                        {hasOpenTicket && (
+                          <span title="User has an open support ticket" className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-red-600">
+                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-neutral-500">
                         {new Date(order.createdAt).toLocaleString('en-IN')}
                       </p>

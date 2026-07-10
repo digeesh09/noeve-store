@@ -5,22 +5,65 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth-guard';
 import { logout } from '@/lib/auth';
-import { NavigationProgress, startProgress } from '@/components/NavigationProgress';
+import NextTopLoader from 'nextjs-toploader';
+import {
+  LayoutDashboard,
+  BarChart3,
+  FileText,
+  Package,
+  Tags,
+  Boxes,
+  ShoppingCart,
+  Truck,
+  Percent,
+  Users,
+  MessageSquare,
+  LifeBuoy,
+  Megaphone,
+  Settings,
+  LogOut,
+} from 'lucide-react';
 
-const nav = [
-  { href: '/dashboard', label: 'Overview' },
-  { href: '/dashboard/reports', label: 'Reports' },
-  { href: '/dashboard/orders', label: 'Orders' },
-  { href: '/dashboard/products', label: 'Products' },
-  { href: '/dashboard/inventory', label: 'Inventory' },
-  { href: '/dashboard/categories', label: 'Categories' },
-  { href: '/dashboard/promotions', label: 'Promotions' },
-  { href: '/dashboard/crm', label: 'CRM' },
-  { href: '/dashboard/marketing', label: 'Marketing' },
-  { href: '/dashboard/reviews', label: 'Reviews' },
-  { href: '/dashboard/support', label: 'Support' },
-  { href: '/dashboard/fulfillment', label: 'Fulfillment' },
-  { href: '/dashboard/settings', label: 'Settings' },
+const navGroups = [
+  {
+    title: 'Overview',
+    items: [
+      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+      { href: '/dashboard/reports', label: 'Reports', icon: FileText },
+    ]
+  },
+  {
+    title: 'Catalog',
+    items: [
+      { href: '/dashboard/products', label: 'Products', icon: Package },
+      { href: '/dashboard/categories', label: 'Categories', icon: Tags },
+      { href: '/dashboard/inventory', label: 'Inventory', icon: Boxes },
+    ]
+  },
+  {
+    title: 'Sales',
+    items: [
+      { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
+      { href: '/dashboard/fulfillment', label: 'Fulfillment', icon: Truck },
+      { href: '/dashboard/promotions', label: 'Promotions', icon: Percent },
+    ]
+  },
+  {
+    title: 'Customers',
+    items: [
+      { href: '/dashboard/crm', label: 'CRM', icon: Users },
+      { href: '/dashboard/reviews', label: 'Reviews', icon: MessageSquare },
+      { href: '/dashboard/support', label: 'Support', icon: LifeBuoy },
+    ]
+  },
+  {
+    title: 'Configuration',
+    items: [
+      { href: '/dashboard/marketing', label: 'Marketing', icon: Megaphone },
+      { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+    ]
+  }
 ];
 
 export default function DashboardLayout({ children }: { children: any }) {
@@ -42,43 +85,57 @@ export default function DashboardLayout({ children }: { children: any }) {
   return (
     <AuthGuard>
       {/* Top-of-page route-change progress bar */}
-      <NavigationProgress />
+      <NextTopLoader color="#8b5cf6" showSpinner={false} height={3} />
 
       <div className="flex min-h-screen">
-        <aside className="w-56 border-r border-neutral-200 bg-white p-4">
-          <div className="mb-8">
+        <aside className="w-64 border-r border-neutral-200 bg-white p-4 shadow-sm z-10 flex flex-col h-full sticky top-0 overflow-y-auto">
+          <div className="mb-8 pl-3 pt-2">
             <img src="/images/logo.png" alt="Noeve Admin" style={{ height: '32px', width: 'auto' }} />
           </div>
-          <nav className="mt-8 space-y-1">
-            {nav.map((item) => {
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => {
-                    // Only fire the progress bar if we are navigating somewhere new.
-                    if (!active) startProgress();
-                  }}
-                  className={[
-                    'block rounded px-3 py-2 text-sm transition-colors duration-150',
-                    active
-                      ? 'bg-violet-50 font-semibold text-violet-700'
-                      : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900',
-                  ].join(' ')}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+          <nav className="space-y-6 flex-1">
+            {navGroups.map((group) => (
+              <div key={group.title}>
+                <h3 className="mb-2 px-3 text-[0.7rem] font-bold uppercase tracking-widest text-neutral-400">
+                  {group.title}
+                </h3>
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const active = isActive(item.href);
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={[
+                          'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200',
+                          active
+                            ? 'bg-violet-50 text-violet-700 shadow-sm relative after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:h-4 after:w-1 after:rounded-r-full after:bg-violet-600'
+                            : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900',
+                        ].join(' ')}
+                      >
+                        <Icon 
+                          className={`h-4 w-4 transition-colors ${active ? 'text-violet-600' : 'text-neutral-400 group-hover:text-neutral-600'}`} 
+                          strokeWidth={active ? 2.5 : 2}
+                        />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="mt-8 w-full rounded px-3 py-2 text-left text-sm text-neutral-500 hover:bg-neutral-100"
-          >
-            Sign out
-          </button>
+          
+          <div className="mt-8 border-t border-neutral-100 pt-4">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="group flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-red-600"
+            >
+              <LogOut className="h-4 w-4 text-neutral-400 group-hover:text-red-500" strokeWidth={2} />
+              Sign out
+            </button>
+          </div>
         </aside>
         <div className="flex flex-1 flex-col">
           <main className="flex-1 p-8">{children}</main>

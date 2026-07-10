@@ -5,12 +5,14 @@ import * as bcrypt from 'bcrypt';
 import { registerSchema, loginSchema } from '@noeve/validation';
 import type { LoginInput, RegisterInput } from '@noeve/validation';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private mailService: MailService,
   ) {}
 
   async registerStore(input: RegisterInput) {
@@ -29,6 +31,11 @@ export class AuthService {
         lastName: data.lastName,
         role: UserRole.CUSTOMER,
       },
+    });
+
+    // Send the beautifully crafted welcome email asynchronously
+    this.mailService.sendWelcomeEmail(user.email, user.firstName).catch(err => {
+      console.error('Failed to send welcome email:', err);
     });
 
     return this.issueTokens(user.id, user.email, user.role);

@@ -39,7 +39,7 @@ export default function RegisterPage(): React.JSX.Element {
     try {
       await registerStore({ email, password, firstName, lastName });
       setSuccess(true);
-      setTimeout(() => router.push('/account'), 1500);
+      // Removed auto-redirect so user can read at their own pace
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
     } finally {
@@ -49,16 +49,45 @@ export default function RegisterPage(): React.JSX.Element {
 
   if (success) {
     return (
-      <div className="wrap" style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="auth__success is-visible">
-          <div className="auth__success-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-50">
+        <div className="max-w-2xl text-center px-6 animate-fade-in-up">
+          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-stone-200/40 text-stone-800 backdrop-blur-sm">
+             <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
+               <path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+             </svg>
           </div>
-          <h2>Welcome to Noeve.</h2>
-          <p>Your account has been created successfully. Redirecting you to your account page…</p>
+          
+          <h1 className="mb-6 font-serif text-3xl tracking-tight text-stone-900 md:text-4xl lg:text-5xl" style={{ fontFamily: 'var(--font-serif)' }}>
+            Hello {firstName}!
+          </h1>
+          
+          <div className="mx-auto max-w-2xl text-left text-base leading-relaxed text-stone-600 md:text-lg space-y-4">
+            <p>I am incredibly excited to share something very close to my heart. For the past few months, we’ve been working on a passion project to bring true, mindful curation right to you.</p>
+            <p>Today, I’m thrilled to invite you to take a first look at our brand-new platform: Noeve.</p>
+            <p>Whether you are looking for considered apparel, timeless beauty essentials, or lifestyle objects designed to outlast the season, Noeve is built to be your go-to destination. We believe that style isn’t just about clothing; it’s about intentionality, longevity, and embracing fewer, finer pieces.</p>
+            <p>This is just the beginning of our journey together, and your support means the world to us. Take a look around, explore our curated pieces, and get ready to experience the ultimate celebration of considered living!</p>
+            <p className="font-medium text-stone-800 pt-2">Thank you so much for your love and encouragement. Let the journey begin!</p>
+          </div>
+          
+          <div className="mt-12 flex justify-center">
+            <button
+              onClick={() => router.push('/account')}
+              className="rounded-full bg-stone-900 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+            >
+              Go to my account
+            </button>
+          </div>
         </div>
+        
+        <style>{`
+          @keyframes fade-in-up {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in-up {
+            animation: fade-in-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          }
+        `}</style>
       </div>
     );
   }

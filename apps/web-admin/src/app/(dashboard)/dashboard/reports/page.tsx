@@ -5,8 +5,8 @@ import { fetchReportsData } from '@/lib/api';
 
 export default function ReportsPage() {
   const [salesSummary, setSalesSummary] = useState<any>(null);
-  const [topProducts, setTopProducts] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any>(null);
+  const [topProducts, setTopProducts] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [dailyRevenue, setDailyRevenue] = useState<any[]>([]);
   const [ordersByStatus, setOrdersByStatus] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,11 +20,11 @@ export default function ReportsPage() {
       fetchReportsData('daily-revenue'),
       fetchReportsData('orders-by-status')
     ]).then(([salesRes, productsRes, transactionsRes, dailyRes, statusRes]) => {
-      setSalesSummary(salesRes.data || salesRes);
-      setTopProducts(productsRes.data || productsRes);
-      setTransactions(transactionsRes.data || transactionsRes);
-      setDailyRevenue(dailyRes.data || dailyRes || []);
-      setOrdersByStatus(statusRes.data || statusRes || []);
+      setSalesSummary(salesRes?.data || salesRes);
+      setTopProducts(Array.isArray(productsRes?.data) ? productsRes.data : Array.isArray(productsRes) ? productsRes : []);
+      setTransactions(Array.isArray(transactionsRes?.data) ? transactionsRes.data : Array.isArray(transactionsRes) ? transactionsRes : []);
+      setDailyRevenue(Array.isArray(dailyRes.data) ? dailyRes.data : Array.isArray(dailyRes) ? dailyRes : []);
+      setOrdersByStatus(Array.isArray(statusRes.data) ? statusRes.data : Array.isArray(statusRes) ? statusRes : []);
     }).catch(err => {
       console.error(err);
     }).finally(() => setLoading(false));

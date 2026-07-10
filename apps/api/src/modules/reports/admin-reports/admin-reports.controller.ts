@@ -41,4 +41,9 @@ export class AdminReportsController {
   getOrdersByStatus() {
     return this.reportsService.getOrdersByStatus();
   }
+
+  @Get('user-acquisition')
+  getUserAcquisition() {
+    return this.reportsService.getUserAcquisition();
+  }
 }

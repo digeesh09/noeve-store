@@ -100,7 +100,7 @@ export function SiteHeader(): React.JSX.Element {
             <CartBadge />
 
             {showShopBtn && (
-              <Link href="/#edit" className="btn btn--primary nav__shop-btn is-visible">Shop Now</Link>
+              <Link href="/shop" className="btn btn--primary nav__shop-btn is-visible">Shop Now</Link>
             )}
 
             <button

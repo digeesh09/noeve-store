@@ -83,9 +83,49 @@ export class ReportsService {
       dailyMap.set(dateKey, (dailyMap.get(dateKey) || 0) + (o.totalCents || 0));
     }
 
-    const data = Array.from(dailyMap.entries())
-      .map(([date, revenueCents]) => ({ date, revenueCents }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+    // Fill missing dates
+    const data = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateKey = d.toISOString().split('T')[0];
+      data.push({
+        date: dateKey,
+        revenueCents: dailyMap.get(dateKey) || 0
+      });
+    }
+
+    return data;
+  }
+
+  async getUserAcquisition() {
+    const end = new Date();
+    const start = new Date();
+    start.setMonth(end.getMonth() - 5); // 6 months total including current
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+
+    const users = await this.prisma.user.findMany({
+      where: {
+        createdAt: { gte: start, lte: end }
+      },
+      select: { createdAt: true }
+    });
+
+    const monthlyMap = new Map<string, number>();
+    for (const u of users) {
+      const monthKey = u.createdAt.toISOString().substring(0, 7); // YYYY-MM
+      monthlyMap.set(monthKey, (monthlyMap.get(monthKey) || 0) + 1);
+    }
+
+    const data = [];
+    for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 1)) {
+      const monthKey = d.toISOString().substring(0, 7);
+      const monthName = d.toLocaleString('en-US', { month: 'short' });
+      data.push({
+        monthKey,
+        month: monthName,
+        users: monthlyMap.get(monthKey) || 0
+      });
+    }
 
     return data;
   }

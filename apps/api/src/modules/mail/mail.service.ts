@@ -66,6 +66,23 @@ export class MailService {
     await this.sendMail(email, subject, html);
   }
 
+  async sendWelcomeEmail(email: string, firstName: string | null) {
+    const name = firstName ? firstName : 'Friend';
+    const subject = `Welcome to Noeve! We're thrilled to have you.`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+        <h1 style="color: #8b5cf6;">Welcome to Noeve, ${name}!</h1>
+        <p>We are absolutely thrilled to welcome you to our application store. Your presence means the world to us!</p>
+        <p>At Noeve, we strive to bring you the best possible experience and the most carefully curated selection of items.</p>
+        <p>Take your time to explore, and if you ever need anything, our support team is just a click away.</p>
+        <br/>
+        <p>Warmest regards,</p>
+        <p><strong>The Noeve Team</strong></p>
+      </div>
+    `;
+    await this.sendMail(email, subject, html);
+  }
+
   async sendNewsletterWelcome(email: string) {
     const subject = `Welcome to the Noeve Journal`;
     const html = `

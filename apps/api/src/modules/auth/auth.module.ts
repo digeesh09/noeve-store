@@ -7,8 +7,11 @@ import { JwtStrategy } from './jwt.strategy';
 import { AdminAuthController } from './admin-auth.controller';
 import { StoreAuthController } from './store-auth.controller';
 
+import { MailModule } from '../mail/mail.module';
+
 @Module({
   imports: [
+    MailModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
