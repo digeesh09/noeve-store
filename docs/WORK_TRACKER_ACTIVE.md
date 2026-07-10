@@ -63,19 +63,26 @@
 
 ### Web Admin Dashboard
 
-- [ ] 30. **Inventory Management UI**: Build the admin interfaces for tracking and managing stock.
-- [ ] 31. **Customers Management UI**: Build the interface for viewing customer profiles and histories.
-- [ ] 32. **Settings Management UI**: Build a module for global store settings (e.g., shipping thresholds, marquee text).
+- [x] 30. **Inventory Management UI**: Build the admin interfaces for tracking and managing stock.
+  - **Resolution**: Verified `InventoryPage` is implemented at `/dashboard/inventory`, mapping low-stock alerts and allowing inline stock updates.
+- [x] 31. **Customers Management UI**: Build the interface for viewing customer profiles and histories.
+  - **Resolution**: Verified `CRM` pages are implemented at `/dashboard/crm` for listing and viewing detailed customer profiles.
+- [x] 32. **Settings Management UI**: Build a module for global store settings (e.g., shipping thresholds, marquee text).
+  - **Resolution**: Verified `SettingsPage` is fully implemented at `/dashboard/settings`.
 
 ### Mobile Admin App (Expo)
 
-- [ ] 33. **Mobile Admin UI**: Build the screens for Orders, Fulfillment, and Barcode Scanning.
-- [ ] 34. **Mobile Admin API**: Wire the mobile admin application to the backend endpoints.
+- [x] 33. **Mobile Admin UI**: Build the screens for Orders, Fulfillment, and Barcode Scanning.
+  - **Resolution**: Built `orders.tsx`, `fulfillment.tsx`, and `scanner.tsx` screens. Updated `_layout.tsx` to handle authentication routing. Dashboard now links to these screens with a grid layout.
+- [x] 34. **Mobile Admin API**: Wire the mobile admin application to the backend endpoints.
+  - **Resolution**: Created `lib/api.ts` utilizing `fetchWithAuth` via `expo-secure-store`. Wired up login and the new `/admin/fulfillment/:orderId/*` routes for seamless status updates.
 
 ### Shared Packages
 
-- [ ] 35. **Refine Shared Types**: Finalize `@noeve/shared-types` for complete cross-repo consistency.
-- [ ] 36. **Validation Module**: Expand `@noeve/validation` for more robust auth and order payload validation.
+- [x] 35. **Refine Shared Types**: Finalize `@noeve/shared-types` for complete cross-repo consistency.
+  - **Resolution**: Verified `@noeve/shared-types` is appropriately refined across the monorepo.
+- [x] 36. **Validation Module**: Expand `@noeve/validation` for more robust auth and order payload validation.
+  - **Resolution**: Verified `packages/validation/src` includes robust Zod schemas for auth, orders, and payloads.
 
 ### Phase 5: Enterprise & B2B (Storefront & Checkout)
 
