@@ -5,9 +5,16 @@ import type { WishlistItem } from '@noeve/shared-types';
 
 export type { WishlistItem };
 
+import { isLoggedIn } from './auth';
+
 export async function fetchWishlist(): Promise<WishlistItem[]> {
-  const res = await apiClient.store.getWishlist();
-  return res.data;
+  if (!isLoggedIn()) return [];
+  try {
+    const res = await apiClient.store.getWishlist();
+    return res.data;
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function addToWishlist(productId: string): Promise<WishlistItem[]> {

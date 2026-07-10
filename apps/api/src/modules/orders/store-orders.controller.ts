@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Query, Req, UseGuards, StreamableFile, Res } from '@nestjs/common';
 import type { PlaceOrderInput } from '@noeve/validation';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { OrdersService } from './orders.service';
@@ -25,6 +25,16 @@ export class StoreOrdersController {
   @Get(':id')
   getOne(@Req() req: { user: { id: string } }, @Param('id') id: string) {
     return this.orders.getById(id, req.user.id);
+  }
+
+  @Get(':id/invoice')
+  async getInvoice(@Req() req: { user: { id: string } }, @Param('id') id: string, @Res({ passthrough: true }) res: any) {
+    const doc = await this.orders.generateInvoice(id, req.user.id);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="invoice-${id}.pdf"`,
+    });
+    return new StreamableFile(doc);
   }
 
   @Post('promotions/validate')

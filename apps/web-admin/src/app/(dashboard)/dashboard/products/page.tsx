@@ -26,6 +26,7 @@ export default function ProductsPage(): React.JSX.Element {
   // Filtering State
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategoryId, setFilterCategoryId] = useState('');
+  const [sortOrder, setSortOrder] = useState('newest');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -315,6 +316,17 @@ export default function ProductsPage(): React.JSX.Element {
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
+          <select 
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            className="block w-full sm:w-1/4 rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="rating">Rating</option>
+          </select>
         </div>
       )}
 
@@ -338,6 +350,18 @@ export default function ProductsPage(): React.JSX.Element {
               {products
                 .filter(p => !filterCategoryId || p.categoryId === filterCategoryId)
                 .filter(p => !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.slug.toLowerCase().includes(searchQuery.toLowerCase()))
+                .sort((a, b) => {
+                  if (sortOrder === 'newest') return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+                  if (sortOrder === 'oldest') return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+                  if (sortOrder === 'price-high') return b.basePriceCents - a.basePriceCents;
+                  if (sortOrder === 'price-low') return a.basePriceCents - b.basePriceCents;
+                  if (sortOrder === 'rating') {
+                    const avgA = a.reviews?.length ? a.reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / a.reviews.length : 0;
+                    const avgB = b.reviews?.length ? b.reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / b.reviews.length : 0;
+                    return avgB - avgA;
+                  }
+                  return 0;
+                })
                 .map((product) => (
                 <tr key={product.id} className="border-b border-neutral-100">
                   <td className="px-4 py-3">

@@ -82,3 +82,21 @@ export async function validatePromotion(code: string, cartTotalCents: number): P
   const json = await res.json();
   return json.data;
 }
+
+export async function downloadInvoice(orderId: string): Promise<void> {
+  const res = await fetch(`${API_URL}/store/orders/${orderId}/invoice`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    throw new Error('Could not download invoice');
+  }
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `invoice-${orderId}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+}

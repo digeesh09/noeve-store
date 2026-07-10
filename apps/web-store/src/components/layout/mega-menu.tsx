@@ -1,11 +1,18 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { getCategories } from '@/lib/api';
+import type { Category } from '@noeve/shared-types';
 
 export function MegaMenu(): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    getCategories().then(setCategories).catch(console.error);
+  }, []);
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -37,10 +44,13 @@ export function MegaMenu(): React.JSX.Element {
             <h3 className="text-sm font-semibold uppercase text-brand-primary mb-4 tracking-wider">Shop by Category</h3>
             <ul className="space-y-3">
               <li><Link href="/shop" onClick={() => setIsOpen(false)} className="text-neutral-600 hover:text-brand-primary">All Products</Link></li>
-              <li><Link href="/shop?category=apparel" onClick={() => setIsOpen(false)} className="text-neutral-600 hover:text-brand-primary">Apparel</Link></li>
-              <li><Link href="/shop?category=jewellery" onClick={() => setIsOpen(false)} className="text-neutral-600 hover:text-brand-primary">Jewellery</Link></li>
-              <li><Link href="/shop?category=beauty" onClick={() => setIsOpen(false)} className="text-neutral-600 hover:text-brand-primary">Beauty & Wellness</Link></li>
-              <li><Link href="/shop?category=accessories" onClick={() => setIsOpen(false)} className="text-neutral-600 hover:text-brand-primary">Accessories</Link></li>
+              {categories.map((category) => (
+                <li key={category.id}>
+                  <Link href={`/shop?category=${category.slug}`} onClick={() => setIsOpen(false)} className="text-neutral-600 hover:text-brand-primary">
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           

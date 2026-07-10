@@ -28,6 +28,8 @@ export default function AnalyticsPage() {
   const [topProducts, setTopProducts] = useState<any[]>([]);
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [userAcquisition, setUserAcquisition] = useState<any[]>([]);
+  const [acquisitionCategories, setAcquisitionCategories] = useState<string[]>([]);
+  const [topCustomers, setTopCustomers] = useState<any[]>([]);
   const [stats, setStats] = useState<any[]>([
     { label: 'Total Revenue', value: '$0.00', change: '—', trend: 'up' },
     { label: 'Total Orders', value: '0', change: '—', trend: 'up' },
@@ -37,12 +39,13 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [dailyRes, topRes, statusRes, userRes, summaryRes] = await Promise.all([
+        const [dailyRes, topRes, statusRes, userRes, summaryRes, topCustRes] = await Promise.all([
           fetchReportsData('daily-revenue'),
           fetchReportsData('top-products'),
           fetchReportsData('orders-by-status'),
           fetchReportsData('user-acquisition'),
-          fetchReportsData('sales-summary')
+          fetchReportsData('sales-summary'),
+          fetchReportsData('top-customers')
         ]);
 
         if (Array.isArray(dailyRes)) {
@@ -67,8 +70,13 @@ export default function AnalyticsPage() {
           })));
         }
 
-        if (Array.isArray(userRes)) {
-          setUserAcquisition(userRes);
+        if (userRes && Array.isArray(userRes.data)) {
+          setUserAcquisition(userRes.data);
+          setAcquisitionCategories(userRes.categories || []);
+        }
+
+        if (Array.isArray(topCustRes)) {
+          setTopCustomers(topCustRes);
         }
 
         if (summaryRes) {
@@ -177,9 +185,19 @@ export default function AnalyticsPage() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#737373' }} />
                 <Tooltip 
                   contentStyle={{ borderRadius: '8px', border: '1px solid #e5e5e5', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  formatter={(val) => [val, 'New Users']}
                 />
-                <Area type="monotone" dataKey="users" stroke="#10b981" fillOpacity={1} fill="url(#colorUsers)" strokeWidth={3} />
+                <Legend verticalAlign="top" height={36} iconType="circle" />
+                <Area type="monotone" dataKey="Total" stroke="#10b981" fillOpacity={1} fill="url(#colorUsers)" strokeWidth={3} />
+                {acquisitionCategories.map((cat, index) => (
+                  <Area 
+                    key={cat}
+                    type="monotone" 
+                    dataKey={cat} 
+                    stroke={COLORS[index % COLORS.length]} 
+                    fill="none" 
+                    strokeWidth={2} 
+                  />
+                ))}
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -200,6 +218,44 @@ export default function AnalyticsPage() {
                 <Bar dataKey="sales" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-base font-semibold text-neutral-900">Top Customers by Revenue</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-neutral-600">
+              <thead className="bg-neutral-50 text-xs uppercase text-neutral-500">
+                <tr>
+                  <th className="px-4 py-3">Customer</th>
+                  <th className="px-4 py-3 text-right">Orders</th>
+                  <th className="px-4 py-3 text-right">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topCustomers.map((cust, idx) => (
+                  <tr key={cust.id} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50">
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-neutral-900">{cust.name}</div>
+                      <div className="text-xs text-neutral-500">{cust.email}</div>
+                    </td>
+                    <td className="px-4 py-3 text-right font-medium">{cust.orderCount}</td>
+                    <td className="px-4 py-3 text-right font-medium text-neutral-900">
+                      ${(cust.revenueCents / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                ))}
+                {topCustomers.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="px-4 py-8 text-center text-neutral-500">
+                      No customer data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

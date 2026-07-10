@@ -95,6 +95,35 @@ export default function OrdersPage(): React.JSX.Element {
     }
   };
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState('newest');
+
+  const filteredAndSortedOrders = React.useMemo(() => {
+    let result = [...orders];
+
+    if (searchQuery) {
+      const lowerQ = searchQuery.toLowerCase();
+      result = result.filter(o => 
+        o.orderNumber.toLowerCase().includes(lowerQ) ||
+        (o.user?.email && o.user.email.toLowerCase().includes(lowerQ)) ||
+        (o.user?.firstName && o.user.firstName.toLowerCase().includes(lowerQ)) ||
+        (o.user?.lastName && o.user.lastName.toLowerCase().includes(lowerQ))
+      );
+    }
+
+    if (sortOrder === 'newest') {
+      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else if (sortOrder === 'oldest') {
+      result.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    } else if (sortOrder === 'total-high') {
+      result.sort((a, b) => b.totalCents - a.totalCents);
+    } else if (sortOrder === 'total-low') {
+      result.sort((a, b) => a.totalCents - b.totalCents);
+    }
+
+    return result;
+  }, [orders, searchQuery, sortOrder]);
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -114,16 +143,35 @@ export default function OrdersPage(): React.JSX.Element {
           </div>
           <p className="mt-2 text-sm text-neutral-600">Manage customer orders and fulfillment status.</p>
         </div>
-        <select 
-          value={filterStatus}
-          onChange={handleFilterChange}
-          className="rounded-md border-neutral-300 py-1.5 pl-3 pr-8 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
-        >
-          <option value="">All Statuses</option>
-          {STATUS_OPTIONS.map(status => (
-            <option key={status} value={status}>{status}</option>
-          ))}
-        </select>
+        <div className="flex gap-4">
+          <input
+            type="text"
+            placeholder="Search orders..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="rounded-md border-neutral-300 py-1.5 pl-3 pr-8 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
+          />
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            className="rounded-md border-neutral-300 py-1.5 pl-3 pr-8 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="total-high">Total: High to Low</option>
+            <option value="total-low">Total: Low to High</option>
+          </select>
+          <select 
+            value={filterStatus}
+            onChange={handleFilterChange}
+            className="rounded-md border-neutral-300 py-1.5 pl-3 pr-8 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
+          >
+            <option value="">All Statuses</option>
+            {STATUS_OPTIONS.map(status => (
+              <option key={status} value={status}>{status}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
@@ -144,7 +192,7 @@ export default function OrdersPage(): React.JSX.Element {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => {
+              {filteredAndSortedOrders.map((order) => {
                 const next = NEXT_STATUS[order.status] ?? [];
                 const isOpen = openOrder === order.id;
                 

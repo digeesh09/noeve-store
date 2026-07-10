@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { fetchBlogs, deleteBlog } from '@/lib/api';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
 
@@ -47,11 +46,11 @@ export default function ContentPage() {
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Blog Posts</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="rounded-lg border border-neutral-200 bg-white">
+        <div className="border-b border-neutral-200 p-6">
+          <h2 className="text-xl font-semibold">Blog Posts</h2>
+        </div>
+        <div className="p-6">
           {loading ? (
             <p>Loading posts...</p>
           ) : posts.length === 0 ? (
@@ -98,8 +97,8 @@ export default function ContentPage() {
               </table>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

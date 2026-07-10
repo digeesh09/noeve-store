@@ -8,6 +8,12 @@ import { AddressInput } from '@noeve/validation';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  @Get('me')
+  async getMe(@Request() req: any) {
+    const data = await this.usersService.getUserById(req.user.id);
+    return data;
+  }
+
   @Get('addresses')
   async getAddresses(@Request() req: any) {
     const data = await this.usersService.getAddresses(req.user.id);

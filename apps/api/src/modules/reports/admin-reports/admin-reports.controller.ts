@@ -46,4 +46,9 @@ export class AdminReportsController {
   getUserAcquisition() {
     return this.reportsService.getUserAcquisition();
   }
+
+  @Get('top-customers')
+  getTopCustomers(@Query('limit') limit?: string) {
+    return this.reportsService.getTopCustomers(limit ? parseInt(limit, 10) : 5);
+  }
 }

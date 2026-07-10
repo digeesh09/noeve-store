@@ -14,6 +14,8 @@ const FULFILLMENT_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
   [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
 };
 
+const PDFDocument = require('pdfkit');
+
 @Injectable()
 export class OrdersService {
   constructor(
@@ -93,6 +95,119 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
     return { data: order };
+  }
+
+  async generateInvoice(id: string, userId?: string): Promise<PDFKit.PDFDocument> {
+    const order = await this.prisma.order.findFirst({
+      where: userId ? { id, userId } : { id },
+      include: { lines: true, user: true },
+    });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const doc = new PDFDocument({ margin: 50 });
+    
+    // Header
+    doc
+      .fillColor('#8a3744')
+      .fontSize(24)
+      .font('Helvetica-Bold')
+      .text('NOEVE.', 50, 50)
+      .fillColor('#444444')
+      .fontSize(10)
+      .font('Helvetica')
+      .text('Noeve Studio', 200, 50, { align: 'right' })
+      .text('123 Noeve Street, Design District', 200, 65, { align: 'right' })
+      .text('Kerala, India 682001', 200, 80, { align: 'right' })
+      .text('Email: hello@noeve.com | Phone: +91 98765 43210', 200, 95, { align: 'right' })
+      .text('GSTIN: 32AABCU9603R1ZM', 200, 110, { align: 'right' })
+      .moveDown();
+
+    doc.strokeColor('#aaaaaa').lineWidth(1).moveTo(50, 130).lineTo(550, 130).stroke();
+
+    // Customer & Order Info
+    doc
+      .fillColor('#444444')
+      .fontSize(10)
+      .font('Helvetica-Bold')
+      .text('INVOICE', 50, 145)
+      .font('Helvetica')
+      .text(`Invoice Number: ${order.orderNumber}`, 50, 160)
+      .text(`Invoice Date: ${order.createdAt.toLocaleDateString()}`, 50, 175)
+      .text(`Status: ${order.status}`, 50, 190);
+
+    const customerName = order.user ? `${order.user.firstName} ${order.user.lastName}` : 'Guest';
+    doc
+      .font('Helvetica-Bold')
+      .text('Billed To:', 300, 145)
+      .font('Helvetica')
+      .text(customerName, 300, 160);
+    if (order.user?.email) {
+      doc.text(order.user.email, 300, 175);
+    }
+
+    doc.strokeColor('#aaaaaa').lineWidth(1).moveTo(50, 215).lineTo(550, 215).stroke();
+
+    // Items table header
+    doc
+      .fillColor('#444444')
+      .fontSize(10)
+      .font('Helvetica-Bold')
+      .text('Item', 50, 230)
+      .text('SKU', 250, 230)
+      .text('Quantity', 350, 230)
+      .text('Price', 400, 230)
+      .text('Total', 480, 230)
+      .moveDown();
+    
+    doc.strokeColor('#cccccc').lineWidth(1).moveTo(50, 245).lineTo(550, 245).stroke();
+
+    // Items
+    let y = 260;
+    for (const line of order.lines) {
+      doc
+        .fontSize(10)
+        .font('Helvetica')
+        .text(line.productName, 50, y, { width: 190 })
+        .text(line.sku, 250, y)
+        .text(line.quantity.toString(), 350, y)
+        .text((line.unitPriceCents / 100).toFixed(2), 400, y)
+        .text((line.lineTotalCents / 100).toFixed(2), 480, y);
+      y += 20;
+    }
+
+    // Totals
+    doc.strokeColor('#cccccc').lineWidth(1).moveTo(350, y).lineTo(550, y).stroke();
+    y += 10;
+    doc
+      .text('Subtotal:', 380, y)
+      .text((order.subtotalCents / 100).toFixed(2), 480, y);
+    y += 15;
+    doc
+      .text('Tax:', 380, y)
+      .text((order.taxCents / 100).toFixed(2), 480, y);
+    y += 15;
+    doc
+      .text('Shipping:', 380, y)
+      .text((order.shippingCents / 100).toFixed(2), 480, y);
+    
+    if (order.discountCents > 0) {
+      y += 15;
+      doc
+        .text('Discount:', 380, y)
+        .text('-' + (order.discountCents / 100).toFixed(2), 480, y);
+    }
+    
+    y += 20;
+    doc.strokeColor('#cccccc').lineWidth(1).moveTo(350, y - 5).lineTo(550, y - 5).stroke();
+    doc
+      .fontSize(12)
+      .text('Total:', 380, y)
+      .text(`${order.currency} ${(order.totalCents / 100).toFixed(2)}`, 480, y);
+
+    doc.end();
+    return doc;
   }
 
   async updateStatus(

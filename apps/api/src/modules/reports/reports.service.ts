@@ -64,6 +64,35 @@ export class ReportsService {
      });
   }
 
+  async getTopCustomers(limit: number = 5) {
+    const customers = await this.prisma.user.findMany({
+      include: {
+        orders: {
+          where: {
+            status: { notIn: [OrderStatus.PENDING_PAYMENT, OrderStatus.CANCELLED, OrderStatus.REFUNDED] }
+          },
+          select: { totalCents: true }
+        }
+      }
+    });
+
+    const withRevenue = customers.map(c => {
+      const revenue = c.orders.reduce((sum, o) => sum + (o.totalCents || 0), 0);
+      return {
+        id: c.id,
+        name: `${c.firstName} ${c.lastName}`.trim() || c.email,
+        email: c.email,
+        revenueCents: revenue,
+        orderCount: c.orders.length
+      };
+    });
+
+    return withRevenue
+      .filter(c => c.revenueCents > 0)
+      .sort((a, b) => b.revenueCents - a.revenueCents)
+      .slice(0, limit);
+  }
+
   async getDailyRevenue(startDate?: string, endDate?: string) {
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate ? new Date(startDate) : new Date(new Date().setDate(end.getDate() - 30));
@@ -103,31 +132,89 @@ export class ReportsService {
     start.setDate(1);
     start.setHours(0, 0, 0, 0);
 
+    const categories = await this.prisma.category.findMany({ select: { name: true } });
+    const categoryNames = categories.map(c => c.name);
+
     const users = await this.prisma.user.findMany({
       where: {
         createdAt: { gte: start, lte: end }
       },
-      select: { createdAt: true }
+      include: {
+        orders: {
+          orderBy: { createdAt: 'asc' },
+          take: 1,
+          include: {
+            lines: {
+              take: 1
+            }
+          }
+        }
+      }
     });
 
-    const monthlyMap = new Map<string, number>();
-    for (const u of users) {
+    // Get unique product IDs
+    const productIds = new Set<string>();
+    users.forEach(u => {
+      if (u.orders.length > 0 && u.orders[0].lines.length > 0) {
+        productIds.add(u.orders[0].lines[0].productId);
+      }
+    });
+
+    // Fetch products with their categories
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: Array.from(productIds) } },
+      include: { category: true }
+    });
+
+    const productCategoryMap = new Map<string, string>();
+    products.forEach(p => {
+      if (p.category) {
+        productCategoryMap.set(p.id, p.category.name);
+      }
+    });
+
+    const monthlyMap = new Map<string, any>();
+    for (const u of users as any[]) {
       const monthKey = u.createdAt.toISOString().substring(0, 7); // YYYY-MM
-      monthlyMap.set(monthKey, (monthlyMap.get(monthKey) || 0) + 1);
+      
+      if (!monthlyMap.has(monthKey)) {
+        const initialMap: any = { Total: 0 };
+        categoryNames.forEach(c => initialMap[c] = 0);
+        monthlyMap.set(monthKey, initialMap);
+      }
+      
+      const m = monthlyMap.get(monthKey);
+      m.Total += 1;
+      
+      let acquiredCategory = null;
+      if (u.orders.length > 0 && u.orders[0].lines.length > 0) {
+        const pId = u.orders[0].lines[0].productId;
+        acquiredCategory = productCategoryMap.get(pId);
+      }
+      
+      if (acquiredCategory && categoryNames.includes(acquiredCategory)) {
+        m[acquiredCategory] += 1;
+      }
     }
 
     const data = [];
     for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 1)) {
       const monthKey = d.toISOString().substring(0, 7);
       const monthName = d.toLocaleString('en-US', { month: 'short' });
+      
+      const mData = monthlyMap.get(monthKey) || { Total: 0 };
+      categoryNames.forEach(c => {
+        if (mData[c] === undefined) mData[c] = 0;
+      });
+
       data.push({
         monthKey,
         month: monthName,
-        users: monthlyMap.get(monthKey) || 0
+        ...mData
       });
     }
 
-    return data;
+    return { data, categories: categoryNames };
   }
 
   async getOrdersByStatus() {

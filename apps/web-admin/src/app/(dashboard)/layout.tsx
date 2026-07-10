@@ -22,6 +22,7 @@ import {
   Megaphone,
   Settings,
   LogOut,
+  PenTool,
 } from 'lucide-react';
 
 const navGroups = [
@@ -60,6 +61,7 @@ const navGroups = [
   {
     title: 'Configuration',
     items: [
+      { href: '/dashboard/content', label: 'Content (CMS)', icon: PenTool },
       { href: '/dashboard/marketing', label: 'Marketing', icon: Megaphone },
       { href: '/dashboard/settings', label: 'Settings', icon: Settings },
     ]

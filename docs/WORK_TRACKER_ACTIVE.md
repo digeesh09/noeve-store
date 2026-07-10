@@ -134,19 +134,38 @@
   - **Resolution**: Added `Location`, `InventoryLevel`, and `SerialNumber` models to Prisma schema.
 - [ ] 57. **Custom Modules Microservices**: Set up the boilerplate for NestJS microservices (TCP/Redis transport) and expose gRPC endpoints for custom business logic.
 - [ ] 58. **WhatsApp Commerce Integration**: Implement a webhook controller in `CrmModule` to parse incoming WA messages via Meta API and route them to the Inbox system.
-- [ ] 59. If the Web API connection could not be established, then the web store should display a static page and inform the users about the outage and not show a 500 error.
-- [ ] 60. Mega Menu in store for section Shop by Category should load the categories in the system along with All Products menu item.
-- [ ] 61. User acquisition trend is not getting updated in analytics page.
-- [ ] 62. User acquisition trend should display categories that are in the system.
-- [ ] 63. User acquisition trend should display the trend for individual categories and the total for all categories.
-- [ ] 64. There are some issues in Order Details PDF generation, PDF is not getting generated when the order status is processing.
-- [ ] 65. Add more analytics about orders, page views, users, revenue etc. in analytics page.
-- [ ] 66. Add search functionality in the admin store. Improve the filtering and sorting options.
-- [ ] 67. Are the menus updated in Admin module to the latest? Anything missing?
-- [ ] 68. Store getting error - 401 Unauthorized
-      client.ts:33 GET http://localhost:3001/v1/store/wishlist 401 (Unauthorized)
-      installHook.js:1 ApiClientError: Unauthorized
-      at NoeveApiClient.request (webpack-internal:///(app-pages-browser)/../../packages/api-client/dist/client.js:37:19)
-      at async fetchWishlist (webpack-internal:///(app-pages-browser)/./src/lib/wishlist.ts:10:17)
-      Navigated to http://localhost:3000/shop/ultrasonic-cleaner-mini
-      ultrasonic-cleaner-mini:1 Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+- [x] 59. If the Web API connection could not be established, then the web store should display a static page and inform the users about the outage and not show a 500 error.
+  - **Resolution**: Implemented global `error.tsx` in `web-store` to gracefully catch and display API connection failures.
+- [x] 60. Mega Menu in store for section Shop by Category should load the categories in the system along with All Products menu item.
+  - **Resolution**: Updated `mega-menu.tsx` to dynamically fetch and display categories from the API.
+- [x] 61. User acquisition trend is not getting updated in analytics page.
+  - **Resolution**: Fixed user acquisition data mapping in the `AnalyticsPage` to properly parse the object response structure instead of an array.
+- [x] 62. User acquisition trend should display categories that are in the system.
+  - **Resolution**: Updated `getUserAcquisition` in `ReportsService` to fetch all system categories and attribute newly registered users to the category of their first purchase.
+- [x] 63. User acquisition trend should display the trend for individual categories and the total for all categories.
+  - **Resolution**: Modified the Recharts `AreaChart` in `AnalyticsPage` to render a primary "Total" trend line along with individual breakdown lines for every dynamically loaded category.
+- [x] 64. Implement PDF invoice.
+  - **Resolution**: Integrated `pdfkit` in `api` to generate a formatted invoice PDF in `OrdersService`. Added `GET /store/orders/:id/invoice` and `GET /admin/orders/:id/invoice` endpoints returning a `StreamableFile`. Added a "Download Invoice" action button on the Web Store Account panel.
+- [x] 65. Add more analytics about orders, page views, users, revenue etc. in analytics page. Do you have any suggestion for any new analytics that can be added to the existing analytics?
+  - **Resolution**: Suggested and added a new "Top Customers by Revenue" analytic. Added `getTopCustomers` logic in `ReportsService` (`api`) exposed via `GET /admin/reports/top-customers`, and integrated it into the Web Admin's `AnalyticsPage` as a data table widget showing customer orders and total revenue contribution.
+- [x] 66. Add search functionality in the admin store. Improve the filtering and sorting options.
+  - **Resolution**: Enhanced `OrdersPage` and `ProductsPage` in the Web Admin dashboard with local search filtering (by order number, customer name, email, or product name/slug) and comprehensive sorting options (newest, oldest, price/total high-to-low).
+- [x] 67. Are the menus updated in Admin module to the latest? Anything missing?
+  - **Resolution**: Verified the Admin layout navigation. Found the newly added `/dashboard/content` (CMS) route was missing from the sidebar. Added it under the "Configuration" group with a `PenTool` icon.
+- [x] 68. Store getting error - 401 Unauthorized
+  - **Resolution**: Updated `fetchWishlist` in `apps/web-store/src/lib/wishlist.ts` to explicitly check `isLoggedIn()` before fetching and handle potential API 401 errors gracefully (returning an empty array instead of throwing), preventing unhandled promise rejections.
+- [x] 69. Make the progress bar spinner of color var(--oxblood); and increase its thickness.
+  - **Resolution**: Updated `NextTopLoader` in `apps/web-store/src/app/layout.tsx` to use `color="var(--oxblood)"`, `height={4}` (thicker), and enabled `showSpinner={true}`.
+- [x] 70. The pdf invoice should have the noeve logo, name, company address, email etc. It should look more professional.
+  - **Resolution**: Enhanced the PDF generation in `orders.service.ts` to include the NOEVE brand typography, company address, contact email, phone number, and GSTIN, with improved layout and styling.
+  - [x] 71. http://localhost:3002/dashboard/content
+        ./src/app/(dashboard)/dashboard/content/page.tsx:5:1
+        Module not found: Can't resolve '@/components/ui/card'
+    - **Resolution**: Removed missing `@/components/ui/card` imports in `web-admin`'s CMS pages (`content/page.tsx` and `content/new/page.tsx`) and replaced `<Card>` components with standard HTML layout elements matching the rest of the admin interface, resolving the build error.
+      7 | import { Edit2, Plus, Trash2 } from 'lucide-react';
+      8 |
+
+https://nextjs.org/docs/messages/module-not-found
+
+- [x] 72. In my acocunt, Member Since 2025 is hardcoded?
+  - **Resolution**: Added a `GET /store/user/me` endpoint in the API and updated `AccountPanel` in `web-store` to fetch and dynamically display the user's name, avatar initials, email, and actual `createdAt` year.

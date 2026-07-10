@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { isLoggedIn, loginStore, logout } from '@/lib/auth';
-import { fetchMyOrders, type Order } from '@/lib/orders';
+import { fetchMyOrders, downloadInvoice, type Order } from '@/lib/orders';
 import { formatPrice } from '@/lib/format';
 import { fetchWishlist, removeFromWishlist, type WishlistItem } from '@/lib/wishlist';
 import { fetchAddresses, addAddress, updateAddress, deleteAddress, type Address } from '@/lib/addresses';
@@ -31,6 +31,7 @@ export function AccountPanel(): React.JSX.Element {
   const [activeTicket, setActiveTicket] = useState<any>(null);
   const [replyMessage, setReplyMessage] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
   const router = useRouter();
@@ -77,8 +78,10 @@ export function AccountPanel(): React.JSX.Element {
     fetchWishlistData();
     fetchAddressesData();
     fetchInbox();
+    fetchProfile();
   }, [loggedIn]);
 
+  const fetchProfile = () => import('@/lib/api').then(({ apiClient }) => apiClient.request('/store/user/me').then((res: any) => setUser(res.data)).catch(() => {}));
   const fetchOrders = () => fetchMyOrders().then(setOrders).catch(() => setOrders([]));
   const fetchWishlistData = () => fetchWishlist().then(setWishlist).catch(() => setWishlist([]));
   const fetchAddressesData = () => fetchAddresses().then(setAddresses).catch(() => setAddresses([]));
@@ -319,6 +322,18 @@ export function AccountPanel(): React.JSX.Element {
                       >
                         Need Help?
                       </button>
+                      <button
+                        onClick={async () => {
+                          try {
+                            await downloadInvoice(order.id);
+                          } catch (e) {
+                            alert('Could not download invoice');
+                          }
+                        }}
+                        className="btn btn--outline"
+                      >
+                        Download Invoice
+                      </button>
                     </div>
                   </div>
               </article>
@@ -415,10 +430,10 @@ export function AccountPanel(): React.JSX.Element {
       {tab === 'profile' && (
         <div className="profile-layout">
           <aside className="profile-card">
-            <div className="avatar">MK</div>
-            <h3>Member</h3>
-            <p className="email">{email || 'customer@noeve.local'}</p>
-            <p className="since">Member Since 2025</p>
+            <div className="avatar">{user ? (user.firstName?.[0] + (user.lastName?.[0] || '')) : 'MK'}</div>
+            <h3>{user ? `${user.firstName} ${user.lastName || ''}` : 'Member'}</h3>
+            <p className="email">{user?.email || email || 'customer@noeve.local'}</p>
+            <p className="since">Member Since {user?.createdAt ? new Date(user.createdAt).getFullYear() : new Date().getFullYear()}</p>
             <Link href="#" className="btn btn--outline" style={{width:'100%'}}>View Orders</Link>
           </aside>
           <div>

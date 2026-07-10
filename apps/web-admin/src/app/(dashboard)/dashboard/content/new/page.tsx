@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { createBlog } from '@/lib/api';
 
 export default function NewPostPage() {
@@ -43,11 +42,11 @@ export default function NewPostPage() {
       <h1 className="text-3xl font-bold tracking-tight">Create Blog Post</h1>
 
       <form onSubmit={handleSubmit}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Post Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="rounded-lg border border-neutral-200 bg-white">
+          <div className="border-b border-neutral-200 p-6">
+            <h2 className="text-xl font-semibold">Post Details</h2>
+          </div>
+          <div className="p-6 space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Title</label>
               <input
@@ -107,8 +106,8 @@ export default function NewPostPage() {
                 Publish immediately
               </label>
             </div>
-          </CardContent>
-          <CardFooter className="justify-end space-x-4 border-t px-6 py-4">
+          </div>
+          <div className="flex justify-end space-x-4 border-t px-6 py-4">
             <button
               type="button"
               onClick={() => router.back()}
@@ -123,8 +122,8 @@ export default function NewPostPage() {
             >
               {loading ? 'Saving...' : 'Save Post'}
             </button>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       </form>
     </div>
   );

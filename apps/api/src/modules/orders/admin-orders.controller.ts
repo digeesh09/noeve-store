@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards, StreamableFile, Res } from '@nestjs/common';
 import { OrderStatus, UserRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -38,6 +38,17 @@ export class AdminOrdersController {
   @Roles(UserRole.ADMIN, UserRole.FULFILLMENT, UserRole.SUPPORT)
   getOne(@Param('id') id: string) {
     return this.orders.getById(id);
+  }
+
+  @Get(':id/invoice')
+  @Roles(UserRole.ADMIN, UserRole.FULFILLMENT, UserRole.SUPPORT)
+  async getInvoice(@Param('id') id: string, @Res({ passthrough: true }) res: any) {
+    const doc = await this.orders.generateInvoice(id);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="invoice-${id}.pdf"`,
+    });
+    return new StreamableFile(doc);
   }
 
   @Patch(':id/status')

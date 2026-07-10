@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: any }): React.JSX.E
   return (
     <html lang="en">
       <body>
-        <NextTopLoader color="var(--ink)" showSpinner={false} height={2} />
+        <NextTopLoader color="var(--oxblood)" showSpinner={true} height={4} />
         <CartProvider>
           <SiteHeader />
           <main className="flex-1">{children}</main>
