@@ -14,9 +14,10 @@ export function CartBadge(): React.JSX.Element {
       aria-label="Your bag"
       className="relative inline-flex h-5 w-5 items-center justify-center text-ink transition-colors hover:opacity-80"
     >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M6 8h12l-1 13H7L6 8z"/>
-        <path d="M9 8a3 3 0 0 1 6 0"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+        <path d="M3 6h18" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
       </svg>
       {count > 0 && (
         <span

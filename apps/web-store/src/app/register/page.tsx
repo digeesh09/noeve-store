@@ -51,10 +51,8 @@ export default function RegisterPage(): React.JSX.Element {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-50">
         <div className="max-w-2xl text-center px-6 animate-fade-in-up">
-          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-stone-200/40 text-stone-800 backdrop-blur-sm">
-             <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
-               <path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-             </svg>
+          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-stone-200/40 backdrop-blur-sm">
+            <img src="/images/logo.png" alt="NOEVE" style={{ height: '40px', width: 'auto', mixBlendMode: 'multiply' }} />
           </div>
           
           <h1 className="mb-6 font-serif text-3xl tracking-tight text-stone-900 md:text-4xl lg:text-5xl" style={{ fontFamily: 'var(--font-serif)' }}>

@@ -16,10 +16,12 @@ export function getAccessToken(): string | null {
 
 export function setAccessToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
+  document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=86400; SameSite=Lax`;
 }
 
 export function clearAccessToken() {
   localStorage.removeItem(TOKEN_KEY);
+  document.cookie = `${TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
 }
 
 export function isLoggedIn(): boolean {

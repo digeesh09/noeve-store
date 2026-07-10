@@ -11,6 +11,57 @@ export class UsersService {
     private mailService: MailService
   ) {}
 
+  async listAllUsers(query: Record<string, unknown>) {
+    const { page, pageSize } = paginationQuerySchema.parse(query);
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        }
+      }),
+      this.prisma.user.count(),
+    ]);
+
+    return {
+      data: users,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+    };
+  }
+
+  async getUserById(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { addresses: true, orders: { take: 5, orderBy: { createdAt: 'desc' } } },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    
+    // omit passwordHash
+    const { passwordHash, ...userWithoutPassword } = user;
+    return { data: userWithoutPassword };
+  }
+
+  async updateUser(id: string, data: any) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data,
+    });
+    
+    const { passwordHash, ...userWithoutPassword } = updated;
+    return { data: userWithoutPassword };
+  }
+
   async getAddresses(userId: string) {
     return this.prisma.address.findMany({
       where: { userId },

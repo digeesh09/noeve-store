@@ -218,6 +218,7 @@ model Order {
   lines         OrderLine[]
   statusHistory OrderStatusHistory[]
   payment       Payment?
+  shipment      Shipment?
 
   @@map("orders")
 }
@@ -350,5 +351,20 @@ model SupportTicketReply {
   ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 
   @@map("support_ticket_replies")
+}
+
+model Shipment {
+  id             String    @id @default(uuid())
+  orderId        String    @unique @map("order_id")
+  trackingNumber String?   @map("tracking_number")
+  carrier        String?
+  labelUrl       String?   @map("label_url")
+  dispatchedAt   DateTime? @map("dispatched_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("shipments")
 }
 

@@ -6,6 +6,7 @@ import { useCart } from '../../src/context/cart-context';
 import { useAuth } from '../../src/context/auth-context';
 import { apiClient } from '../../src/lib/api';
 import { formatPrice } from '../../src/lib/format';
+import RazorpayCheckout from 'react-native-razorpay';
 
 export default function CheckoutScreen() {
   const router = useRouter();
@@ -44,17 +45,34 @@ export default function CheckoutScreen() {
       if (session.isMock) {
         setShowMockModal(true);
       } else {
-        // Fallback for simulation when real keys are detected
-        Alert.alert(
-          'Payment Gateway Active',
-          'Production/Test Razorpay configuration detected. Opening simulator to complete payment.',
-          [
-            {
-              text: 'Proceed to Simulator',
-              onPress: () => setShowMockModal(true),
-            },
-          ]
-        );
+        const options = {
+          description: `Order ${order.orderNumber}`,
+          image: 'https://noeve.com/logo.png', // Replace with actual logo URL
+          currency: session.currency,
+          key: session.keyId,
+          amount: session.amount,
+          name: 'Noeve',
+          order_id: session.providerOrderId,
+          theme: { color: '#6B2230' }
+        };
+
+        try {
+          const data = await RazorpayCheckout.open(options);
+          // Verify on backend
+          setSubmitting(true);
+          await apiClient.store.verifyPayment({
+            orderId: order.id,
+            razorpayOrderId: data.razorpay_order_id,
+            razorpayPaymentId: data.razorpay_payment_id,
+            razorpaySignature: data.razorpay_signature,
+          });
+          await refreshCart();
+          setSuccess(order.orderNumber);
+        } catch (error: any) {
+          Alert.alert('Payment Error', error.description || 'Payment failed or was cancelled');
+        } finally {
+          setSubmitting(false);
+        }
       }
     } catch (err: any) {
       Alert.alert('Checkout Error', err?.message || 'Could not place order');

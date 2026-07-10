@@ -288,7 +288,8 @@ export async function fetchInventory(threshold = 10) {
   const res = await fetch(`${API_URL}/admin/inventory/low-stock?threshold=${threshold}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
-  return res.json();
+  const json = await res.json();
+  return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
 }
 
 export async function updateInventoryStock(variantId: string, quantity: number) {

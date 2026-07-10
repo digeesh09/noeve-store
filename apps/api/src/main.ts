@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NextFunction, Request, Response } from 'express';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ZodFilter } from './common/filters/zod.filter';
 
@@ -45,6 +46,15 @@ async function bootstrap() {
   const expressAppStatic = app.getHttpAdapter().getInstance();
   const path = require('path');
   expressAppStatic.use('/public', require('express').static(path.join(__dirname, '..', 'public')));
+
+  const config = new DocumentBuilder()
+    .setTitle('Noeve API')
+    .setDescription('The Noeve E-commerce Core API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document);
 
   const port = process.env.API_PORT ?? 3001;
   const publicUrl = process.env.API_URL ?? `http://localhost:${port}`;

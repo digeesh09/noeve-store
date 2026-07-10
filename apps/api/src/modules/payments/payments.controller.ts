@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Headers } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PaymentsService } from './payments.service';
 import { IsString, IsNotEmpty } from 'class-validator';
@@ -28,15 +28,16 @@ class VerifyPaymentDto {
 }
 
 @Controller('store/payments')
-@UseGuards(JwtAuthGuard)
 export class PaymentsController {
   constructor(private payments: PaymentsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('create-session')
   createSession(@Body() body: CreateSessionDto) {
     return this.payments.createPaymentSession(body.orderId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('verify')
   verify(@Body() body: VerifyPaymentDto) {
     return this.payments.verifyPayment(
@@ -45,5 +46,10 @@ export class PaymentsController {
       body.razorpayPaymentId,
       body.razorpaySignature,
     );
+  }
+
+  @Post('webhook')
+  webhook(@Headers('x-razorpay-signature') signature: string, @Body() body: any) {
+    return this.payments.handleWebhook(signature, body);
   }
 }
