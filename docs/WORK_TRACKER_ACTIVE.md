@@ -183,8 +183,10 @@ https://nextjs.org/docs/messages/module-not-found
 
 etc, whatever is relevant. Apply the settings in the store, api, and admin.
 
-- [ ] 74. Cart page does not support COD when it is enabled in the settings.
+- [x] 74. Cart page does not support COD when it is enabled in the settings.
       Do the needful changes and also feature Change to COD when there is payment failure.
+  - **Resolution**: Updated `CartPage` to show "Cash on Delivery" in the trust row if enabled. Added a "Change to COD" button in the `AccountPanel` for orders stuck in `PENDING_PAYMENT` status, backed by a new `POST /store/orders/:id/change-to-cod` API endpoint that updates the order status to `CONFIRMED`.
 - [ ] 75. Based on the current codebase and docs in docs folder, generate the user manual for admin and store. Include diagrams as much as possible.
 
-- [ ] 76. hello@noeve email is hardcoded.
+- [x] 76. hello@noeve email is hardcoded.
+  - **Resolution**: Updated the PDF invoice generation in `orders.service.ts` to dynamically use `supportEmail` and `supportPhone` from `StoreSettings` instead of hardcoded values, falling back gracefully if not set.

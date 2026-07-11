@@ -119,6 +119,11 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
+    const settings = await this.prisma.storeSettings.findFirst();
+    const supportEmail = settings?.supportEmail || 'hello@noeve.com';
+    const supportPhone = settings?.supportPhone || '+91 98765 43210';
+    const storeName = settings?.storeName || 'NOEVE';
+
     const doc = new PDFDocument({ margin: 50 });
 
     // Header
@@ -136,7 +141,7 @@ export class OrdersService {
       .text('Noeve Studio', 200, 50, { align: 'right' })
       .text('123 Noeve Street, Design District', 200, 65, { align: 'right' })
       .text('Kerala, India 682001', 200, 80, { align: 'right' })
-      .text('Email: hello@noeve.com | Phone: +91 98765 43210', 200, 95, { align: 'right' })
+      .text(`Email: ${supportEmail} | Phone: ${supportPhone}`, 200, 95, { align: 'right' })
       .text('GSTIN: 32AABCU9603R1ZM', 200, 110, { align: 'right' })
       .moveDown();
 
@@ -227,7 +232,7 @@ export class OrdersService {
       .fontSize(9)
       .font('Helvetica')
       .text('Thank you for shopping with Noeve Studio.', 50, bottom + 20, { align: 'center' })
-      .text('Returns are accepted within 30 days of purchase with original packaging. For support, email hello@noeve.com.', 50, bottom + 35, { align: 'center' });
+      .text(`Returns are accepted within 30 days of purchase with original packaging. For support, email ${supportEmail}.`, 50, bottom + 35, { align: 'center' });
 
     doc.end();
     return doc;
