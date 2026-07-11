@@ -170,7 +170,7 @@ https://nextjs.org/docs/messages/module-not-found
 - [x] 72. In my acocunt, Member Since 2025 is hardcoded?
   - **Resolution**: Added a `GET /store/user/me` endpoint in the API and updated `AccountPanel` in `web-store` to fetch and dynamically display the user's name, avatar initials, email, and actual `createdAt` year.
 
-  - [x] 73. Need to have the following settings in admin panel and should map the setting to teh appropriate areas in teh code.
+  - [ ] 73. Need to have the following settings in admin panel and should map the setting to teh appropriate areas in teh code.
 
 1. Support Email
 2. Support Contact
@@ -182,4 +182,3 @@ https://nextjs.org/docs/messages/module-not-found
 8. Store Name
 
 etc, whatever is relevant. Apply the settings in the store, api, and admin.
-  - **Resolution**: Added new fields to `StoreSettings` schema. Updated the admin settings page to manage these fields. Integrated them across the storefront (footer social links, contact info, dynamic store name, and a conditional COD option during checkout).

@@ -32,7 +32,9 @@ export default function CheckoutPage(): React.JSX.Element {
   const [success, setSuccess] = useState<string | null>(null);
 
   const [promoCode, setPromoCode] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountCents: number } | null>(null);
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountCents: number } | null>(
+    null,
+  );
   const [promoError, setPromoError] = useState<string | null>(null);
   const [validatingPromo, setValidatingPromo] = useState(false);
 
@@ -43,10 +45,6 @@ export default function CheckoutPage(): React.JSX.Element {
   const [deliveryDate, setDeliveryDate] = useState('');
   const [deliveryTime, setDeliveryTime] = useState('');
 
-  // Payment States
-  const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
-  const [storeSettings, setStoreSettings] = useState<any>(null);
-
   // Mock payment modal states
   const [showMockModal, setShowMockModal] = useState(false);
   const [paymentSession, setPaymentSession] = useState<any>(null);
@@ -56,16 +54,14 @@ export default function CheckoutPage(): React.JSX.Element {
     if (!isLoggedIn()) {
       router.replace('/account?redirect=/checkout');
     } else {
-      fetchAddresses().then(addrs => {
-        setAddresses(addrs);
-        const defaultAddr = addrs.find(a => a.isDefault);
-        if (defaultAddr) setSelectedAddressId(defaultAddr.id);
-        else if (addrs.length > 0) setSelectedAddressId(addrs[0].id);
-      }).catch(console.error);
-
-      import('@/lib/api').then(({ apiClient }) => {
-        apiClient.store.getSettings().then(res => setStoreSettings(res.data)).catch(console.error);
-      });
+      fetchAddresses()
+        .then((addrs) => {
+          setAddresses(addrs);
+          const defaultAddr = addrs.find((a) => a.isDefault);
+          if (defaultAddr) setSelectedAddressId(defaultAddr.id);
+          else if (addrs.length > 0) setSelectedAddressId(addrs[0].id);
+        })
+        .catch(console.error);
     }
   }, [router]);
 
@@ -73,7 +69,9 @@ export default function CheckoutPage(): React.JSX.Element {
   const taxCents = cart ? Math.round(cart.subtotalCents * taxRate) : 0;
   const shippingCents = cart && cart.subtotalCents < 1500000 ? 100000 : 0;
   const discountCents = appliedPromo ? appliedPromo.discountCents : 0;
-  const totalCents = cart ? Math.max(0, cart.subtotalCents + taxCents + shippingCents - discountCents) : 0;
+  const totalCents = cart
+    ? Math.max(0, cart.subtotalCents + taxCents + shippingCents - discountCents)
+    : 0;
 
   const handleApplyPromo = async () => {
     if (!promoCode || !cart) return;
@@ -90,7 +88,7 @@ export default function CheckoutPage(): React.JSX.Element {
     }
   };
 
-  const selectedAddress = addresses.find(a => a.id === selectedAddressId);
+  const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
   const computeMinDeliveryDays = (pincode: string | undefined) => {
     if (!pincode) return 5;
     const firstDigit = pincode.charAt(0);
@@ -107,37 +105,32 @@ export default function CheckoutPage(): React.JSX.Element {
       return;
     }
     if (isGift && deliveryDate && deliveryDate < minDateString) {
-      setError(`Based on your pincode (${selectedAddress?.postalCode}), the earliest delivery date is ${minDateObj.toLocaleDateString()}. Please select a valid date.`);
+      setError(
+        `Based on your pincode (${selectedAddress?.postalCode}), the earliest delivery date is ${minDateObj.toLocaleDateString()}. Please select a valid date.`,
+      );
       return;
     }
     setError(null);
     setSubmitting(true);
-    
+
     let finalNote = note;
     if (isGift) {
       finalNote = `[GIFT ORDER] ${note ? `- ${note}` : ''}\nPreferred Date: ${deliveryDate || 'Any'}\nPreferred Time: ${deliveryTime || 'Any'}`;
     }
-    
+
     if (selectedAddress) {
       const addressString = `Shipping Address:\n${selectedAddress.name}\n${selectedAddress.streetLine1}${selectedAddress.streetLine2 ? `, ${selectedAddress.streetLine2}` : ''}\n${selectedAddress.city}, ${selectedAddress.state} ${selectedAddress.postalCode}\n${selectedAddress.country}\nPhone: ${selectedAddress.phone}`;
       finalNote = finalNote ? `${finalNote}\n\n${addressString}` : addressString;
     }
 
     try {
-      // 1. Create order (returns Order in PENDING_PAYMENT or CONFIRMED status)
+      // 1. Create order (returns Order in PENDING_PAYMENT status)
       const order = await placeOrder(
         finalNote || undefined,
         appliedPromo?.code,
         appliedPromo?.discountCents,
-        paymentMethod
       );
       setCurrentOrder(order);
-
-      if (paymentMethod === 'COD') {
-        await refresh();
-        setSuccess(order.orderNumber);
-        return;
-      }
 
       // 2. Create Payment Session on API
       const sessionRes = await apiClient.store.createPaymentSession({ orderId: order.id });
@@ -151,7 +144,9 @@ export default function CheckoutPage(): React.JSX.Element {
         // Load Razorpay and process payment
         const scriptLoaded = await loadRazorpayScript();
         if (!scriptLoaded) {
-          throw new Error('Failed to load Razorpay checkout script. Please check your internet connection.');
+          throw new Error(
+            'Failed to load Razorpay checkout script. Please check your internet connection.',
+          );
         }
 
         const options = {
@@ -246,7 +241,8 @@ export default function CheckoutPage(): React.JSX.Element {
           </div>
           <h2>Order confirmed</h2>
           <p>
-            Thank you for your purchase. Your order <strong>{success}</strong> has been placed and payment has been processed successfully.
+            Thank you for your purchase. Your order <strong>{success}</strong> has been placed and
+            payment has been processed successfully.
           </p>
           <div className="auth__success-actions">
             <Link href="/account" className="btn btn--primary">
@@ -260,8 +256,6 @@ export default function CheckoutPage(): React.JSX.Element {
       </div>
     );
   }
-
-
 
   if (cart.lines.length === 0) {
     return (
@@ -294,68 +288,199 @@ export default function CheckoutPage(): React.JSX.Element {
       <div className="page-head">
         <p className="eyebrow">Secure Checkout</p>
         <h1>Complete your order</h1>
-        <p className="sub">
-          Verify your items and proceed with secure payment.
-        </p>
+        <p className="sub">Verify your items and proceed with secure payment.</p>
       </div>
 
       <div className="cart-layout">
         <div>
           {/* Order Details form fields */}
-          <div className="section-card" style={{ background: 'var(--cream)', border: '1px solid rgba(33,29,25,.1)', borderRadius: '2px', padding: '2rem' }}>
-            <h2 style={{ fontFamily: 'var(--display)', fontSize: '1.6rem', marginBottom: '1rem' }}>Shipping Details</h2>
+          <div
+            className="section-card"
+            style={{
+              background: 'var(--cream)',
+              border: '1px solid rgba(33,29,25,.1)',
+              borderRadius: '2px',
+              padding: '2rem',
+            }}
+          >
+            <h2 style={{ fontFamily: 'var(--display)', fontSize: '1.6rem', marginBottom: '1rem' }}>
+              Shipping Details
+            </h2>
             <p style={{ fontSize: '.88rem', color: 'rgba(33,29,25,.65)', marginBottom: '1.5rem' }}>
               Select a shipping address below or add a new one in your account.
             </p>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                marginBottom: '2rem',
+              }}
+            >
               {addresses.length === 0 ? (
-                <div style={{ padding: '1.5rem', border: '1px dashed rgba(33,29,25,.2)', textAlign: 'center' }}>
-                  <p style={{ fontSize: '.9rem', marginBottom: '1rem' }}>No shipping addresses found.</p>
-                  <Link href="/account?tab=addresses&new=1&redirect=checkout" className="btn btn--outline" style={{ display: 'inline-block' }}>Add Address</Link>
+                <div
+                  style={{
+                    padding: '1.5rem',
+                    border: '1px dashed rgba(33,29,25,.2)',
+                    textAlign: 'center',
+                  }}
+                >
+                  <p style={{ fontSize: '.9rem', marginBottom: '1rem' }}>
+                    No shipping addresses found.
+                  </p>
+                  <Link
+                    href="/account?tab=addresses&new=1&redirect=checkout"
+                    className="btn btn--outline"
+                    style={{ display: 'inline-block' }}
+                  >
+                    Add Address
+                  </Link>
                 </div>
               ) : (
-                addresses.map(addr => (
-                  <label key={addr.id} style={{ display: 'flex', gap: '1rem', padding: '1rem', border: `1px solid ${selectedAddressId === addr.id ? 'var(--brand-primary)' : 'rgba(33,29,25,.1)'}`, borderRadius: '2px', cursor: 'pointer', background: selectedAddressId === addr.id ? 'var(--cream)' : 'transparent' }}>
-                    <input type="radio" name="address" value={addr.id} checked={selectedAddressId === addr.id} onChange={(e) => setSelectedAddressId(e.target.value)} style={{ marginTop: '0.2rem' }} />
+                addresses.map((addr) => (
+                  <label
+                    key={addr.id}
+                    style={{
+                      display: 'flex',
+                      gap: '1rem',
+                      padding: '1rem',
+                      border: `1px solid ${selectedAddressId === addr.id ? 'var(--brand-primary)' : 'rgba(33,29,25,.1)'}`,
+                      borderRadius: '2px',
+                      cursor: 'pointer',
+                      background: selectedAddressId === addr.id ? 'var(--cream)' : 'transparent',
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="address"
+                      value={addr.id}
+                      checked={selectedAddressId === addr.id}
+                      onChange={(e) => setSelectedAddressId(e.target.value)}
+                      style={{ marginTop: '0.2rem' }}
+                    />
                     <div style={{ fontSize: '.9rem', lineHeight: 1.4 }}>
-                      <p style={{ fontWeight: 600, color: 'var(--ink)', marginBottom: '0.25rem' }}>{addr.name} {addr.isDefault && <span style={{ fontSize: '.7rem', padding: '0.1rem 0.4rem', background: 'var(--brand-accent)', color: 'var(--brand-primary)', borderRadius: '2px', marginLeft: '0.5rem' }}>Default</span>}</p>
-                      <p style={{ color: 'rgba(33,29,25,.8)' }}>{addr.streetLine1}{addr.streetLine2 ? `, ${addr.streetLine2}` : ''}</p>
-                      <p style={{ color: 'rgba(33,29,25,.8)' }}>{addr.city}, {addr.state} {addr.postalCode}</p>
+                      <p style={{ fontWeight: 600, color: 'var(--ink)', marginBottom: '0.25rem' }}>
+                        {addr.name}{' '}
+                        {addr.isDefault && (
+                          <span
+                            style={{
+                              fontSize: '.7rem',
+                              padding: '0.1rem 0.4rem',
+                              background: 'var(--brand-accent)',
+                              color: 'var(--brand-primary)',
+                              borderRadius: '2px',
+                              marginLeft: '0.5rem',
+                            }}
+                          >
+                            Default
+                          </span>
+                        )}
+                      </p>
+                      <p style={{ color: 'rgba(33,29,25,.8)' }}>
+                        {addr.streetLine1}
+                        {addr.streetLine2 ? `, ${addr.streetLine2}` : ''}
+                      </p>
+                      <p style={{ color: 'rgba(33,29,25,.8)' }}>
+                        {addr.city}, {addr.state} {addr.postalCode}
+                      </p>
                       <p style={{ color: 'rgba(33,29,25,.8)' }}>{addr.country}</p>
-                      <p style={{ color: 'rgba(33,29,25,.8)', marginTop: '0.25rem' }}>Phone: {addr.phone}</p>
+                      <p style={{ color: 'rgba(33,29,25,.8)', marginTop: '0.25rem' }}>
+                        Phone: {addr.phone}
+                      </p>
                     </div>
                   </label>
                 ))
               )}
               {addresses.length > 0 && (
                 <div style={{ textAlign: 'right' }}>
-                  <Link href="/account?tab=addresses&new=1&redirect=checkout" style={{ fontSize: '.85rem', textDecoration: 'underline' }}>+ Add a new address</Link>
+                  <Link
+                    href="/account?tab=addresses&new=1&redirect=checkout"
+                    style={{ fontSize: '.85rem', textDecoration: 'underline' }}
+                  >
+                    + Add a new address
+                  </Link>
                 </div>
               )}
             </div>
 
-            <div style={{ marginBottom: '2rem', padding: '1.5rem', background: 'rgba(33,29,25,.03)', border: '1px solid rgba(33,29,25,.1)', borderRadius: '2px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}>
-                <input type="checkbox" checked={isGift} onChange={(e) => setIsGift(e.target.checked)} style={{ width: '18px', height: '18px' }} />
+            <div
+              style={{
+                marginBottom: '2rem',
+                padding: '1.5rem',
+                background: 'rgba(33,29,25,.03)',
+                border: '1px solid rgba(33,29,25,.1)',
+                borderRadius: '2px',
+              }}
+            >
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isGift}
+                  onChange={(e) => setIsGift(e.target.checked)}
+                  style={{ width: '18px', height: '18px' }}
+                />
                 Deliver as a Gift
               </label>
-              
+
               {isGift && (
-                <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div
+                  style={{
+                    marginTop: '1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem',
+                  }}
+                >
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div className="form-field">
                       <label>Preferred Delivery Date</label>
-                      <input type="date" min={minDateString} value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid rgba(33,29,25,.2)' }} />
+                      <input
+                        type="date"
+                        min={minDateString}
+                        value={deliveryDate}
+                        onChange={(e) => setDeliveryDate(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.6rem',
+                          border: '1px solid rgba(33,29,25,.2)',
+                        }}
+                      />
                       {selectedAddress && (
-                        <p style={{ fontSize: '.75rem', color: 'rgba(33,29,25,.6)', marginTop: '.4rem', lineHeight: 1.3 }}>
-                          Based on your pincode ({selectedAddress.postalCode}), the earliest delivery is <strong>{minDateObj.toLocaleDateString()}</strong>.
+                        <p
+                          style={{
+                            fontSize: '.75rem',
+                            color: 'rgba(33,29,25,.6)',
+                            marginTop: '.4rem',
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          Based on your pincode ({selectedAddress.postalCode}), the earliest
+                          delivery is <strong>{minDateObj.toLocaleDateString()}</strong>.
                         </p>
                       )}
                     </div>
                     <div className="form-field">
                       <label>Preferred Time</label>
-                      <input type="time" value={deliveryTime} onChange={e => setDeliveryTime(e.target.value)} style={{ width: '100%', padding: '0.6rem', border: '1px solid rgba(33,29,25,.2)' }} />
+                      <input
+                        type="time"
+                        value={deliveryTime}
+                        onChange={(e) => setDeliveryTime(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.6rem',
+                          border: '1px solid rgba(33,29,25,.2)',
+                        }}
+                      />
                     </div>
                   </div>
                   <div className="form-field" style={{ margin: 0 }}>
@@ -384,23 +509,23 @@ export default function CheckoutPage(): React.JSX.Element {
                 <label htmlFor="note">Order note (optional)</label>
                 <textarea
                   id="note"
-                rows={3}
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Gift message, delivery instructions…"
-                style={{
-                  width: '100%',
-                  border: '1px solid rgba(33,29,25,.25)',
-                  background: 'transparent',
-                  padding: '.85em 1em',
-                  fontSize: '.95rem',
-                  color: 'var(--ink)',
-                  outline: 'none',
-                  borderRadius: '1px',
-                  fontFamily: 'inherit',
-                }}
-              />
-            </div>
+                  rows={3}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Gift message, delivery instructions…"
+                  style={{
+                    width: '100%',
+                    border: '1px solid rgba(33,29,25,.25)',
+                    background: 'transparent',
+                    padding: '.85em 1em',
+                    fontSize: '.95rem',
+                    color: 'var(--ink)',
+                    outline: 'none',
+                    borderRadius: '1px',
+                    fontFamily: 'inherit',
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -421,7 +546,10 @@ export default function CheckoutPage(): React.JSX.Element {
                 }}
               >
                 <span style={{ color: 'rgba(33,29,25,.8)' }}>
-                  {line.productName} <span style={{ fontFamily: 'var(--mono)', fontSize: '.76rem' }}>× {line.quantity}</span>
+                  {line.productName}{' '}
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: '.76rem' }}>
+                    × {line.quantity}
+                  </span>
                 </span>
                 <span style={{ fontFamily: 'var(--mono)', fontWeight: 500 }}>
                   {formatPrice(line.lineTotalCents, line.currency)}
@@ -430,21 +558,59 @@ export default function CheckoutPage(): React.JSX.Element {
             ))}
           </div>
 
-          <div className="summary__row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.85rem', marginBottom: '.5rem', color: 'rgba(33,29,25,.8)' }}>
+          <div
+            className="summary__row"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '.85rem',
+              marginBottom: '.5rem',
+              color: 'rgba(33,29,25,.8)',
+            }}
+          >
             <span>Subtotal</span>
             <span>{formatPrice(cart.subtotalCents, cart.currency)}</span>
           </div>
-          <div className="summary__row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.85rem', marginBottom: '.5rem', color: 'rgba(33,29,25,.8)' }}>
+          <div
+            className="summary__row"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '.85rem',
+              marginBottom: '.5rem',
+              color: 'rgba(33,29,25,.8)',
+            }}
+          >
             <span>Shipping</span>
             <span>{shippingCents === 0 ? 'Free' : formatPrice(shippingCents, cart.currency)}</span>
           </div>
-          <div className="summary__row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.85rem', marginBottom: '1rem', color: 'rgba(33,29,25,.8)', borderBottom: '1px solid rgba(33,29,25,.1)', paddingBottom: '1rem' }}>
+          <div
+            className="summary__row"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '.85rem',
+              marginBottom: '1rem',
+              color: 'rgba(33,29,25,.8)',
+              borderBottom: '1px solid rgba(33,29,25,.1)',
+              paddingBottom: '1rem',
+            }}
+          >
             <span>Estimated Tax (18% GST)</span>
             <span>{formatPrice(taxCents, cart.currency)}</span>
           </div>
 
           {appliedPromo && (
-            <div className="summary__row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.85rem', marginBottom: '1rem', color: 'var(--brand-primary)' }}>
+            <div
+              className="summary__row"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '.85rem',
+                marginBottom: '1rem',
+                color: 'var(--brand-primary)',
+              }}
+            >
               <span>Discount ({appliedPromo.code})</span>
               <span>-{formatPrice(appliedPromo.discountCents, cart.currency)}</span>
             </div>
@@ -452,63 +618,125 @@ export default function CheckoutPage(): React.JSX.Element {
 
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input 
-                type="text" 
-                placeholder="Promo Code" 
+              <input
+                type="text"
+                placeholder="Promo Code"
                 value={promoCode}
-                onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                 disabled={!!appliedPromo}
-                style={{ flex: 1, padding: '0.6rem 0.8rem', border: '1px solid rgba(33,29,25,.2)', borderRadius: '1px', outline: 'none' }}
+                style={{
+                  flex: 1,
+                  padding: '0.6rem 0.8rem',
+                  border: '1px solid rgba(33,29,25,.2)',
+                  borderRadius: '1px',
+                  outline: 'none',
+                }}
               />
               {!appliedPromo ? (
-                <button type="button" onClick={handleApplyPromo} disabled={validatingPromo || !promoCode} style={{ padding: '0 1rem', background: 'var(--ink)', color: 'white', borderRadius: '1px' }}>
+                <button
+                  type="button"
+                  onClick={handleApplyPromo}
+                  disabled={validatingPromo || !promoCode}
+                  style={{
+                    padding: '0 1rem',
+                    background: 'var(--ink)',
+                    color: 'white',
+                    borderRadius: '1px',
+                  }}
+                >
                   {validatingPromo ? '...' : 'Apply'}
                 </button>
               ) : (
-                <button type="button" onClick={() => { setAppliedPromo(null); setPromoCode(''); }} style={{ padding: '0 1rem', background: 'var(--oxblood)', color: 'white', borderRadius: '1px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedPromo(null);
+                    setPromoCode('');
+                  }}
+                  style={{
+                    padding: '0 1rem',
+                    background: 'var(--oxblood)',
+                    color: 'white',
+                    borderRadius: '1px',
+                  }}
+                >
                   Remove
                 </button>
               )}
             </div>
-            {promoError && <p style={{ fontSize: '.75rem', color: 'var(--oxblood)', marginTop: '0.4rem' }}>{promoError}</p>}
+            {promoError && (
+              <p style={{ fontSize: '.75rem', color: 'var(--oxblood)', marginTop: '0.4rem' }}>
+                {promoError}
+              </p>
+            )}
           </div>
 
-          <div className="summary__row summary__row--total" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, fontSize: '1rem', marginBottom: '1.5rem' }}>
+          <div
+            className="summary__row summary__row--total"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontWeight: 600,
+              fontSize: '1rem',
+              marginBottom: '1.5rem',
+            }}
+          >
             <span>Total</span>
             <span>{formatPrice(totalCents, cart.currency)}</span>
           </div>
 
-          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(33,29,25,.03)', borderRadius: '2px', border: '1px solid rgba(33,29,25,.1)' }}>
-            <p style={{ fontWeight: 600, fontSize: '.9rem', marginBottom: '.8rem' }}>Payment Method</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '.6rem', fontSize: '.9rem', cursor: 'pointer' }}>
-                <input type="radio" name="paymentMethod" value="ONLINE" checked={paymentMethod === 'ONLINE'} onChange={() => setPaymentMethod('ONLINE')} />
-                Pay Online (Cards, UPI, Netbanking)
-              </label>
-              {storeSettings?.codAllowed && (
-                <label style={{ display: 'flex', alignItems: 'center', gap: '.6rem', fontSize: '.9rem', cursor: 'pointer' }}>
-                  <input type="radio" name="paymentMethod" value="COD" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
-                  Cash on Delivery
-                </label>
-              )}
-            </div>
-          </div>
-
-          {error && <p style={{ fontSize: '.76rem', color: 'var(--oxblood)', marginBottom: '1rem' }}>{error}</p>}
+          {error && (
+            <p style={{ fontSize: '.76rem', color: 'var(--oxblood)', marginBottom: '1rem' }}>
+              {error}
+            </p>
+          )}
 
           <button
             type="button"
             disabled={submitting}
             onClick={handlePlaceOrder}
             className="btn btn--primary"
-            style={{ width: '100%', display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center' }}
+            style={{
+              width: '100%',
+              display: 'flex',
+              gap: '0.5rem',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
             {submitting ? (
-              <><svg className="spinner" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{animation:'spin 1s linear infinite'}}><circle cx="12" cy="12" r="10" strokeDasharray="30" strokeDashoffset="10"/></svg> Processing…</>
-            ) : 'Place Order & Pay'}
+              <>
+                <svg
+                  className="spinner"
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ animation: 'spin 1s linear infinite' }}
+                >
+                  <circle cx="12" cy="12" r="10" strokeDasharray="30" strokeDashoffset="10" />
+                </svg>{' '}
+                Processing…
+              </>
+            ) : (
+              'Place Order & Pay'
+            )}
           </button>
 
-          <Link href="/cart" style={{ display: 'block', textAlign: 'center', marginTop: '1.2rem', fontSize: '.8rem', textDecoration: 'underline' }}>
+          <Link
+            href="/cart"
+            style={{
+              display: 'block',
+              textAlign: 'center',
+              marginTop: '1.2rem',
+              fontSize: '.8rem',
+              textDecoration: 'underline',
+            }}
+          >
             ← Back to bag
           </Link>
           <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
@@ -517,30 +745,61 @@ export default function CheckoutPage(): React.JSX.Element {
 
       {/* Mock Sandbox Payment Modal */}
       {showMockModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(33, 29, 25, 0.5)',
-          backdropFilter: 'blur(4px)',
-        }}>
-          <div style={{
-            background: 'var(--cream)',
-            border: '1px solid rgba(33, 29, 25, 0.15)',
-            borderRadius: '2px',
-            padding: '2.5rem',
-            maxWidth: '480px',
-            width: '100%',
-            textAlign: 'center',
-            boxShadow: '0 12px 36px rgba(33, 29, 25, 0.15)',
-          }}>
-            <span style={{ fontSize: '2.5rem', color: 'var(--oxblood)', display: 'block', marginBottom: '1rem' }}>💳</span>
-            <h3 style={{ fontFamily: 'var(--display)', fontSize: '1.8rem', color: 'var(--oxblood)', marginBottom: '0.8rem' }}>Noeve Sandbox Payment</h3>
-            <p style={{ fontSize: '0.92rem', color: 'rgba(33,29,25,0.7)', lineHeight: 1.5, marginBottom: '2rem' }}>
-              You are running in development mode without active Razorpay keys. Click below to simulate a successful transaction for order <strong>{currentOrder?.orderNumber}</strong>.
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(33, 29, 25, 0.5)',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--cream)',
+              border: '1px solid rgba(33, 29, 25, 0.15)',
+              borderRadius: '2px',
+              padding: '2.5rem',
+              maxWidth: '480px',
+              width: '100%',
+              textAlign: 'center',
+              boxShadow: '0 12px 36px rgba(33, 29, 25, 0.15)',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '2.5rem',
+                color: 'var(--oxblood)',
+                display: 'block',
+                marginBottom: '1rem',
+              }}
+            >
+              💳
+            </span>
+            <h3
+              style={{
+                fontFamily: 'var(--display)',
+                fontSize: '1.8rem',
+                color: 'var(--oxblood)',
+                marginBottom: '0.8rem',
+              }}
+            >
+              Noeve Sandbox Payment
+            </h3>
+            <p
+              style={{
+                fontSize: '0.92rem',
+                color: 'rgba(33,29,25,0.7)',
+                lineHeight: 1.5,
+                marginBottom: '2rem',
+              }}
+            >
+              You are running in development mode without active Razorpay keys. Click below to
+              simulate a successful transaction for order{' '}
+              <strong>{currentOrder?.orderNumber}</strong>.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <button

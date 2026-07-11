@@ -199,6 +199,13 @@ export async function deletePromotion(id: string): Promise<void> {
 
 export interface StoreSettings {
   id: string;
+  storeName?: string | null;
+  supportEmail?: string | null;
+  supportPhone?: string | null;
+  whatsappNumber?: string | null;
+  facebookLink?: string | null;
+  instagramLink?: string | null;
+  codAllowed?: boolean;
   shippingThresholdCents: number;
   shippingRateCents: number;
   taxRatePercentage: number;
