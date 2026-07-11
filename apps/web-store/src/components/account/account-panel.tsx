@@ -32,8 +32,10 @@ export function AccountPanel(): React.JSX.Element {
   const [replyMessage, setReplyMessage] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [settings, setSettings] = useState<any>(null);
 
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
+  const [changingToCod, setChangingToCod] = useState<string | null>(null);
   const router = useRouter();
   const { addItem } = useCart();
 
@@ -81,8 +83,9 @@ export function AccountPanel(): React.JSX.Element {
     fetchProfile();
   }, [loggedIn]);
 
-  const fetchProfile = () => import('@/lib/api').then(({ apiClient }) => apiClient.request('/store/user/me').then((res: any) => setUser(res.data)).catch(() => {}));
+  const fetchProfile = () => import('@/lib/auth').then(({ authHeaders }) => fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1'}/store/user/me`, { headers: authHeaders() }).then(res => res.json()).then(res => setUser(res.data)).catch(() => {}));
   const fetchOrders = () => fetchMyOrders().then(setOrders).catch(() => setOrders([]));
+  const fetchSettings = () => import('@/lib/api').then(({ apiClient }) => apiClient.store.getSettings().then(res => setSettings(res.data)).catch(() => {}));
   const fetchWishlistData = () => fetchWishlist().then(setWishlist).catch(() => setWishlist([]));
   const fetchAddressesData = () => fetchAddresses().then(setAddresses).catch(() => setAddresses([]));
   const fetchInbox = () => import('@/lib/api').then(({ apiClient }) => apiClient.store.getMySupportTickets().then(res => setInbox(res.data || res || [])).catch(() => setInbox([])));
@@ -91,7 +94,28 @@ export function AccountPanel(): React.JSX.Element {
     if (loggedIn && tab === 'wishlist') fetchWishlistData();
     if (loggedIn && tab === 'addresses') fetchAddressesData();
     if (loggedIn && tab === 'inbox') fetchInbox();
+    if (loggedIn) fetchSettings();
   }, [loggedIn, tab]);
+
+  const handleChangeToCOD = async (orderId: string) => {
+    setChangingToCod(orderId);
+    try {
+      const { authHeaders } = await import('@/lib/auth');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1'}/store/orders/${orderId}/change-to-cod`, {
+        method: 'POST',
+        headers: authHeaders(),
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Could not change to COD');
+      }
+      await fetchOrders();
+    } catch (err: any) {
+      alert(err?.message || 'Could not change to COD');
+    } finally {
+      setChangingToCod(null);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setError(null); setLoading(true);
@@ -322,6 +346,16 @@ export function AccountPanel(): React.JSX.Element {
                       >
                         Need Help?
                       </button>
+                      {order.status === 'PENDING_PAYMENT' && settings?.codAllowed && (
+                        <button
+                          onClick={() => handleChangeToCOD(order.id)}
+                          disabled={changingToCod === order.id}
+                          className="btn btn--primary"
+                          style={{ background: 'var(--ink)' }}
+                        >
+                          {changingToCod === order.id ? 'Updating...' : 'Change to COD'}
+                        </button>
+                      )}
                       <button
                         onClick={async () => {
                           try {

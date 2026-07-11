@@ -182,3 +182,9 @@ https://nextjs.org/docs/messages/module-not-found
 8. Store Name
 
 etc, whatever is relevant. Apply the settings in the store, api, and admin.
+
+- [ ] 74. Cart page does not support COD when it is enabled in the settings.
+      Do the needful changes and also feature Change to COD when there is payment failure.
+- [ ] 75. Based on the current codebase and docs in docs folder, generate the user manual for admin and store. Include diagrams as much as possible.
+
+- [ ] 76. hello@noeve email is hardcoded.

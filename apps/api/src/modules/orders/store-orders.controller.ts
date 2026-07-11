@@ -41,4 +41,9 @@ export class StoreOrdersController {
   validatePromotion(@Body() body: { code: string; cartTotalCents: number }) {
     return this.orders.validatePromotion(body.code, body.cartTotalCents);
   }
+
+  @Post(':id/change-to-cod')
+  changeToCod(@Req() req: { user: { id: string } }, @Param('id') id: string) {
+    return this.orders.changeToCod(id, req.user.id);
+  }
 }

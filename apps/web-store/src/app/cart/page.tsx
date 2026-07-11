@@ -9,6 +9,7 @@ import { formatPrice } from '@/lib/format';
 interface StoreSettings {
   shippingThresholdCents: number;
   shippingRateCents: number;
+  codAllowed?: boolean;
 }
 
 export default function CartPage(): React.JSX.Element {
@@ -96,6 +97,12 @@ export default function CartPage(): React.JSX.Element {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M16 3v8M8 3v8"/></svg>
               Free Over {formatPrice(settings.shippingThresholdCents, cart.currency).replace('.00', '').replace(',000', 'k')}
             </div>
+            {settings.codAllowed && (
+              <div className="trust-row__item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Cash on Delivery
+              </div>
+            )}
           </div>
         </aside>
       </div>

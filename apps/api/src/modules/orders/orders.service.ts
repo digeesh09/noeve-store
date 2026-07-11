@@ -357,12 +357,15 @@ export class OrdersService {
     );
     const orderNumber = `NV-${Date.now().toString(36).toUpperCase()}`;
 
+    const isCod = (input as any).paymentMethod === 'COD' && storeSettings?.codAllowed;
+    const initialStatus = isCod ? OrderStatus.CONFIRMED : OrderStatus.PENDING_PAYMENT;
+
     const order = await this.prisma.$transaction(async (tx) => {
       const created = await tx.order.create({
         data: {
           orderNumber,
           userId,
-          status: OrderStatus.PENDING_PAYMENT,
+          status: initialStatus,
           subtotalCents,
           shippingCents,
           taxCents,
@@ -373,8 +376,8 @@ export class OrdersService {
           lines: { create: lines },
           statusHistory: {
             create: {
-              status: OrderStatus.PENDING_PAYMENT,
-              note: note ?? 'Order placed',
+              status: initialStatus,
+              note: note ?? (isCod ? 'Order placed with Cash on Delivery' : 'Order placed'),
               createdBy: userId,
             },
           },
@@ -450,24 +453,56 @@ export class OrdersService {
   }
 
   async validatePromotion(code: string, cartTotalCents: number) {
-    const promo = await this.prisma.promotion.findUnique({ where: { code } });
-    if (!promo || !promo.isActive) {
-      throw new BadRequestException('Invalid or expired promotion code');
-    }
-    if (promo.expiresAt && promo.expiresAt < new Date()) {
-      throw new BadRequestException('Promotion has expired');
-    }
-    if (promo.minOrderValue > cartTotalCents) {
-      throw new BadRequestException(`Minimum order value is ${promo.minOrderValue / 100}`);
+    const promotion = await this.prisma.promotion.findUnique({ where: { code } });
+    if (!promotion || !promotion.isActive) throw new BadRequestException('Invalid or expired promotion code');
+    if (promotion.expiresAt && new Date(promotion.expiresAt) < new Date()) throw new BadRequestException('Promotion has expired');
+    if (promotion.minOrderValue && cartTotalCents < promotion.minOrderValue) {
+      throw new BadRequestException(`Minimum order value of ${(promotion.minOrderValue / 100).toFixed(2)} required for this promotion`);
     }
 
-    let discount = 0;
-    if (promo.discountPercentage) {
-      discount = Math.round(cartTotalCents * (promo.discountPercentage / 100));
-    } else if (promo.discountCents) {
-      discount = promo.discountCents;
+    let discountCents = 0;
+    if (promotion.discountCents) {
+      discountCents = promotion.discountCents;
+    } else if (promotion.discountPercentage) {
+      discountCents = Math.round(cartTotalCents * (promotion.discountPercentage / 100));
     }
 
-    return { data: { discountCents: discount, code: promo.code } };
+    return { discountCents, code: promotion.code };
+  }
+
+  async changeToCod(orderId: string, userId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId, userId },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    if (order.status !== OrderStatus.PENDING_PAYMENT) {
+      throw new BadRequestException('Order is not in a pending payment state');
+    }
+
+    const settings = await this.prisma.storeSettings.findFirst();
+    if (!settings?.codAllowed) {
+      throw new BadRequestException('Cash on Delivery is not allowed');
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: OrderStatus.CONFIRMED,
+        statusHistory: {
+          create: {
+            status: OrderStatus.CONFIRMED,
+            note: 'Payment method changed to Cash on Delivery',
+            createdBy: userId,
+          },
+        },
+      },
+      include: { lines: true, statusHistory: true },
+    });
+
+    return updated;
   }
 }
