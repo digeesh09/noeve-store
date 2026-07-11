@@ -27,6 +27,13 @@ export class SettingsController {
   @Roles('ADMIN')
   async updateAdminSettings(
     @Body() body: {
+      storeName?: string;
+      supportEmail?: string;
+      supportPhone?: string;
+      whatsappNumber?: string;
+      facebookLink?: string;
+      instagramLink?: string;
+      codAllowed?: boolean;
       shippingThresholdCents?: number;
       shippingRateCents?: number;
       taxRatePercentage?: number;

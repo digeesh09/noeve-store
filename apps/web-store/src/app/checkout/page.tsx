@@ -43,6 +43,10 @@ export default function CheckoutPage(): React.JSX.Element {
   const [deliveryDate, setDeliveryDate] = useState('');
   const [deliveryTime, setDeliveryTime] = useState('');
 
+  // Payment States
+  const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
+  const [storeSettings, setStoreSettings] = useState<any>(null);
+
   // Mock payment modal states
   const [showMockModal, setShowMockModal] = useState(false);
   const [paymentSession, setPaymentSession] = useState<any>(null);
@@ -58,6 +62,10 @@ export default function CheckoutPage(): React.JSX.Element {
         if (defaultAddr) setSelectedAddressId(defaultAddr.id);
         else if (addrs.length > 0) setSelectedAddressId(addrs[0].id);
       }).catch(console.error);
+
+      import('@/lib/api').then(({ apiClient }) => {
+        apiClient.store.getSettings().then(res => setStoreSettings(res.data)).catch(console.error);
+      });
     }
   }, [router]);
 
@@ -116,13 +124,20 @@ export default function CheckoutPage(): React.JSX.Element {
     }
 
     try {
-      // 1. Create order (returns Order in PENDING_PAYMENT status)
+      // 1. Create order (returns Order in PENDING_PAYMENT or CONFIRMED status)
       const order = await placeOrder(
         finalNote || undefined,
         appliedPromo?.code,
-        appliedPromo?.discountCents
+        appliedPromo?.discountCents,
+        paymentMethod
       );
       setCurrentOrder(order);
+
+      if (paymentMethod === 'COD') {
+        await refresh();
+        setSuccess(order.orderNumber);
+        return;
+      }
 
       // 2. Create Payment Session on API
       const sessionRes = await apiClient.store.createPaymentSession({ orderId: order.id });
@@ -461,6 +476,22 @@ export default function CheckoutPage(): React.JSX.Element {
           <div className="summary__row summary__row--total" style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, fontSize: '1rem', marginBottom: '1.5rem' }}>
             <span>Total</span>
             <span>{formatPrice(totalCents, cart.currency)}</span>
+          </div>
+
+          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(33,29,25,.03)', borderRadius: '2px', border: '1px solid rgba(33,29,25,.1)' }}>
+            <p style={{ fontWeight: 600, fontSize: '.9rem', marginBottom: '.8rem' }}>Payment Method</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '.6rem', fontSize: '.9rem', cursor: 'pointer' }}>
+                <input type="radio" name="paymentMethod" value="ONLINE" checked={paymentMethod === 'ONLINE'} onChange={() => setPaymentMethod('ONLINE')} />
+                Pay Online (Cards, UPI, Netbanking)
+              </label>
+              {storeSettings?.codAllowed && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: '.6rem', fontSize: '.9rem', cursor: 'pointer' }}>
+                  <input type="radio" name="paymentMethod" value="COD" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
+                  Cash on Delivery
+                </label>
+              )}
+            </div>
           </div>
 
           {error && <p style={{ fontSize: '.76rem', color: 'var(--oxblood)', marginBottom: '1rem' }}>{error}</p>}

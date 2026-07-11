@@ -86,3 +86,14 @@ export async function getBlog(slug: string) {
     return null;
   }
 }
+
+export async function getSettings() {
+  try {
+    const res = await fetch(`${API_URL}/store/settings`, { next: { revalidate: 60 } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data;
+  } catch (err) {
+    return null;
+  }
+}

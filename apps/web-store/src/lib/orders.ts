@@ -36,7 +36,7 @@ export interface Order {
   promotionCode?: string | null;
 }
 
-export async function placeOrder(note?: string, promotionCode?: string, discountCents?: number): Promise<Order> {
+export async function placeOrder(note?: string, promotionCode?: string, discountCents?: number, paymentMethod?: string): Promise<Order> {
   const sessionId = getCartSessionId();
   const res = await fetch(`${API_URL}/store/orders`, {
     method: 'POST',
@@ -45,7 +45,7 @@ export async function placeOrder(note?: string, promotionCode?: string, discount
       ...authHeaders(),
       ...(sessionId ? { 'X-Cart-Session': sessionId } : {}),
     },
-    body: JSON.stringify({ note, promotionCode, discountCents }),
+    body: JSON.stringify({ note, promotionCode, discountCents, paymentMethod }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

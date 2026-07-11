@@ -76,7 +76,7 @@ export function SiteHeader(): React.JSX.Element {
       >
         <div className="wrap nav">
           <Link href="/" className="nav__logo" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/images/logo.png" alt="NOEVE" style={{ height: '44px', width: 'auto', mixBlendMode: 'multiply' }} />
+            <img src="/images/logo.png" alt={settings?.storeName || 'NOEVE'} style={{ height: '44px', width: 'auto', mixBlendMode: 'multiply' }} />
           </Link>
 
           <nav className="nav__links" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>

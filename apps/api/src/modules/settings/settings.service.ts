@@ -21,6 +21,13 @@ export class SettingsService {
   }
 
   async updateSettings(data: {
+    storeName?: string;
+    supportEmail?: string;
+    supportPhone?: string;
+    whatsappNumber?: string;
+    facebookLink?: string;
+    instagramLink?: string;
+    codAllowed?: boolean;
     shippingThresholdCents?: number;
     shippingRateCents?: number;
     taxRatePercentage?: number;

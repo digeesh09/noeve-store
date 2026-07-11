@@ -14,6 +14,14 @@ export default function SettingsPage() {
   const [shippingRate, setShippingRate] = useState('');
   const [taxRate, setTaxRate] = useState('');
   const [marqueeText, setMarqueeText] = useState('');
+  
+  const [storeName, setStoreName] = useState('');
+  const [supportEmail, setSupportEmail] = useState('');
+  const [supportPhone, setSupportPhone] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [facebookLink, setFacebookLink] = useState('');
+  const [instagramLink, setInstagramLink] = useState('');
+  const [codAllowed, setCodAllowed] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -29,6 +37,13 @@ export default function SettingsPage() {
       setShippingRate((data.shippingRateCents / 100).toString());
       setTaxRate(data.taxRatePercentage.toString());
       setMarqueeText(data.marqueeText || '');
+      setStoreName(data.storeName || '');
+      setSupportEmail(data.supportEmail || '');
+      setSupportPhone(data.supportPhone || '');
+      setWhatsappNumber(data.whatsappNumber || '');
+      setFacebookLink(data.facebookLink || '');
+      setInstagramLink(data.instagramLink || '');
+      setCodAllowed(data.codAllowed || false);
     } catch (err: any) {
       setError(err.message || 'Failed to load settings');
     } finally {
@@ -47,6 +62,13 @@ export default function SettingsPage() {
         shippingRateCents: Math.round(parseFloat(shippingRate || '0') * 100),
         taxRatePercentage: parseFloat(taxRate || '0'),
         marqueeText: marqueeText || null,
+        storeName: storeName || 'Noeve Store',
+        supportEmail: supportEmail || null,
+        supportPhone: supportPhone || null,
+        whatsappNumber: whatsappNumber || null,
+        facebookLink: facebookLink || null,
+        instagramLink: instagramLink || null,
+        codAllowed,
       });
       setSuccess('Settings updated successfully');
       await loadSettings();
@@ -73,6 +95,39 @@ export default function SettingsPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900 border-b pb-2">General Settings</h2>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
+            <input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black" placeholder="Noeve Store" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Support Email</label>
+            <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black" placeholder="support@noeve.com" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Support Phone</label>
+              <input type="text" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black" placeholder="+91 98765 43210" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number</label>
+              <input type="text" value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black" placeholder="+91 98765 43210" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Facebook Link</label>
+              <input type="url" value={facebookLink} onChange={(e) => setFacebookLink(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black" placeholder="https://facebook.com/..." />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Instagram Link</label>
+              <input type="url" value={instagramLink} onChange={(e) => setInstagramLink(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black" placeholder="https://instagram.com/..." />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4 mt-8 pt-6 border-t">
           <h2 className="text-lg font-semibold text-gray-900 border-b pb-2">Shipping Rules</h2>
           
           <div>
@@ -160,6 +215,23 @@ export default function SettingsPage() {
               </div>
             </div>
             <p className="mt-1 text-xs text-gray-500">The GST or tax rate applied during checkout.</p>
+          </div>
+        </div>
+
+        <div className="space-y-4 mt-8 pt-6 border-t">
+          <h2 className="text-lg font-semibold text-gray-900 border-b pb-2">Payment Settings</h2>
+          
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="codAllowed"
+              checked={codAllowed}
+              onChange={(e) => setCodAllowed(e.target.checked)}
+              className="h-4 w-4 text-black border-gray-300 rounded focus:ring-black"
+            />
+            <label htmlFor="codAllowed" className="ml-2 block text-sm text-gray-900">
+              Allow Cash on Delivery (COD)
+            </label>
           </div>
         </div>
 
