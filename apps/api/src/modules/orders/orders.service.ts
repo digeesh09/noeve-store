@@ -131,14 +131,14 @@ export class OrdersService {
     if (fs.existsSync(logoPath)) {
       doc.image(logoPath, 50, 45, { width: 120 });
     } else {
-      doc.fillColor('#8a3744').fontSize(24).font('Helvetica-Bold').text('NOEVE', 50, 50);
+      doc.fillColor('#8a3744').fontSize(24).font('Helvetica-Bold').text(storeName.toUpperCase(), 50, 50);
     }
 
     doc
       .fillColor('#444444')
       .fontSize(10)
       .font('Helvetica')
-      .text('Noeve Studio', 200, 50, { align: 'right' })
+      .text(storeName, 200, 50, { align: 'right' })
       .text('123 Noeve Street, Design District', 200, 65, { align: 'right' })
       .text('Kerala, India 682001', 200, 80, { align: 'right' })
       .text(`Email: ${supportEmail} | Phone: ${supportPhone}`, 200, 95, { align: 'right' })
@@ -231,7 +231,7 @@ export class OrdersService {
       .fillColor('#888888')
       .fontSize(9)
       .font('Helvetica')
-      .text('Thank you for shopping with Noeve Studio.', 50, bottom + 20, { align: 'center' })
+      .text(`Thank you for shopping with ${storeName}.`, 50, bottom + 20, { align: 'center' })
       .text(`Returns are accepted within 30 days of purchase with original packaging. For support, email ${supportEmail}.`, 50, bottom + 35, { align: 'center' });
 
     doc.end();
