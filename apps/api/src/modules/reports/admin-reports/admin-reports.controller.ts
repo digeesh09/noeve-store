@@ -1,34 +1,45 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
 import { ReportsService } from '../reports.service';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
 
 @Controller('admin/reports')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ADMIN, UserRole.MANAGER)
+@Roles(UserRole.ADMIN)
 export class AdminReportsController {
-  constructor(private reportsService: ReportsService) {}
+  constructor(private readonly reportsService: ReportsService) {}
 
-  @Get('dashboard')
-  getDashboardStats() {
-    return this.reportsService.getDashboardStats();
-  }
-
-  @Get('sales')
-  getSalesData(@Query('period') period?: string) {
-    return this.reportsService.getSalesData(period || '30d');
+  @Get('sales-summary')
+  getSalesSummary(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.reportsService.getSalesSummary(startDate, endDate);
   }
 
   @Get('top-products')
   getTopProducts(@Query('limit') limit?: string) {
-    return this.reportsService.getTopProducts(limit ? parseInt(limit, 10) : 5);
+    return this.reportsService.getTopProducts(limit ? parseInt(limit, 10) : 10);
   }
 
-  @Get('inventory-alerts')
-  getInventoryAlerts() {
-    return this.reportsService.getInventoryAlerts();
+  @Get('recent-transactions')
+  getRecentTransactions(@Query('limit') limit?: string) {
+    return this.reportsService.getRecentTransactions(limit ? parseInt(limit, 10) : 10);
+  }
+
+  @Get('daily-revenue')
+  getDailyRevenue(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.reportsService.getDailyRevenue(startDate, endDate);
+  }
+
+  @Get('orders-by-status')
+  getOrdersByStatus() {
+    return this.reportsService.getOrdersByStatus();
   }
 
   @Get('user-acquisition')

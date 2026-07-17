@@ -29,6 +29,7 @@ export interface Order {
   currency: string;
   trackingNumber: string | null;
   carrier: string | null;
+  deliveryDate?: string | null;
   createdAt: string;
   lines: OrderLine[];
   statusHistory?: { note: string | null; createdAt: string }[];
