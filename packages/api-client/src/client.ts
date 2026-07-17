@@ -89,6 +89,8 @@ export class NoeveApiClient {
     placeOrder: (body?: { note?: string, promotionCode?: string, discountCents?: number }, options?: RequestInit) =>
       this.request<Order>('/store/orders', { ...options, method: 'POST', body: JSON.stringify(body || {}) }),
     getOrders: (options?: RequestInit) => this.request<Order[]>('/store/orders', options),
+    changeToCod: (orderId: string, options?: RequestInit) => 
+      this.request<Order>(`/store/orders/${orderId}/change-to-cod`, { ...options, method: 'POST' }),
 
     validatePromotion: (body: { code: string; cartTotalCents: number }, options?: RequestInit) =>
       this.request<{ discountCents: number; code: string }>('/store/orders/promotions/validate', {
