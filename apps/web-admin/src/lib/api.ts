@@ -5,6 +5,15 @@ import { NoeveApiClient } from '@noeve/api-client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/v1';
 
+
+async function fetchWithAuth(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  if (res.status === 401) {
+    apiClient.config.onUnauthorized?.();
+  }
+  return res;
+}
+
 export const apiClient = new NoeveApiClient({
   baseUrl: API_URL,
   getAccessToken: () => getAccessToken(),
@@ -90,7 +99,7 @@ export async function updateOrderStatus(orderId: string, status: string, note?: 
 export async function updateOrderDeliveryDate(orderId: string, deliveryDate: string | null): Promise<Order> {
   const token = getAccessToken();
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/v1';
-  const res = await fetch(`${API_URL}/admin/orders/${orderId}/delivery-date`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/orders/${orderId}/delivery-date`, {
     method: 'PATCH',
     headers: { 
       Authorization: `Bearer ${token}`,
@@ -305,7 +314,7 @@ export async function addSupportTicketReply(id: string, message: string) {
 export async function fetchReportsData(type: string, query: Record<string, string> = {}) {
   const params = new URLSearchParams(query).toString();
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/reports/${type}${params ? `?${params}` : ''}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/reports/${type}${params ? `?${params}` : ''}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.json();
@@ -313,7 +322,7 @@ export async function fetchReportsData(type: string, query: Record<string, strin
 
 export async function fetchInventory(threshold = 10) {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/inventory/low-stock?threshold=${threshold}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/inventory/low-stock?threshold=${threshold}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   const json = await res.json();
@@ -322,7 +331,7 @@ export async function fetchInventory(threshold = 10) {
 
 export async function fetchAllInventory(page = 1, pageSize = 20, search = '') {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/inventory?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/inventory?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.json();
@@ -330,7 +339,7 @@ export async function fetchAllInventory(page = 1, pageSize = 20, search = '') {
 
 export async function updateInventoryStock(variantId: string, quantity: number) {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/inventory/stock/${variantId}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/inventory/stock/${variantId}`, {
     method: 'PATCH',
     headers: { 
       Authorization: `Bearer ${token}`,
@@ -343,7 +352,7 @@ export async function updateInventoryStock(variantId: string, quantity: number) 
 
 export async function fetchCrmCustomers(page = 1, limit = 20, search = '') {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/crm/customers?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/crm/customers?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.json();
@@ -351,7 +360,7 @@ export async function fetchCrmCustomers(page = 1, limit = 20, search = '') {
 
 export async function fetchCrmCustomerInsights(id: string) {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/crm/customers/${id}/insights`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/crm/customers/${id}/insights`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.json();
@@ -359,7 +368,7 @@ export async function fetchCrmCustomerInsights(id: string) {
 
 export async function fetchBlogs(page = 1, pageSize = 20) {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/blogs?page=${page}&pageSize=${pageSize}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/blogs?page=${page}&pageSize=${pageSize}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.json();
@@ -367,7 +376,7 @@ export async function fetchBlogs(page = 1, pageSize = 20) {
 
 export async function createBlog(data: any) {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/blogs`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/blogs`, {
     method: 'POST',
     headers: { 
       Authorization: `Bearer ${token}`,
@@ -380,7 +389,7 @@ export async function createBlog(data: any) {
 
 export async function deleteBlog(id: string) {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/blogs/${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/blogs/${id}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` }
   });
@@ -389,7 +398,7 @@ export async function deleteBlog(id: string) {
 
 export async function fetchBlog(id: string) {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/blogs/${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/blogs/${id}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error('Failed to fetch blog');
@@ -398,7 +407,7 @@ export async function fetchBlog(id: string) {
 
 export async function updateBlog(id: string, data: any) {
   const token = getAccessToken();
-  const res = await fetch(`${API_URL}/admin/blogs/${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/admin/blogs/${id}`, {
     method: 'PATCH',
     headers: { 
       Authorization: `Bearer ${token}`,

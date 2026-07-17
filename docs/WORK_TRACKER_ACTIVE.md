@@ -314,3 +314,13 @@ http://localhost:3001/v1/admin/reports/sales-summary
 Navigated to http://localhost:3002/login?session_expired=true
 
 - [x] 104. If the API side is not accessible, we should inform customer or admin to try again. Give a professional mesasge.
+
+- [x] 105. PATCH
+       http://localhost:3001/v1/admin/orders/d7c36d00-b2ba-49e1-9ed8-cb19857d864c/delivery-date
+       [HTTP/1.1 401 Unauthorized 6ms]
+
+while trying to update the order delivery date, failed reason is session expired..
+
+message not shown as session expired and need to take to login
+
+- [ ] 106. Add one more analytic section into http://localhost:3002/dashboard/analytics
