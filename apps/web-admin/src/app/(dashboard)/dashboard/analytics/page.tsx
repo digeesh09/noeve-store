@@ -280,15 +280,15 @@ export default function AnalyticsPage() {
               <tbody>
                 {recentTransactions.slice(0, 5).map((tx) => (
                   <tr key={tx.id} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50">
-                    <td className="px-4 py-3 font-medium text-neutral-900">{tx.orderNumber}</td>
+                    <td className="px-4 py-3 font-medium text-neutral-900">{tx.order?.orderNumber || 'N/A'}</td>
                     <td className="px-4 py-3 text-neutral-500">{new Date(tx.createdAt).toLocaleDateString()}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${tx.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : tx.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${tx.status === 'SUCCESS' ? 'bg-green-100 text-green-700' : tx.status === 'FAILED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
                         {tx.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-medium text-neutral-900">
-                      ${(tx.totalCents / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      ${((tx.amountCents || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </td>
                   </tr>
                 ))}
