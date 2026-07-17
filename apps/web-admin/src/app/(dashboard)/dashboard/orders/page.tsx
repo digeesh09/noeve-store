@@ -286,9 +286,11 @@ export default function OrdersPage(): React.JSX.Element {
                                 className="rounded border-neutral-300 py-1 px-2 text-sm"
                                 value={order.deliveryDate ? new Date(order.deliveryDate).toISOString().split('T')[0] : ''}
                                 onChange={async (e) => {
+                                  const newDate = e.target.value || null;
                                   try {
                                     setUpdating(order.id);
-                                    await import('@/lib/api').then(m => m.updateOrderDeliveryDate(order.id, e.target.value || null));
+                                    const { updateOrderDeliveryDate } = await import('@/lib/api');
+                                    await updateOrderDeliveryDate(order.id, newDate);
                                     await load();
                                   } catch (err) {
                                     setError('Failed to update delivery date');
