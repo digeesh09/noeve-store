@@ -279,6 +279,27 @@ export default function OrdersPage(): React.JSX.Element {
                               </div>
                             </div>
                             
+                            <h4 className="font-semibold text-sm mb-2 mt-6 text-neutral-800">Final Delivery Date</h4>
+                            <div className="flex gap-2 items-center text-sm">
+                              <input 
+                                type="date"
+                                className="rounded border-neutral-300 py-1 px-2 text-sm"
+                                value={order.deliveryDate ? new Date(order.deliveryDate).toISOString().split('T')[0] : ''}
+                                onChange={async (e) => {
+                                  try {
+                                    setUpdating(order.id);
+                                    await import('@/lib/api').then(m => m.updateOrderDeliveryDate(order.id, e.target.value || null));
+                                    await load();
+                                  } catch (err) {
+                                    setError('Failed to update delivery date');
+                                  } finally {
+                                    setUpdating(null);
+                                  }
+                                }}
+                                disabled={updating === order.id}
+                              />
+                            </div>
+                            
                             <h4 className="font-semibold text-sm mb-2 mt-6 text-neutral-800">Shipping Address</h4>
                             {order.user?.addresses?.[0] ? (
                               <div className="text-sm text-neutral-600 space-y-1">

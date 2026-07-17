@@ -31,8 +31,23 @@ const navGroups = [
     items: [
       { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
-      { href: '/dashboard/reports', label: 'Reports', icon: FileText },
-    ]
+    ],
+  },
+  {
+    title: 'Reports',
+    items: [
+      { href: '/dashboard/reports/sales', label: 'Sales Report', icon: FileText },
+      { href: '/dashboard/reports/customer', label: 'Customer Report', icon: Users },
+      { href: '/dashboard/reports/product', label: 'Product Report', icon: Package },
+      { href: '/dashboard/reports/vendor', label: 'Vendor Report', icon: Truck },
+      { href: '/dashboard/reports/order', label: 'Order Heat Map', icon: ShoppingCart },
+      { href: '/dashboard/reports/support', label: 'Support Report', icon: LifeBuoy },
+      { href: '/dashboard/reports/shipment', label: 'Shipment Report', icon: Truck },
+      { href: '/dashboard/reports/returns', label: 'Returns Report', icon: FileText },
+      { href: '/dashboard/reports/profit-loss', label: 'Profit and Loss', icon: FileText },
+      { href: '/dashboard/reports/burnout', label: 'Work Burn Out', icon: FileText },
+      { href: '/dashboard/reports/analytics', label: 'Analytics Summary', icon: BarChart3 },
+    ],
   },
   {
     title: 'Catalog',
@@ -40,7 +55,7 @@ const navGroups = [
       { href: '/dashboard/products', label: 'Products', icon: Package },
       { href: '/dashboard/categories', label: 'Categories', icon: Tags },
       { href: '/dashboard/inventory', label: 'Inventory', icon: Boxes },
-    ]
+    ],
   },
   {
     title: 'Sales',
@@ -48,7 +63,7 @@ const navGroups = [
       { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
       { href: '/dashboard/fulfillment', label: 'Fulfillment', icon: Truck },
       { href: '/dashboard/promotions', label: 'Promotions', icon: Percent },
-    ]
+    ],
   },
   {
     title: 'Customers',
@@ -56,7 +71,7 @@ const navGroups = [
       { href: '/dashboard/crm', label: 'CRM', icon: Users },
       { href: '/dashboard/reviews', label: 'Reviews', icon: MessageSquare },
       { href: '/dashboard/support', label: 'Support', icon: LifeBuoy },
-    ]
+    ],
   },
   {
     title: 'Configuration',
@@ -64,8 +79,8 @@ const navGroups = [
       { href: '/dashboard/content', label: 'Content (CMS)', icon: PenTool },
       { href: '/dashboard/marketing', label: 'Marketing', icon: Megaphone },
       { href: '/dashboard/settings', label: 'Settings', icon: Settings },
-    ]
-  }
+    ],
+  },
 ];
 
 export default function DashboardLayout({ children }: { children: any }) {
@@ -90,9 +105,13 @@ export default function DashboardLayout({ children }: { children: any }) {
       <NextTopLoader color="#8b5cf6" showSpinner={false} height={3} />
 
       <div className="flex min-h-screen">
-        <aside className="w-64 border-r border-neutral-200 bg-white p-4 shadow-sm z-10 flex flex-col h-full sticky top-0 overflow-y-auto">
+        <aside className="w-64 border-r border-neutral-200 bg-white p-4 shadow-sm z-10 flex flex-col h-screen sticky top-0 overflow-y-auto">
           <div className="mb-8 pl-3 pt-2">
-            <img src="/images/logo.png" alt="Noeve Admin" style={{ height: '32px', width: 'auto' }} />
+            <img
+              src="/images/logo.png"
+              alt="Noeve Admin"
+              style={{ height: '32px', width: 'auto' }}
+            />
           </div>
           <nav className="space-y-6 flex-1">
             {navGroups.map((group) => (
@@ -115,8 +134,8 @@ export default function DashboardLayout({ children }: { children: any }) {
                             : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900',
                         ].join(' ')}
                       >
-                        <Icon 
-                          className={`h-4 w-4 transition-colors ${active ? 'text-violet-600' : 'text-neutral-400 group-hover:text-neutral-600'}`} 
+                        <Icon
+                          className={`h-4 w-4 transition-colors ${active ? 'text-violet-600' : 'text-neutral-400 group-hover:text-neutral-600'}`}
                           strokeWidth={active ? 2.5 : 2}
                         />
                         {item.label}
@@ -127,14 +146,17 @@ export default function DashboardLayout({ children }: { children: any }) {
               </div>
             ))}
           </nav>
-          
+
           <div className="mt-8 border-t border-neutral-100 pt-4">
             <button
               type="button"
               onClick={handleLogout}
               className="group flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-red-600"
             >
-              <LogOut className="h-4 w-4 text-neutral-400 group-hover:text-red-500" strokeWidth={2} />
+              <LogOut
+                className="h-4 w-4 text-neutral-400 group-hover:text-red-500"
+                strokeWidth={2}
+              />
               Sign out
             </button>
           </div>

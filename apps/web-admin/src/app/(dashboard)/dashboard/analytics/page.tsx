@@ -154,7 +154,7 @@ export default function AnalyticsPage() {
                   dataKey="value"
                   stroke="none"
                 >
-                  {categoryData.map((entry, index) => (
+                  {categoryData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -235,7 +235,7 @@ export default function AnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {topCustomers.map((cust, idx) => (
+                {topCustomers.map((cust) => (
                   <tr key={cust.id} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50">
                     <td className="px-4 py-3">
                       <div className="font-medium text-neutral-900">{cust.name}</div>

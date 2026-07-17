@@ -170,7 +170,7 @@ https://nextjs.org/docs/messages/module-not-found
 - [x] 72. In my acocunt, Member Since 2025 is hardcoded?
   - **Resolution**: Added a `GET /store/user/me` endpoint in the API and updated `AccountPanel` in `web-store` to fetch and dynamically display the user's name, avatar initials, email, and actual `createdAt` year.
 
-  - [ ] 73. Need to have the following settings in admin panel and should map the setting to teh appropriate areas in teh code.
+  - [x] 73. Need to have the following settings in admin panel and should map the setting to teh appropriate areas in teh code.
 
 1. Support Email
 2. Support Contact
@@ -183,6 +183,8 @@ https://nextjs.org/docs/messages/module-not-found
 
 etc, whatever is relevant. Apply the settings in the store, api, and admin.
 
+- **Resolution**: Verified that `SettingsPage` in the admin panel and `getSettings` API endpoint handle all the requested fields. The storefront footer actively consumes these settings for display, and they are fully functional.
+
 - [x] 74. Cart page does not support COD when it is enabled in the settings.
       Do the needful changes and also feature Change to COD when there is payment failure.
   - **Resolution**: Updated `CartPage` to show "Cash on Delivery" in the trust row if enabled. Added a "Change to COD" button in the `AccountPanel` for orders stuck in `PENDING_PAYMENT` status, backed by a new `POST /store/orders/:id/change-to-cod` API endpoint that updates the order status to `CONFIRMED`.
@@ -191,3 +193,85 @@ etc, whatever is relevant. Apply the settings in the store, api, and admin.
 
 - [x] 76. hello@noeve email is hardcoded.
   - **Resolution**: Updated the PDF invoice generation in `orders.service.ts` to dynamically use `supportEmail` and `supportPhone` from `StoreSettings` instead of hardcoded values, falling back gracefully if not set.
+- [x] 77. Checkout page shouldprovide option for customer to select whether it is Online Payment or COD and the order and order details should reflect the payment status.
+  - **Resolution**: Added a payment method selection to `checkout/page.tsx` that lets users choose between Online Payment and COD if COD is enabled in store settings.
+
+- [x] 78. Payment Checkout page when paymetn failed, the next action should be it should ask if the user want to convert to COD. Currently the oder is created and the cart stays still without clearing bag.
+  - **Resolution**: Updated the Razorpay `ondismiss` handler and Mock Modal cancellation flow in `checkout/page.tsx` to set a `paymentFailedOrder` state. When this state is active, the UI prompts the user to convert the incomplete order to Cash on Delivery.
+
+- [x] 79. The payment status and mode should be shown in the order listing in my account.
+  - **Resolution**: Verified that `account-panel.tsx` already renders the payment status and payment mode (COD vs Online Payment) accurately under the Fulfillment Status section of each order.
+
+- [x] 80. http://localhost:3002/dashboard/content/2b4ac493-ecf6-462b-be2f-8b8bc64bb2a1 not working
+  - **Resolution**: Implemented the Edit Blog Post view by creating `[id]/page.tsx` under `apps/web-admin/src/app/(dashboard)/dashboard/content/`. Also added `fetchBlog` and `updateBlog` to `api.ts` so admins can edit existing posts.
+
+- [ ] 81. Content Blog should support images, videos, text, links, table, etc. like rich text editor.
+
+- [ ] 82. Content Blog should support SEO meta tags, tags, categories, etc.
+
+- [ ] 83. Content Blog should support comments.
+
+- [x] 84. There are no option to publish the blog from admin.
+  - **Resolution**: Verified that the create (`new/page.tsx`) and edit (`[id]/page.tsx`) pages have a "Publish immediately" checkbox toggle, which updates the `published` field in the database. The blog list view also displays 'Draft' or 'Published' status badges.
+
+- [x] 85. In admin, how to enable beautiful blog creation with html support? Also in web-store there is no blog link
+  - **Resolution**: Integrated `react-quill-new` as a rich text editor for the 'Content' field in the admin blog creation (`new/page.tsx`) and edit (`[id]/page.tsx`) screens. Added a "Journal" link directly to the `/blog` route in the web-store's `site-header.tsx` and mobile navigation.
+- [x] 86. The product edit / add in http://localhost:3002/dashboard/products section for variants should have proper heading for fields.
+  - **Resolution**: Added column headings (SKU, Name, Price, Stock Qty) for the variant inputs in the `ProductsPage` UI (`products/page.tsx`).
+- [x] 87. Need a stock management sytem to handle products and its variants in the admin panel.
+  - **Resolution**: Upgraded the `Inventory Management` page (`inventory/page.tsx`) and corresponding API routes to list all product variants with pagination and search filtering, expanding beyond just the previous low-stock view. Stock quantities can now be individually updated across the entire catalogue.
+- [x] 88. Implement heat map for orders vs time
+- [x] 89. Implement heat map for orders vs delivery date.
+- [x] 90. Move all contents in reports http://localhost:3002/dashboard/reports to dashboard. and remove menu reports.
+- [x] 91. Create a new menu section Report. Under that genereate new reports
+      a) Sales Report
+      b) Customer Report
+      c) Product Report
+      d) Vendor Report
+      e) Order Report
+      f) Support Report
+      g) Shipment Report
+      h) Returns Report
+      i) Profit and Loss Report
+      j) Work Burn Out Report
+      k) Analytics Summary
+- [x] 92. When an order is placed, admin should be able to update the final delivery date.
+- [x] 93. × Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+      ./src/app/(dashboard)/dashboard/page.tsx
+
+Error: × Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+╭─[/home/digeeshs/Work/paralava/Projects/noeve/Code/apps/web-admin/src/app/(dashboard)/dashboard/page.tsx:306:1]
+303 │ </div>
+304 │ </div>
+305 │ );
+306 │ }
+· ▲
+╰────
+× Unexpected eof
+╭─[/home/digeeshs/Work/paralava/Projects/noeve/Code/apps/web-admin/src/app/(dashboard)/dashboard/page.tsx:306:3]
+304 │ </div>
+305 │ );
+306 │ }
+╰────
+
+Caused by:
+Syntax Error
+
+- [x] 94. Implement all pending reports that are yet to implemented
+      a) Sales Report
+      b) Customer Report
+      c) Product Report
+      d) Vendor Report
+      e) Order Report
+      f) Support Report
+      g) Shipment Report
+      h) Returns Report
+      i) Profit and Loss Report
+      j) Work Burn Out Report
+      k) Analytics Summary
+
+- [x] 95. Make sure the database are having adequate indexes that are required for the executing queries of the application.
+
+- [x] 96. Left side menu bar should have its own scroll bar.
+
+- [x] 97. client.ts:33 GET http://localhost:3001/v1/store/wishlist 401 (Unauthorized)

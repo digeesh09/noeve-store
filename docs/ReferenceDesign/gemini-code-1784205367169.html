@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noeve — Where Fashion Finds Its Nerve</title>
+    <style>
+        :root {
+            --bg-color: #FAF8F5; /* Signature Noeve warm off-white */
+            --text-color: #111111;
+            --text-muted: #666666;
+            --border-color: #E6E2DC;
+            --accent-color: #8E7A68;
+            --font-serif: "Times New Roman", "Playfair Display", Georgia, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            letter-spacing: 0.03em;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Announcement Bar */
+        .announcement-bar {
+            background-color: #111111;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            font-weight: 500;
+        }
+
+        /* Luxury Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background-color: rgba(250, 248, 245, 0.95);
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1rem 1.5rem; }
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.6;
+        }
+
+        .bag-indicator {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 1px solid var(--text-color);
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+
+        /* Page Layout & Containers */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+
+        /* Hero / Introduction */
+        .hero {
+            padding: 6rem 4rem 4rem 4rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 4rem 1.5rem 2.5rem 1.5rem; }
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 400;
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.2rem; }
+        }
+
+        .hero-meta {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .intro-lead {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            max-width: 800px;
+            margin: 0 auto;
+            font-weight: 300;
+            color: var(--text-muted);
+        }
+
+        /* Editorial Grid Sections */
+        .editorial-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .editorial-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .row-text {
+            padding: 5rem 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .row-text { padding: 3rem 1.5rem; }
+        }
+
+        .row-text h2 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .row-text p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .row-image {
+            position: relative;
+            background-color: #EBE8E3;
+            overflow: hidden;
+            min-height: 450px;
+        }
+
+        .row-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .border-left {
+            border-left: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .border-left {
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
+        }
+
+        /* Large Pull Quote & Statement Section */
+        .quote-block {
+            padding: 6rem 4rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #FFFFFF;
+        }
+
+        @media (max-width: 768px) {
+            .quote-block { padding: 4rem 1.5rem; }
+        }
+
+        .quote-block blockquote {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            line-height: 1.5;
+            max-width: 850px;
+            margin: 0 auto;
+            font-style: italic;
+            color: #111;
+        }
+
+        .quote-block span {
+            display: block;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        /* Curated Collection Highlight Grid */
+        .featured-header {
+            padding: 3rem 4rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .featured-header {
+                padding: 2rem 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        .featured-header h3 {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .featured-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .product-card {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .product-card { padding: 1.5rem; }
+        }
+
+        .product-card img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4/5;
+            object-fit: cover;
+            margin-bottom: 1.5rem;
+            background-color: #EBE8E3;
+        }
+
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .product-price {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .product-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Large Dynamic Footer / CTA */
+        .brand-uprising-section {
+            padding: 8rem 4rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .brand-uprising-section { padding: 5rem 1.5rem; }
+        }
+
+        .uprising-title {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+        }
+
+        .uprising-p {
+            max-width: 650px;
+            margin: 0 auto 3rem auto;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        .noeve-button {
+            display: inline-block;
+            background-color: var(--text-color);
+            color: #FFFFFF;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.25em;
+            padding: 1.25rem 3.5rem;
+            border: 1px solid var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .noeve-button:hover {
+            background-color: transparent;
+            color: var(--text-color);
+        }
+
+        /* Minimalistic Footer */
+        footer {
+            padding: 4rem 3rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            background-color: #FFFFFF;
+        }
+
+        .footer-logo {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-color);
+        }
+
+        .copyright {
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            color: #999999;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="announcement-bar">
+        CONSIDERED APPAREL, BEAUTY AND HOME — FEWER PIECES. FINER ONES.
+    </div>
+
+    <header>
+        <a href="https://www.noeve.store" class="logo" target="_blank">Noeve</a>
+        <nav class="nav-links">
+            <a href="https://www.noeve.store" class="nav-link" target="_blank">Apparel</a>
+            <a href="https://www.noeve.store" class="nav-link" target="_blank">Beauty</a>
+            <a href="https://www.noeve.store" class="nav-link" target="_blank">Lifestyle</a>
+            <span class="bag-indicator">Bag (0)</span>
+        </nav>
+    </header>
+
+    <div class="container">
+        
+        <!-- Hero Section -->
+        <section class="hero">
+            <span class="hero-meta">No. 026 — The Journal</span>
+            <h1 class="hero-title">Where Fashion Finds Its Nerve</h1>
+            <p class="intro-lead">
+                There's a particular kind of quiet before something new breaks through — the pause before a match strikes, the breath before a first step. That's where Noeve lives. Not the loud middle of the fashion conversation, but the electric edge of it.
+            </p>
+        </section>
+
+        <!-- Section 1: A Name with Intent -->
+        <section class="editorial-row">
+            <div class="row-image">
+                <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop" alt="The Minimalist Silhouettes of Noeve">
+            </div>
+            <div class="row-text border-left">
+                <h2>A Name With Intent</h2>
+                <p>Noeve isn't just a word we picked because it sounded good — though it does. It carries the spirit of "nouveau," the new, fused with an edge that feels handmade, human, and just a little rebellious.</p>
+                <p>We didn't want to build another label that chases trends. We wanted to build one that starts them.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: In-Between Generation -->
+        <section class="editorial-row" style="direction: rtl;">
+            <div class="row-image">
+                <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop" alt="Architectural design cuts by Noeve">
+            </div>
+            <div class="row-text border-left" style="direction: ltr;">
+                <h2>Fashion for the In-Between Generation</h2>
+                <p>Noeve exists for the people who don't fit neatly into a single aesthetic box. The ones who pair vintage denim with architectural tailoring. Who see a blazer as armor and a slip dress as a statement.</p>
+                <p>Who understand that personal style isn't about following a formula — it's about editing the world down to what feels true. Every piece we design starts with a question: <em>does this make someone feel more like themselves, or less?</em> If the answer isn't an immediate yes, it doesn't make the cut.</p>
+            </div>
+        </section>
+
+        <!-- Pull Quote Segment -->
+        <section class="quote-block">
+            <blockquote>
+                "This isn't nostalgia for the 'old ways.' It's a bet that quality, honesty, and a little bit of soul will always outlast the algorithm."
+            </blockquote>
+            <span>— The Noeve Studio</span>
+        </section>
+
+        <!-- Section 3: Craft Over Noise -->
+        <section class="editorial-row">
+            <div class="row-text">
+                <h2>Craft Over Noise</h2>
+                <p>In an industry often obsessed with speed — more drops, more content, more churn — Noeve is choosing something slower and sturdier. We work with small-batch production, thoughtfully sourced fabrics, and pattern-making that respects the body it's meant to move with.</p>
+                <p>Our garments are built to be worn hard and loved longer, not discarded after a single season's scroll.</p>
+            </div>
+            <div class="row-text border-left">
+                <h2>The Uprising Isn't Loud — It's Deliberate</h2>
+                <p>People sometimes assume an "uprising" brand needs to shout. Ours doesn't. Our rebellion is quieter than that: it's in choosing fewer, better pieces. In refusing to overproduce.</p>
+                <p>In treating our community not as an audience to be sold to, but as collaborators shaping what comes next. Every collection is a conversation. We watch what our community wears, remixes, and reimagines — and we build the next chapter from there.</p>
+            </div>
+        </section>
+
+        <!-- Inspired Looks Product Highlight -->
+        <div class="featured-header">
+            <h3>Featured Silhouette Inspiration</h3>
+            <a href="https://www.noeve.store" class="nav-link" target="_blank" style="font-weight: 600;">View All Pieces &rarr;</a>
+        </div>
+        <section class="featured-grid">
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1505022610485-0249ba5b3675?q=80&w=600&auto=format&fit=crop" alt="Noeve Silk Column Shirt Preview">
+                <div class="product-info">
+                    <span class="product-title">The Silk Column Shirt</span>
+                    <span class="product-price">$185</span>
+                </div>
+                <span class="product-desc">Mulberry Silk — Morning Fog Hue</span>
+            </div>
+            <div class="product-card border-left">
+                <img src="https://images.unsplash.com/photo-1549064492-cc28d9df9f9f?q=80&w=600&auto=format&fit=crop" alt="Noeve Wool Blend Trouser Preview">
+                <div class="product-info">
+                    <span class="product-title">Tailored Wide-Leg Trouser</span>
+                    <span class="product-price">$210</span>
+                </div>
+                <span class="product-desc">Wool Blend — Charcoal City Hue</span>
+            </div>
+        </section>
+
+        <!-- Final Statement & CTA -->
+        <section class="brand-uprising-section">
+            <span class="hero-meta">What's Next</span>
+            <h2 class="uprising-title">The Uprising has Already Begun.</h2>
+            <p class="uprising-p">
+                This season, Noeve steps further into pieces that blur the line between everyday and elevated: fluid silhouettes, tactile textures, and colors pulled from unexpected places — the hush of early morning fog, the flicker of city lights just past dusk.
+            </p>
+            <a href="https://www.noeve.store" class="noeve-button" target="_blank">Explore The Latest Edit</a>
+        </section>
+
+    </div>
+
+    <!-- Minimal Footer matching store -->
+    <footer>
+        <div class="footer-logo">Noeve</div>
+        <div class="footer-links">
+            <a href="https://www.noeve.store" target="_blank">Shop</a>
+            <a href="https://www.noeve.store" target="_blank">About</a>
+            <a href="https://www.noeve.store" target="_blank">Journal</a>
+            <a href="https://www.noeve.store" target="_blank">Support</a>
+        </div>
+        <p class="copyright">&copy; 2026 NOEVE. CONSIDERED APPAREL, BEAUTY &amp; LIFESTYLE.</p>
+    </footer>
+
+</body>
+</html>

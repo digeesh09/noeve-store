@@ -270,6 +270,15 @@ export default function ProductsPage(): React.JSX.Element {
                   + Add Variant
                 </button>
               </div>
+              {variants.length > 0 && (
+                <div className="flex gap-2 mb-2 px-1 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                  <div className="w-1/4">SKU</div>
+                  <div className="w-1/4">Name</div>
+                  <div className="w-1/4">Price</div>
+                  <div className="w-1/4">Stock Qty</div>
+                  <div className="px-2 w-6"></div>
+                </div>
+              )}
               {variants.map((v, idx) => (
                 <div key={idx} className="flex gap-2 mb-2 items-center">
                   <input type="text" placeholder="SKU" required value={v.sku} onChange={e => {

@@ -68,4 +68,12 @@ export class AdminOrdersController {
     );
   }
 
+  @Patch(':id/delivery-date')
+  @Roles(UserRole.ADMIN, UserRole.FULFILLMENT)
+  updateDeliveryDate(
+    @Param('id') id: string,
+    @Body() body: { deliveryDate: string | null },
+  ) {
+    return this.orders.updateDeliveryDate(id, body.deliveryDate ? new Date(body.deliveryDate) : null);
+  }
 }

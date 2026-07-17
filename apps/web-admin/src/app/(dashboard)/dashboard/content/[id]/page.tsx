@@ -1,25 +1,52 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBlog } from '@/lib/api';
+import { fetchBlog, updateBlog } from '@/lib/api';
+import { use } from 'react';
 import dynamic from 'next/dynamic';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 import 'react-quill-new/dist/quill.snow.css';
 
-export default function NewPostPage() {
+export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { id } = use(params);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
-    author: 'Admin',
+    author: '',
     excerpt: '',
     content: '',
     published: false,
   });
+
+  useEffect(() => {
+    loadPost();
+  }, [id]);
+
+  const loadPost = async () => {
+    setLoading(true);
+    try {
+      const res = await fetchBlog(id);
+      setFormData({
+        title: res.data?.title || '',
+        slug: res.data?.slug || '',
+        author: res.data?.author || 'Admin',
+        excerpt: res.data?.excerpt || '',
+        content: res.data?.content || '',
+        published: res.data?.published || false,
+      });
+    } catch (err) {
+      console.error(err);
+      alert('Failed to load post');
+      router.push('/dashboard/content');
+    }
+    setLoading(false);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -31,20 +58,24 @@ export default function NewPostPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     try {
-      await createBlog(formData);
+      await updateBlog(id, formData);
       router.push('/dashboard/content');
     } catch (err) {
       console.error(err);
-      alert('Failed to create post');
-      setLoading(false);
+      alert('Failed to update post');
+      setSaving(false);
     }
   };
 
+  if (loading) {
+    return <div className="p-8">Loading...</div>;
+  }
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold tracking-tight">Create Blog Post</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Edit Blog Post</h1>
 
       <form onSubmit={handleSubmit}>
         <div className="rounded-lg border border-neutral-200 bg-white">
@@ -142,10 +173,10 @@ export default function NewPostPage() {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={saving}
               className="inline-flex items-center justify-center rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white shadow hover:bg-brand-primaryDark disabled:opacity-50"
             >
-              {loading ? 'Saving...' : 'Save Post'}
+              {saving ? 'Saving...' : 'Update Post'}
             </button>
           </div>
         </div>

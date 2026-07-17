@@ -49,6 +49,11 @@ export default function CheckoutPage(): React.JSX.Element {
   const [showMockModal, setShowMockModal] = useState(false);
   const [paymentSession, setPaymentSession] = useState<any>(null);
   const [currentOrder, setCurrentOrder] = useState<any>(null);
+  
+  const [paymentFailedOrder, setPaymentFailedOrder] = useState<any>(null);
+
+  const [codAllowed, setCodAllowed] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
 
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -62,6 +67,10 @@ export default function CheckoutPage(): React.JSX.Element {
           else if (addrs.length > 0) setSelectedAddressId(addrs[0].id);
         })
         .catch(console.error);
+
+      apiClient.store.getSettings?.().then((res: any) => {
+          setCodAllowed(res.data?.codAllowed || false);
+      }).catch(console.error);
     }
   }, [router]);
 
@@ -132,6 +141,18 @@ export default function CheckoutPage(): React.JSX.Element {
       );
       setCurrentOrder(order);
 
+      if (paymentMethod === 'COD') {
+        try {
+          await apiClient.store.changeToCod({ orderId: order.id });
+          await refresh();
+          setSuccess(order.orderNumber);
+        } catch (err: any) {
+          setError(err?.message || 'Failed to convert to COD');
+        }
+        setSubmitting(false);
+        return;
+      }
+
       // 2. Create Payment Session on API
       const sessionRes = await apiClient.store.createPaymentSession({ orderId: order.id });
       const session = sessionRes.data;
@@ -183,6 +204,7 @@ export default function CheckoutPage(): React.JSX.Element {
           modal: {
             ondismiss: function () {
               setSubmitting(false);
+              setPaymentFailedOrder(order);
             },
           },
         };
@@ -213,6 +235,22 @@ export default function CheckoutPage(): React.JSX.Element {
       setSuccess(currentOrder.orderNumber);
     } catch (err: any) {
       setError(err?.message || 'Verification of mock payment failed');
+      setPaymentFailedOrder(currentOrder);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleConvertToCod = async () => {
+    if (!paymentFailedOrder) return;
+    setSubmitting(true);
+    try {
+      await apiClient.store.changeToCod({ orderId: paymentFailedOrder.id });
+      await refresh();
+      setSuccess(paymentFailedOrder.orderNumber);
+      setPaymentFailedOrder(null);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to convert to COD');
     } finally {
       setSubmitting(false);
     }
@@ -266,6 +304,37 @@ export default function CheckoutPage(): React.JSX.Element {
           <div className="auth__success-actions">
             <Link href="/shop" className="btn btn--primary">
               Browse collection
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (paymentFailedOrder) {
+    return (
+      <div className="wrap" style={{ padding: '6rem 0', textAlign: 'center' }}>
+        <div className="auth__success is-visible">
+          <div className="auth__success-icon" style={{ borderColor: 'var(--oxblood)', color: 'var(--oxblood)' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2>Payment Incomplete</h2>
+          <p>
+            The payment for your order <strong>{paymentFailedOrder.orderNumber}</strong> was not completed.
+          </p>
+          <p style={{ marginTop: '1rem', color: 'rgba(33,29,25,.7)' }}>
+            Would you like to convert this order to Cash on Delivery?
+          </p>
+          <div className="auth__success-actions" style={{ marginTop: '2rem' }}>
+            {codAllowed && (
+              <button onClick={handleConvertToCod} disabled={submitting} className="btn btn--primary">
+                {submitting ? 'Converting...' : 'Yes, Change to COD'}
+              </button>
+            )}
+            <Link href="/account" className="btn btn--outline">
+              No, View My Orders
             </Link>
           </div>
         </div>
@@ -691,6 +760,34 @@ export default function CheckoutPage(): React.JSX.Element {
             </p>
           )}
 
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h4 style={{ fontSize: '.9rem', marginBottom: '.5rem', fontFamily: 'var(--display)' }}>Payment Method</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontSize: '.85rem' }}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="ONLINE"
+                  checked={paymentMethod === 'ONLINE'}
+                  onChange={() => setPaymentMethod('ONLINE')}
+                />
+                Online Payment (Razorpay)
+              </label>
+              {codAllowed && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontSize: '.85rem' }}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="COD"
+                    checked={paymentMethod === 'COD'}
+                    onChange={() => setPaymentMethod('COD')}
+                  />
+                  Cash on Delivery
+                </label>
+              )}
+            </div>
+          </div>
+
           <button
             type="button"
             disabled={submitting}
@@ -722,6 +819,8 @@ export default function CheckoutPage(): React.JSX.Element {
                 </svg>{' '}
                 Processing…
               </>
+            ) : paymentMethod === 'COD' ? (
+              'Place Order'
             ) : (
               'Place Order & Pay'
             )}
@@ -815,11 +914,48 @@ export default function CheckoutPage(): React.JSX.Element {
                 onClick={() => {
                   setShowMockModal(false);
                   setSubmitting(false);
+                  setPaymentFailedOrder(currentOrder);
                 }}
                 className="btn btn--outline"
                 style={{ width: '100%' }}
               >
                 Cancel Transaction
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Failed / Conversion Modal */}
+      {paymentFailedOrder && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(33, 29, 25, 0.5)',
+          }}
+        >
+          <div
+            style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '2px',
+              maxWidth: '400px',
+              textAlign: 'center',
+            }}
+          >
+            <h3>Payment Discontinued</h3>
+            <p style={{ margin: '1rem 0' }}>Would you like to switch this order to Cash on Delivery?</p>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button onClick={() => handleConvertToCod(paymentFailedOrder.id)} className="btn btn--primary">
+                Switch to COD
+              </button>
+              <button onClick={() => setPaymentFailedOrder(null)} className="btn btn--outline">
+                Cancel
               </button>
             </div>
           </div>

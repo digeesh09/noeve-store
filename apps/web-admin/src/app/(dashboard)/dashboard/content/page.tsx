@@ -13,9 +13,10 @@ export default function ContentPage() {
     setLoading(true);
     try {
       const res = await fetchBlogs();
-      setPosts(res.data);
+      setPosts(res.data || []);
     } catch (err) {
       console.error(err);
+      setPosts([]);
     }
     setLoading(false);
   };
@@ -53,7 +54,7 @@ export default function ContentPage() {
         <div className="p-6">
           {loading ? (
             <p>Loading posts...</p>
-          ) : posts.length === 0 ? (
+          ) : !posts || posts.length === 0 ? (
             <div className="py-12 text-center text-neutral-500">
               <p>No blog posts found.</p>
               <Link href="/dashboard/content/new" className="text-brand-primary hover:underline mt-2 inline-block">Create your first post</Link>

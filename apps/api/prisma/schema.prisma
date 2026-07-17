@@ -106,6 +106,7 @@ model Address {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("addresses")
 }
 
@@ -123,6 +124,7 @@ model Category {
 
   products Product[]
 
+  @@index([slug])
   @@map("categories")
 }
 
@@ -155,6 +157,8 @@ model Product {
   wishlistItems WishlistItem[]
   reviews       Review[]
 
+  @@index([categoryId])
+  @@index([slug])
   @@map("products")
 }
 
@@ -167,6 +171,7 @@ model ProductImage {
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  @@index([productId])
   @@map("product_images")
 }
 
@@ -187,6 +192,8 @@ model ProductVariant {
   kitParent       KitComponent[]   @relation("KitParent")
   kitChild        KitComponent[]   @relation("KitChild")
 
+  @@index([productId])
+  @@index([sku])
   @@map("product_variants")
 }
 
@@ -232,6 +239,7 @@ model Order {
   trackingNumber String?     @map("tracking_number")
   carrier        String?
   isPickup       Boolean     @default(false) @map("is_pickup")
+  deliveryDate   DateTime?   @map("delivery_date")
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @updatedAt @map("updated_at")
 
@@ -243,6 +251,9 @@ model Order {
   rmas          RMA[]
   serialNumbers SerialNumber[]
 
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
   @@map("orders")
 }
 
@@ -260,6 +271,8 @@ model OrderLine {
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
   rmaLines RMALine[]
 
+  @@index([orderId])
+  @@index([productId])
   @@map("order_lines")
 }
 
@@ -353,6 +366,8 @@ model Review {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([productId])
+  @@index([userId])
   @@map("reviews")
 }
 
@@ -370,6 +385,8 @@ model SupportTicket {
   user    User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
   replies SupportTicketReply[]
 
+  @@index([userId])
+  @@index([status])
   @@map("support_tickets")
 }
 
@@ -382,6 +399,7 @@ model SupportTicketReply {
 
   ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 
+  @@index([ticketId])
   @@map("support_ticket_replies")
 }
 

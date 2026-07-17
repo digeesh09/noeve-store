@@ -11,6 +11,17 @@ import { UserRole } from '@prisma/client';
 export class AdminInventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
+  @Get()
+  getAllInventory(
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('search') search?: string
+  ) {
+    const p = page ? parseInt(page, 10) : 1;
+    const ps = pageSize ? parseInt(pageSize, 10) : 20;
+    return this.inventoryService.getAllInventory(p, ps, search || '');
+  }
+
   @Get('low-stock')
   getLowStockProducts(@Query('threshold') threshold?: string) {
     return this.inventoryService.getLowStockProducts(threshold ? parseInt(threshold, 10) : 10);

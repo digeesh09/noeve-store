@@ -34,6 +34,10 @@ export interface Order {
   statusHistory?: { note: string | null; createdAt: string }[];
   discountCents?: number;
   promotionCode?: string | null;
+  payment?: {
+    status: string;
+    provider: string;
+  };
 }
 
 export async function placeOrder(

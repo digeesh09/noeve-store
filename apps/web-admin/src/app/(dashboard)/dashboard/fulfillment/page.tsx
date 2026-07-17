@@ -15,7 +15,7 @@ export default function FulfillmentPage(): React.JSX.Element {
 
   // Print Label state — we no longer use in-page DOM; we open a popup window.
   // labelOrder kept only for triggering the QR canvas generation.
-  const [labelOrder, setLabelOrder] = useState<Order | null>(null);
+  const [, setLabelOrder] = useState<Order | null>(null);
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   
   // Tracking form state

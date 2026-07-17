@@ -254,7 +254,14 @@ export function AccountPanel(): React.JSX.Element {
                       <div className="order-meta" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div>
                           <h4 style={{ fontSize: '.9rem', fontWeight: 600, marginBottom: '.25rem' }}>Fulfillment Status</h4>
-                          <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.8)' }}>{order.status}</p>
+                          <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.8)', marginBottom: '.75rem' }}>{order.status}</p>
+                          <h4 style={{ fontSize: '.9rem', fontWeight: 600, marginBottom: '.25rem' }}>Payment</h4>
+                          <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.8)' }}>
+                            {order.payment?.provider === 'COD' ? 'Cash on Delivery' : 'Online Payment'}
+                            <span style={{ display: 'inline-block', marginLeft: '.5rem', padding: '.1rem .4rem', background: 'rgba(33,29,25,.05)', borderRadius: '4px', fontSize: '.75rem' }}>
+                              {order.payment?.status || 'PENDING'}
+                            </span>
+                          </p>
                           {order.trackingNumber && (
                             <div style={{
                               marginTop: '.75rem',

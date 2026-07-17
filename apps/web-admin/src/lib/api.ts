@@ -60,6 +60,11 @@ export interface Order {
   user?: OrderUser;
   discountCents?: number;
   promotionCode?: string | null;
+  payment?: {
+    status: string;
+    provider: string;
+  };
+  deliveryDate?: string | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -80,6 +85,22 @@ export async function fetchOrders(status?: string, page = 1, pageSize = 20): Pro
 export async function updateOrderStatus(orderId: string, status: string, note?: string, trackingNumber?: string, carrier?: string): Promise<Order> {
   const res = await apiClient.admin.updateOrderStatus(orderId, { status, note });
   return res.data as unknown as Order;
+}
+
+export async function updateOrderDeliveryDate(orderId: string, deliveryDate: string | null): Promise<Order> {
+  const token = getAccessToken();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/v1';
+  const res = await fetch(`${API_URL}/admin/orders/${orderId}/delivery-date`, {
+    method: 'PATCH',
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ deliveryDate })
+  });
+  if (!res.ok) throw new Error('Failed to update delivery date');
+  const json = await res.json();
+  return json.data as unknown as Order;
 }
 
 export interface ProductImage {
@@ -299,6 +320,14 @@ export async function fetchInventory(threshold = 10) {
   return Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
 }
 
+export async function fetchAllInventory(page = 1, pageSize = 20, search = '') {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/inventory?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+
 export async function updateInventoryStock(variantId: string, quantity: number) {
   const token = getAccessToken();
   const res = await fetch(`${API_URL}/admin/inventory/stock/${variantId}`, {
@@ -354,6 +383,28 @@ export async function deleteBlog(id: string) {
   const res = await fetch(`${API_URL}/admin/blogs/${id}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
+
+export async function fetchBlog(id: string) {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/blogs/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) throw new Error('Failed to fetch blog');
+  return res.json();
+}
+
+export async function updateBlog(id: string, data: any) {
+  const token = getAccessToken();
+  const res = await fetch(`${API_URL}/admin/blogs/${id}`, {
+    method: 'PATCH',
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
   });
   return res.json();
 }

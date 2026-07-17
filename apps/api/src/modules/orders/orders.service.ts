@@ -33,7 +33,7 @@ export class OrdersService {
     const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
         where,
-        include: { lines: true, statusHistory: { orderBy: { createdAt: 'asc' } } },
+        include: { lines: true, payment: true, statusHistory: { orderBy: { createdAt: 'asc' } } },
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' },
@@ -76,6 +76,7 @@ export class OrdersService {
         where,
         include: {
           lines: true,
+          payment: true,
           user: {
             select: {
               id: true,
@@ -102,7 +103,7 @@ export class OrdersService {
   async getById(id: string, userId?: string) {
     const order = await this.prisma.order.findFirst({
       where: userId ? { id, userId } : { id },
-      include: { lines: true, statusHistory: { orderBy: { createdAt: 'asc' } } },
+      include: { lines: true, payment: true, statusHistory: { orderBy: { createdAt: 'asc' } } },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -297,6 +298,22 @@ export class OrdersService {
     return { data: updated };
   }
 
+  async updateDeliveryDate(orderId: string, deliveryDate: Date | null) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId }
+    });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id: orderId },
+      data: { deliveryDate }
+    });
+
+    return { data: updated };
+  }
+
   async createFromCart(userId: string, sessionId: string | undefined, input: PlaceOrderInput) {
     const { note } = placeOrderSchema.parse(input);
 
@@ -386,6 +403,14 @@ export class OrdersService {
               createdBy: userId,
             },
           },
+          payment: isCod ? {
+            create: {
+              amountCents: totalCents,
+              currency,
+              status: 'PENDING',
+              provider: 'COD',
+            }
+          } : undefined,
         },
         include: { lines: true, statusHistory: true },
       });
@@ -502,6 +527,20 @@ export class OrdersService {
             status: OrderStatus.CONFIRMED,
             note: 'Payment method changed to Cash on Delivery',
             createdBy: userId,
+          },
+        },
+        payment: {
+          upsert: {
+            create: {
+              amountCents: order.totalCents,
+              currency: order.currency,
+              status: 'PENDING',
+              provider: 'COD',
+            },
+            update: {
+              provider: 'COD',
+              status: 'PENDING',
+            },
           },
         },
       },

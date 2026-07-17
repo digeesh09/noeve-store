@@ -13,7 +13,7 @@ const nav = [
   { href: '/shop?category=apparel', label: 'Apparel' },
   { href: '/shop?category=jewellery', label: 'Jewellery' },
   { href: '/shop?category=beauty', label: 'Beauty' },
-  { href: '/#newsletter', label: 'Journal' },
+  { href: '/blog', label: 'Journal' },
   { href: '/support', label: 'Contact' },
 ];
 
@@ -83,7 +83,7 @@ export function SiteHeader(): React.JSX.Element {
             <MegaMenu />
             <Link href="/shop" className="nav__link">The Edit</Link>
             <Link href="/#edit" className="nav__link">Trending</Link>
-            <Link href="/#newsletter" className="nav__link">Journal</Link>
+            <Link href="/blog" className="nav__link">Journal</Link>
             <Link href="/support" className="nav__link">Contact</Link>
           </nav>
 

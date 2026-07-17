@@ -21,6 +21,38 @@ export class InventoryService {
     });
   }
 
+  async getAllInventory(page = 1, pageSize = 20, search = '') {
+    const where: any = {
+      product: { status: { not: ProductStatus.ARCHIVED } }
+    };
+    if (search) {
+      where.OR = [
+        { sku: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { product: { name: { contains: search, mode: 'insensitive' } } }
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.productVariant.findMany({
+        where,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          product: { select: { id: true, name: true, slug: true, status: true } }
+        },
+        orderBy: [
+          { product: { name: 'asc' } },
+          { sku: 'asc' }
+        ]
+      }),
+      this.prisma.productVariant.count({ where })
+    ]);
+    return {
+      data,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }
+    };
+  }
+
   async updateStock(variantId: string, quantity: number) {
     const variant = await this.prisma.productVariant.findUnique({ where: { id: variantId } });
     if (!variant) throw new NotFoundException('Variant not found');

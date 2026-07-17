@@ -23,7 +23,20 @@ export function clearAccessToken() {
 }
 
 export function isLoggedIn(): boolean {
-  return !!getAccessToken();
+  const token = getAccessToken();
+  if (!token) return false;
+  try {
+    const payloadBase64 = token.split('.')[1];
+    if (!payloadBase64) return false;
+    const payload = JSON.parse(atob(payloadBase64));
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      clearAccessToken();
+      return false;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 export function authHeaders(): Record<string, string> {
