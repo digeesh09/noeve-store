@@ -51,4 +51,9 @@ export class AdminReportsController {
   getTopCustomers(@Query('limit') limit?: string) {
     return this.reportsService.getTopCustomers(limit ? parseInt(limit, 10) : 5);
   }
+
+  @Get('product-heatmap')
+  getProductHeatmap() {
+    return this.reportsService.getProductHeatmap();
+  }
 }

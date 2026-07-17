@@ -223,4 +223,56 @@ export class ReportsService {
     });
     return stats.map(s => ({ status: s.status, count: s._count.id }));
   }
+
+  async getProductHeatmap() {
+    const end = new Date();
+    const start = new Date();
+    start.setMonth(end.getMonth() - 5); // last 6 months
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+
+    const orderLines = await this.prisma.orderLine.findMany({
+      where: {
+        order: {
+          createdAt: { gte: start, lte: end },
+          status: { notIn: [OrderStatus.PENDING_PAYMENT, OrderStatus.CANCELLED, OrderStatus.REFUNDED] }
+        }
+      },
+      include: {
+        order: { select: { createdAt: true } }
+      }
+    });
+
+    const productsSet = new Set<string>();
+    const monthsSet = new Set<string>();
+    const dataMap: Record<string, Record<string, number>> = {};
+
+    for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 1)) {
+      monthsSet.add(d.toISOString().substring(0, 7));
+    }
+    const months = Array.from(monthsSet).sort();
+
+    for (const line of orderLines) {
+      const pName = line.productName;
+      const monthKey = line.order.createdAt.toISOString().substring(0, 7);
+      
+      productsSet.add(pName);
+      if (!dataMap[pName]) dataMap[pName] = {};
+      if (!dataMap[pName][monthKey]) dataMap[pName][monthKey] = 0;
+      
+      dataMap[pName][monthKey] += line.quantity;
+    }
+
+    const products = Array.from(productsSet).sort();
+    
+    for (const p of products) {
+      for (const m of months) {
+        if (dataMap[p][m] === undefined) {
+          dataMap[p][m] = 0;
+        }
+      }
+    }
+
+    return { months, products, data: dataMap };
+  }
 }

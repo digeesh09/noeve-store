@@ -9,10 +9,21 @@ export default function ProductReportPage() {
   const formatPrice = (cents: number, currency = 'INR') => 
     (cents / 100).toLocaleString('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 });
 
+  const [heatmapData, setHeatmapData] = useState<{ months: string[]; products: string[]; data: Record<string, Record<string, number>> } | null>(null);
+
   useEffect(() => {
-    fetchReportsData('top-products')
-      .then(res => setTopProducts(Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []))
-      .catch(() => setTopProducts([]))
+    Promise.all([
+      fetchReportsData('top-products'),
+      fetchReportsData('product-heatmap')
+    ])
+      .then(([topRes, heatmapRes]) => {
+        setTopProducts(Array.isArray(topRes?.data) ? topRes.data : Array.isArray(topRes) ? topRes : []);
+        setHeatmapData(heatmapRes);
+      })
+      .catch(() => {
+        setTopProducts([]);
+        setHeatmapData(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -48,6 +59,62 @@ export default function ProductReportPage() {
             </tbody>
           </table>
         </div>
+      </section>
+      <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-medium mb-4 text-neutral-900">Product Heat Map (Monthly Sales Trend)</h2>
+        {heatmapData && heatmapData.products.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse text-xs text-center">
+              <thead>
+                <tr>
+                  <th className="border border-neutral-200 p-2 bg-neutral-50 text-left font-medium text-neutral-500">
+                    Product \ Month
+                  </th>
+                  {heatmapData.months.map((m) => {
+                    const d = new Date(`${m}-01`);
+                    return (
+                      <th key={m} className="border border-neutral-200 p-2 bg-neutral-50 font-medium text-neutral-500 min-w-[60px]">
+                        {d.toLocaleString('en-US', { month: 'short', year: 'numeric' })}
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {heatmapData.products.map((productName) => (
+                  <tr key={productName}>
+                    <td className="border border-neutral-200 p-2 text-left font-medium whitespace-nowrap text-neutral-900">
+                      {productName}
+                    </td>
+                    {heatmapData.months.map((month) => {
+                      const count = heatmapData.data[productName]?.[month] || 0;
+                      // Maximum opacity at 10+ items for visibility
+                      const alpha = Math.min(count * 0.15, 1);
+                      return (
+                        <td
+                          key={month}
+                          className="border border-neutral-200 p-2 font-medium"
+                          style={{
+                            backgroundColor: count > 0 ? `rgba(244, 63, 94, ${alpha})` : 'transparent', // Rose color for product heatmap
+                            color: count > 0 && alpha > 0.5 ? 'white' : 'inherit',
+                          }}
+                          title={`${count} units sold in ${month}`}
+                        >
+                          {count > 0 ? count : ''}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-2 text-xs text-neutral-500">
+              Note: This heatmap shows product sales volume over the last 6 months. Darker colors indicate higher sales volume.
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-neutral-500">No heatmap data available.</p>
+        )}
       </section>
     </div>
   );
