@@ -30,6 +30,7 @@ export default function AnalyticsPage() {
   const [userAcquisition, setUserAcquisition] = useState<any[]>([]);
   const [acquisitionCategories, setAcquisitionCategories] = useState<string[]>([]);
   const [topCustomers, setTopCustomers] = useState<any[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [stats, setStats] = useState<any[]>([
     { label: 'Total Revenue', value: '$0.00', change: '—', trend: 'up' },
     { label: 'Total Orders', value: '0', change: '—', trend: 'up' },
@@ -39,13 +40,14 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [dailyRes, topRes, statusRes, userRes, summaryRes, topCustRes] = await Promise.all([
+        const [dailyRes, topRes, statusRes, userRes, summaryRes, topCustRes, recentTxRes] = await Promise.all([
           fetchReportsData('daily-revenue'),
           fetchReportsData('top-products'),
           fetchReportsData('orders-by-status'),
           fetchReportsData('user-acquisition'),
           fetchReportsData('sales-summary'),
-          fetchReportsData('top-customers')
+          fetchReportsData('top-customers'),
+          fetchReportsData('recent-transactions')
         ]);
 
         if (Array.isArray(dailyRes)) {
@@ -77,6 +79,10 @@ export default function AnalyticsPage() {
 
         if (Array.isArray(topCustRes)) {
           setTopCustomers(topCustRes);
+        }
+
+        if (Array.isArray(recentTxRes)) {
+          setRecentTransactions(recentTxRes);
         }
 
         if (summaryRes) {
@@ -251,6 +257,45 @@ export default function AnalyticsPage() {
                   <tr>
                     <td colSpan={3} className="px-4 py-8 text-center text-neutral-500">
                       No customer data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-base font-semibold text-neutral-900">Recent Transactions</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-neutral-600">
+              <thead className="bg-neutral-50 text-xs uppercase text-neutral-500">
+                <tr>
+                  <th className="px-4 py-3">Order</th>
+                  <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentTransactions.slice(0, 5).map((tx) => (
+                  <tr key={tx.id} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50">
+                    <td className="px-4 py-3 font-medium text-neutral-900">{tx.orderNumber}</td>
+                    <td className="px-4 py-3 text-neutral-500">{new Date(tx.createdAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${tx.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : tx.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {tx.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right font-medium text-neutral-900">
+                      ${(tx.totalCents / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                ))}
+                {recentTransactions.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-4 py-8 text-center text-neutral-500">
+                      No recent transactions
                     </td>
                   </tr>
                 )}

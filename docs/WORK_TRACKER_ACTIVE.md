@@ -323,4 +323,4 @@ while trying to update the order delivery date, failed reason is session expired
 
 message not shown as session expired and need to take to login
 
-- [ ] 106. Add one more analytic section into http://localhost:3002/dashboard/analytics
+- [x] 106. Add one more analytic section into http://localhost:3002/dashboard/analytics
