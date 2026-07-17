@@ -248,13 +248,23 @@ export function AccountPanel(): React.JSX.Element {
                         <div>
                           <h4 style={{ fontSize: '.9rem', fontWeight: 600, marginBottom: '.25rem' }}>Fulfillment Status</h4>
                           <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.8)', marginBottom: '.75rem' }}>{order.status}</p>
+                          
                           <h4 style={{ fontSize: '.9rem', fontWeight: 600, marginBottom: '.25rem' }}>Payment</h4>
-                          <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.8)' }}>
+                          <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.8)', marginBottom: '.75rem' }}>
                             {order.payment?.provider === 'COD' ? 'Cash on Delivery' : 'Online Payment'}
                             <span style={{ display: 'inline-block', marginLeft: '.5rem', padding: '.1rem .4rem', background: 'rgba(33,29,25,.05)', borderRadius: '4px', fontSize: '.75rem' }}>
                               {order.payment?.status || 'PENDING'}
                             </span>
                           </p>
+
+                          {order.deliveryDate && (
+                            <>
+                              <h4 style={{ fontSize: '.9rem', fontWeight: 600, marginBottom: '.25rem' }}>Delivery Date</h4>
+                              <p style={{ fontSize: '.85rem', color: 'rgba(33,29,25,.8)', marginBottom: '.75rem' }}>
+                                {new Date(order.deliveryDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+                              </p>
+                            </>
+                          )}
                           {order.trackingNumber && (
                             <div style={{
                               marginTop: '.75rem',

@@ -9,23 +9,44 @@ export default function ProductReportPage() {
   const formatPrice = (cents: number, currency = 'INR') => 
     (cents / 100).toLocaleString('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 });
 
-  const [heatmapData, setHeatmapData] = useState<{ months: string[]; products: string[]; data: Record<string, Record<string, number>> } | null>(null);
+  const [heatmapData, setHeatmapData] = useState<{ months: string[]; products: string[]; data: Record<string, Record<string, number>>; view: string } | null>(null);
+
+  const [heatmapView, setHeatmapView] = useState('monthly');
+  const [productNameFilter, setProductNameFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const loadHeatmap = () => {
+    setLoading(true);
+    const query: Record<string, string> = { view: heatmapView };
+    if (productNameFilter) query.productName = productNameFilter;
+    if (categoryFilter) query.category = categoryFilter;
+    if (startDate) query.startDate = startDate;
+    if (endDate) query.endDate = endDate;
+
+    fetchReportsData('product-heatmap', query)
+      .then(res => setHeatmapData(res))
+      .catch(() => setHeatmapData(null))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     Promise.all([
       fetchReportsData('top-products'),
-      fetchReportsData('product-heatmap')
     ])
-      .then(([topRes, heatmapRes]) => {
+      .then(([topRes]) => {
         setTopProducts(Array.isArray(topRes?.data) ? topRes.data : Array.isArray(topRes) ? topRes : []);
-        setHeatmapData(heatmapRes);
       })
       .catch(() => {
         setTopProducts([]);
-        setHeatmapData(null);
-      })
-      .finally(() => setLoading(false));
+      });
   }, []);
+
+  useEffect(() => {
+    loadHeatmap();
+  }, [heatmapView]); // load when view changes, but not automatically for filters
+
 
   if (loading) return <div className="p-8 text-neutral-500">Loading Product Report...</div>;
 
@@ -61,7 +82,61 @@ export default function ProductReportPage() {
         </div>
       </section>
       <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-medium mb-4 text-neutral-900">Product Heat Map (Monthly Sales Trend)</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+          <h2 className="text-lg font-medium text-neutral-900">Product Heat Map</h2>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <input 
+              type="text"
+              placeholder="Search product..."
+              value={productNameFilter}
+              onChange={e => setProductNameFilter(e.target.value)}
+              className="rounded-md border-neutral-300 py-1.5 px-3 text-sm shadow-sm"
+            />
+            <input 
+              type="text"
+              placeholder="Category..."
+              value={categoryFilter}
+              onChange={e => setCategoryFilter(e.target.value)}
+              className="rounded-md border-neutral-300 py-1.5 px-3 text-sm shadow-sm"
+            />
+            <input 
+              type="date"
+              value={startDate}
+              onChange={e => setStartDate(e.target.value)}
+              className="rounded-md border-neutral-300 py-1.5 px-3 text-sm shadow-sm"
+            />
+            <span className="text-neutral-500 text-sm">to</span>
+            <input 
+              type="date"
+              value={endDate}
+              onChange={e => setEndDate(e.target.value)}
+              className="rounded-md border-neutral-300 py-1.5 px-3 text-sm shadow-sm"
+            />
+            <button 
+              onClick={loadHeatmap}
+              className="rounded bg-brand-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-brand-primary/90"
+            >
+              Apply Filter
+            </button>
+            <div className="flex rounded-md shadow-sm ml-2" role="group">
+              <button
+                type="button"
+                onClick={() => setHeatmapView('monthly')}
+                className={`px-3 py-1.5 text-sm font-medium border border-neutral-200 rounded-l-lg ${heatmapView === 'monthly' ? 'bg-neutral-100 text-brand-primary' : 'bg-white text-neutral-500 hover:bg-neutral-50'}`}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                onClick={() => setHeatmapView('weekly')}
+                className={`px-3 py-1.5 text-sm font-medium border border-l-0 border-neutral-200 rounded-r-lg ${heatmapView === 'weekly' ? 'bg-neutral-100 text-brand-primary' : 'bg-white text-neutral-500 hover:bg-neutral-50'}`}
+              >
+                Weekly
+              </button>
+            </div>
+          </div>
+        </div>
         {heatmapData && heatmapData.products.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse text-xs text-center">
@@ -71,10 +146,11 @@ export default function ProductReportPage() {
                     Product \ Month
                   </th>
                   {heatmapData.months.map((m) => {
-                    const d = new Date(`${m}-01`);
+                    const isWeekly = heatmapData.view === 'weekly';
+                    const headerLabel = isWeekly ? `Week of ${m}` : new Date(`${m}-01`).toLocaleString('en-US', { month: 'short', year: 'numeric' });
                     return (
                       <th key={m} className="border border-neutral-200 p-2 bg-neutral-50 font-medium text-neutral-500 min-w-[60px]">
-                        {d.toLocaleString('en-US', { month: 'short', year: 'numeric' })}
+                        {headerLabel}
                       </th>
                     );
                   })}
@@ -109,7 +185,7 @@ export default function ProductReportPage() {
               </tbody>
             </table>
             <p className="mt-2 text-xs text-neutral-500">
-              Note: This heatmap shows product sales volume over the last 6 months. Darker colors indicate higher sales volume.
+              Note: Darker colors indicate higher sales volume. Weekly view groups sales starting from the Monday of that week.
             </p>
           </div>
         ) : (

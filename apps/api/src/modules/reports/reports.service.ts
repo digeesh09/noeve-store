@@ -224,45 +224,83 @@ export class ReportsService {
     return stats.map(s => ({ status: s.status, count: s._count.id }));
   }
 
-  async getProductHeatmap() {
-    const end = new Date();
-    const start = new Date();
-    start.setMonth(end.getMonth() - 5); // last 6 months
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
+  async getProductHeatmap(query?: Record<string, string>) {
+    const end = query?.endDate ? new Date(query.endDate) : new Date();
+    const start = query?.startDate ? new Date(query.startDate) : new Date();
+    
+    if (!query?.startDate) {
+      start.setMonth(end.getMonth() - 5); // default last 6 months
+      start.setDate(1);
+      start.setHours(0, 0, 0, 0);
+    }
+    
+    const view = query?.view || 'monthly'; // 'monthly' | 'weekly'
+    const productNameFilter = query?.productName || '';
+    const categoryFilter = query?.category || '';
+
+    const orderWhere: any = {
+      createdAt: { gte: start, lte: end },
+      status: { notIn: [OrderStatus.PENDING_PAYMENT, OrderStatus.CANCELLED, OrderStatus.REFUNDED] }
+    };
+
+    const lineWhere: any = { order: orderWhere };
+    if (productNameFilter) {
+      lineWhere.productName = { contains: productNameFilter, mode: 'insensitive' };
+    }
+    
+    if (categoryFilter) {
+      const productsInCategory = await this.prisma.product.findMany({
+        where: { category: { name: { contains: categoryFilter, mode: 'insensitive' } } },
+        select: { id: true }
+      });
+      lineWhere.productId = { in: productsInCategory.map(p => p.id) };
+    }
 
     const orderLines = await this.prisma.orderLine.findMany({
-      where: {
-        order: {
-          createdAt: { gte: start, lte: end },
-          status: { notIn: [OrderStatus.PENDING_PAYMENT, OrderStatus.CANCELLED, OrderStatus.REFUNDED] }
-        }
-      },
+      where: lineWhere,
       include: {
         order: { select: { createdAt: true } }
       }
     });
 
     const productsSet = new Set<string>();
-    const monthsSet = new Set<string>();
+    const timeKeysSet = new Set<string>();
     const dataMap: Record<string, Record<string, number>> = {};
 
-    for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 1)) {
-      monthsSet.add(d.toISOString().substring(0, 7));
+    function getWeekKey(d: Date) {
+      const date = new Date(d);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(date.setDate(diff));
+      return monday.toISOString().substring(0, 10);
     }
-    const months = Array.from(monthsSet).sort();
+
+    // prefill timeKeys for the date range
+    if (view === 'monthly') {
+      for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 1)) {
+        timeKeysSet.add(d.toISOString().substring(0, 7));
+      }
+    } else {
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 7)) {
+        timeKeysSet.add(getWeekKey(d));
+      }
+    }
 
     for (const line of orderLines) {
       const pName = line.productName;
-      const monthKey = line.order.createdAt.toISOString().substring(0, 7);
+      const createdAt = line.order.createdAt;
+      const tKey = view === 'monthly' ? createdAt.toISOString().substring(0, 7) : getWeekKey(createdAt);
       
       productsSet.add(pName);
-      if (!dataMap[pName]) dataMap[pName] = {};
-      if (!dataMap[pName][monthKey]) dataMap[pName][monthKey] = 0;
+      timeKeysSet.add(tKey);
       
-      dataMap[pName][monthKey] += line.quantity;
+      if (!dataMap[pName]) dataMap[pName] = {};
+      if (!dataMap[pName][tKey]) dataMap[pName][tKey] = 0;
+      
+      dataMap[pName][tKey] += line.quantity;
     }
 
+    const months = Array.from(timeKeysSet).sort();
     const products = Array.from(productsSet).sort();
     
     for (const p of products) {
@@ -273,6 +311,6 @@ export class ReportsService {
       }
     }
 
-    return { months, products, data: dataMap };
+    return { months, products, data: dataMap, view };
   }
 }

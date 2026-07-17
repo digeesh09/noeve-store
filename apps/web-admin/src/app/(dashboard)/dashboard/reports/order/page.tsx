@@ -44,33 +44,60 @@ export default function OrderReportPage() {
 
   const ordersVsDeliveryData = useMemo(() => {
     const data: Record<string, Record<string, number>> = {};
-    const dates: string[] = [];
+    const orderDates: string[] = [];
+    const deliveryDatesSet = new Set<string>();
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Rows: Last 7 days of order creation
     for (let i = 6; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
-      dates.push(d.toLocaleDateString());
+      orderDates.push(d.toLocaleDateString('en-IN'));
     }
 
-    dates.forEach((orderDate) => {
+    // Collect all delivery dates from orders
+    orders.forEach((order) => {
+      if (order.deliveryDate) {
+        const d = new Date(order.deliveryDate);
+        deliveryDatesSet.add(d.toLocaleDateString('en-IN'));
+      }
+    });
+
+    // If no delivery dates exist, add a few future dates as placeholders
+    if (deliveryDatesSet.size === 0) {
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        deliveryDatesSet.add(d.toLocaleDateString('en-IN'));
+      }
+    }
+
+    // Sort delivery dates
+    const deliveryDates = Array.from(deliveryDatesSet).sort((a, b) => {
+      const [d1, m1, y1] = a.split('/').map(Number);
+      const [d2, m2, y2] = b.split('/').map(Number);
+      return new Date(y1, m1 - 1, d1).getTime() - new Date(y2, m2 - 1, d2).getTime();
+    });
+
+    orderDates.forEach((orderDate) => {
       data[orderDate] = {};
-      dates.forEach((deliveryDate) => {
+      deliveryDates.forEach((deliveryDate) => {
         data[orderDate][deliveryDate] = 0;
       });
     });
 
     orders.forEach((order) => {
       if (order.deliveryDate) {
-        const orderDateStr = new Date(order.createdAt).toLocaleDateString();
-        const deliveryDateStr = new Date(order.deliveryDate).toLocaleDateString();
+        const orderDateStr = new Date(order.createdAt).toLocaleDateString('en-IN');
+        const deliveryDateStr = new Date(order.deliveryDate).toLocaleDateString('en-IN');
         if (data[orderDateStr] && data[orderDateStr][deliveryDateStr] !== undefined) {
           data[orderDateStr][deliveryDateStr] += 1;
         }
       }
     });
-    return { data, dates };
+    return { data, orderDates, deliveryDates };
   }, [orders]);
 
   if (loading) {
@@ -137,7 +164,7 @@ export default function OrderReportPage() {
                 <th className="border border-neutral-200 p-2 bg-neutral-50 text-left">
                   Order Date \ Delivery Date
                 </th>
-                {ordersVsDeliveryData.dates.map((d) => (
+                {ordersVsDeliveryData.deliveryDates.map((d) => (
                   <th key={d} className="border border-neutral-200 p-2 bg-neutral-50 min-w-[80px]">
                     {d}
                   </th>
@@ -145,12 +172,12 @@ export default function OrderReportPage() {
               </tr>
             </thead>
             <tbody>
-              {ordersVsDeliveryData.dates.map((orderDate) => (
+              {ordersVsDeliveryData.orderDates.map((orderDate) => (
                 <tr key={orderDate}>
                   <td className="border border-neutral-200 p-2 text-left font-medium whitespace-nowrap">
                     {orderDate}
                   </td>
-                  {ordersVsDeliveryData.dates.map((deliveryDate) => {
+                  {ordersVsDeliveryData.deliveryDates.map((deliveryDate) => {
                     const count = ordersVsDeliveryData.data[orderDate][deliveryDate];
                     const alpha = Math.min(count * 0.2, 1);
                     return (

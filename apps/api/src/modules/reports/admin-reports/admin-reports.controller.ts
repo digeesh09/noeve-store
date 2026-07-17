@@ -1,45 +1,34 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ReportsService } from '../reports.service';
-import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../common/guards/roles.guard';
-import { Roles } from '../../../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { ReportsService } from '../reports.service';
 
 @Controller('admin/reports')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ADMIN)
+@Roles(UserRole.ADMIN, UserRole.MANAGER)
 export class AdminReportsController {
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(private reportsService: ReportsService) {}
 
-  @Get('sales-summary')
-  getSalesSummary(
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-  ) {
-    return this.reportsService.getSalesSummary(startDate, endDate);
+  @Get('dashboard')
+  getDashboardStats() {
+    return this.reportsService.getDashboardStats();
+  }
+
+  @Get('sales')
+  getSalesData(@Query('period') period?: string) {
+    return this.reportsService.getSalesData(period || '30d');
   }
 
   @Get('top-products')
   getTopProducts(@Query('limit') limit?: string) {
-    return this.reportsService.getTopProducts(limit ? parseInt(limit, 10) : 10);
+    return this.reportsService.getTopProducts(limit ? parseInt(limit, 10) : 5);
   }
 
-  @Get('recent-transactions')
-  getRecentTransactions(@Query('limit') limit?: string) {
-    return this.reportsService.getRecentTransactions(limit ? parseInt(limit, 10) : 10);
-  }
-
-  @Get('daily-revenue')
-  getDailyRevenue(
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-  ) {
-    return this.reportsService.getDailyRevenue(startDate, endDate);
-  }
-
-  @Get('orders-by-status')
-  getOrdersByStatus() {
-    return this.reportsService.getOrdersByStatus();
+  @Get('inventory-alerts')
+  getInventoryAlerts() {
+    return this.reportsService.getInventoryAlerts();
   }
 
   @Get('user-acquisition')
@@ -53,7 +42,7 @@ export class AdminReportsController {
   }
 
   @Get('product-heatmap')
-  getProductHeatmap() {
-    return this.reportsService.getProductHeatmap();
+  getProductHeatmap(@Query() query: Record<string, string>) {
+    return this.reportsService.getProductHeatmap(query);
   }
 }

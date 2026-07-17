@@ -333,4 +333,9 @@ message not shown as session expired and need to take to login
 - [ ] 109. We need option to track COD payments. How will it be done?
        We will making COD through delivery partners such as BlueDart, Delhivery, Porter or through service aggregators.
 
-- [ ] 110. Order Listing in store also required some more fields in the listing.
+- [x] 110. Order Listing in store also required some more fields in the listing.
+
+- [x] 111. /dashboard/reports/product
+       Add a weekly or monthly view for product heat map. You can switch to monthly or weekly view. By default monthly view should be shown.
+       Provide filter for product name, category, start date, end date, etc. for product heat map. Currently although the tabular table is shown, no data is mapped. Same issue exists for Order Heat map for delivery date.
+- [x] 112. The order listing in my account in the store needs more fields to be displayed in the listing.
