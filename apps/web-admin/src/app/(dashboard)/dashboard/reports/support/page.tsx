@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { fetchSupportTickets } from '@/lib/api';
 
 export default function SupportReportPage() {
@@ -53,8 +54,12 @@ export default function SupportReportPage() {
             <table className="min-w-full divide-y divide-neutral-200 text-sm">
               <tbody className="divide-y divide-neutral-100">
                 {openTickets.slice(0, 5).map((t) => (
-                  <tr key={t.id} className="hover:bg-amber-50">
-                    <td className="px-6 py-4 font-medium text-neutral-900">{t.name}</td>
+                  <tr key={t.id} className="hover:bg-amber-50 group">
+                    <td className="px-6 py-4 font-medium text-neutral-900">
+                      <Link href={`/dashboard/support?ticketId=${t.id}`} className="block w-full h-full text-brand-primary group-hover:underline">
+                        {t.name}
+                      </Link>
+                    </td>
                     <td className="px-6 py-4 text-neutral-600 max-w-[200px] truncate">{t.subject}</td>
                     <td className="px-6 py-4 text-neutral-500 text-right whitespace-nowrap">{new Date(t.createdAt).toLocaleDateString()}</td>
                   </tr>
@@ -75,8 +80,12 @@ export default function SupportReportPage() {
             <table className="min-w-full divide-y divide-neutral-200 text-sm">
               <tbody className="divide-y divide-neutral-100">
                 {resolvedTickets.slice(0, 5).map((t) => (
-                  <tr key={t.id} className="hover:bg-emerald-50">
-                    <td className="px-6 py-4 font-medium text-neutral-900">{t.name}</td>
+                  <tr key={t.id} className="hover:bg-emerald-50 group">
+                    <td className="px-6 py-4 font-medium text-neutral-900">
+                      <Link href={`/dashboard/support?ticketId=${t.id}`} className="block w-full h-full text-brand-primary group-hover:underline">
+                        {t.name}
+                      </Link>
+                    </td>
                     <td className="px-6 py-4 text-neutral-600 max-w-[200px] truncate">{t.subject}</td>
                     <td className="px-6 py-4 text-neutral-500 text-right whitespace-nowrap">
                       <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">

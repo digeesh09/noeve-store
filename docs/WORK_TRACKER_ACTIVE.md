@@ -281,3 +281,36 @@ Syntax Error
 - [x] 99. Add summary in http://localhost:3002/dashboard/support
 
 - [x] 100. we have 5 customers in CRM page, but http://localhost:3002/dashboard/reports/customer report does not reflect that.
+- [x] 101. Sales report is great! Include tabular report also.
+- [x] 102. Provide links in the reports that will take to items details view. Ex: Support ticket in http://localhost:3002/dashboard/reports/support will take to http://localhost:3002/dashboard/support details view. Similar for all other reports.
+
+- [x] 103. When the session is expired, the user should be informed. I had no clue when updating the reports..
+
+Navigated to http://localhost:3002/dashboard/reports/sales
+GET
+http://localhost:3002/favicon.ico
+[HTTP/1.1 404 Not Found 0ms]
+
+XHRGET
+http://localhost:3001/v1/admin/reports/sales-summary
+[HTTP/1.1 401 Unauthorized 25ms]
+
+XHRGET
+http://localhost:3001/v1/admin/reports/daily-revenue
+[HTTP/1.1 401 Unauthorized 7ms]
+
+XHRGET
+http://localhost:3001/v1/admin/reports/sales-summary
+[HTTP/1.1 401 Unauthorized 9ms]
+
+XHRGET
+http://localhost:3001/v1/admin/reports/daily-revenue
+[HTTP/1.1 401 Unauthorized 9ms]
+
+XHRGET
+http://localhost:3001/v1/admin/reports/sales-summary
+[HTTP/1.1 401 Unauthorized 11ms]
+
+Navigated to http://localhost:3002/login?session_expired=true
+
+- [x] 104. If the API side is not accessible, we should inform customer or admin to try again. Give a professional mesasge.

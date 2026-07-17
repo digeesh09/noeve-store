@@ -30,10 +30,15 @@ export class NoeveApiClient {
       (headers as Record<string, string>)['X-Cart-Session'] = sessionId;
     }
 
-    const res = await fetch(`${this.config.baseUrl}${path}`, {
-      ...options,
-      headers,
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${this.config.baseUrl}${path}`, {
+        ...options,
+        headers,
+      });
+    } catch (err) {
+      throw new ApiClientError(503, "Our servers are currently unreachable. Please check your connection or try again later.");
+    }
 
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as ApiErrorBody;

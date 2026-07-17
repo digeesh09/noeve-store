@@ -72,6 +72,31 @@ export default function SalesReportPage() {
           <div className="h-64 flex items-center justify-center text-sm text-neutral-400">No data available</div>
         )}
       </section>
+
+      <section className="rounded-lg border border-neutral-200 bg-white p-6">
+        <h2 className="text-lg font-medium mb-4">Daily Revenue Tabular Data</h2>
+        <div className="overflow-hidden rounded-lg border border-neutral-200">
+          <table className="min-w-full divide-y divide-neutral-200">
+            <thead className="bg-neutral-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-neutral-500">Revenue</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-200 bg-white">
+              {[...dailyRevenue].reverse().map((day) => (
+                <tr key={day.date}>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-900">{new Date(day.date).toLocaleDateString()}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-500">{formatPrice(day.revenueCents)}</td>
+                </tr>
+              ))}
+              {dailyRevenue.length === 0 && (
+                <tr><td colSpan={2} className="px-6 py-4 text-sm text-neutral-500 text-center">No tabular data available</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }
