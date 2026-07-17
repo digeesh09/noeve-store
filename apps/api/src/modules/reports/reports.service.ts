@@ -88,7 +88,6 @@ export class ReportsService {
     });
 
     return withRevenue
-      .filter(c => c.revenueCents > 0)
       .sort((a, b) => b.revenueCents - a.revenueCents)
       .slice(0, limit);
   }

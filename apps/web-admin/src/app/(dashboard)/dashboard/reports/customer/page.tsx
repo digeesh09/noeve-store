@@ -15,7 +15,8 @@ export default function CustomerReportPage() {
       fetchReportsData('user-acquisition').catch(() => []),
       fetchReportsData('top-customers').catch(() => [])
     ]).then(([acqRes, topRes]) => {
-      setAcquisition(Array.isArray(acqRes?.data) ? acqRes.data : Array.isArray(acqRes) ? acqRes : []);
+      const acqData = Array.isArray(acqRes?.data?.data) ? acqRes.data.data : Array.isArray(acqRes?.data) ? acqRes.data : Array.isArray(acqRes) ? acqRes : [];
+      setAcquisition(acqData);
       setTopCustomers(Array.isArray(topRes?.data) ? topRes.data : Array.isArray(topRes) ? topRes : []);
     }).finally(() => setLoading(false));
   }, []);
@@ -38,9 +39,9 @@ export default function CustomerReportPage() {
             </thead>
             <tbody className="divide-y divide-neutral-200 bg-white">
               {acquisition.map((item: any) => (
-                <tr key={item.date}>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-900">{new Date(item.date).toLocaleDateString()}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-500">{item.count}</td>
+                <tr key={item.monthKey || item.date}>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-900">{item.month || item.date}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-500">{item.Total !== undefined ? item.Total : item.count}</td>
                 </tr>
               ))}
               {acquisition.length === 0 && (
@@ -64,10 +65,13 @@ export default function CustomerReportPage() {
             </thead>
             <tbody className="divide-y divide-neutral-200 bg-white">
               {topCustomers.map((user: any) => (
-                <tr key={user.userId}>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-900">{user.user?.firstName} {user.user?.lastName} <br/><span className="text-xs text-neutral-400">{user.user?.email}</span></td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-500">{user._count?.id || user.orders}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-500">{formatPrice(user._sum?.totalCents || 0)}</td>
+                <tr key={user.id}>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-900">
+                    {user.name} <br/>
+                    <span className="text-xs text-neutral-400">{user.email}</span>
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-500">{user.orderCount}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-500">{formatPrice(user.revenueCents || 0)}</td>
                 </tr>
               ))}
               {topCustomers.length === 0 && (

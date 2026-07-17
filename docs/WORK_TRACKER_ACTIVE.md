@@ -275,3 +275,9 @@ Syntax Error
 - [x] 96. Left side menu bar should have its own scroll bar.
 
 - [x] 97. client.ts:33 GET http://localhost:3001/v1/store/wishlist 401 (Unauthorized)
+
+- [x] 98. Improve http://localhost:3002/dashboard/reports/support page to have efficient tracking and granular details
+
+- [x] 99. Add summary in http://localhost:3002/dashboard/support
+
+- [x] 100. we have 5 customers in CRM page, but http://localhost:3002/dashboard/reports/customer report does not reflect that.
