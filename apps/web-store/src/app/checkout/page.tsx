@@ -143,7 +143,7 @@ export default function CheckoutPage(): React.JSX.Element {
 
       if (paymentMethod === 'COD') {
         try {
-          await apiClient.store.changeToCod({ orderId: order.id });
+          await apiClient.store.changeToCod(order.id);
           await refresh();
           setSuccess(order.orderNumber);
         } catch (err: any) {
@@ -245,7 +245,7 @@ export default function CheckoutPage(): React.JSX.Element {
     if (!paymentFailedOrder) return;
     setSubmitting(true);
     try {
-      await apiClient.store.changeToCod({ orderId: paymentFailedOrder.id });
+      await apiClient.store.changeToCod(paymentFailedOrder.id);
       await refresh();
       setSuccess(paymentFailedOrder.orderNumber);
       setPaymentFailedOrder(null);

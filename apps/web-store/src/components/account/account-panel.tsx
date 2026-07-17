@@ -100,15 +100,8 @@ export function AccountPanel(): React.JSX.Element {
   const handleChangeToCOD = async (orderId: string) => {
     setChangingToCod(orderId);
     try {
-      const { authHeaders } = await import('@/lib/auth');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1'}/store/orders/${orderId}/change-to-cod`, {
-        method: 'POST',
-        headers: authHeaders(),
-      });
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Could not change to COD');
-      }
+      const { apiClient } = await import('@/lib/api');
+      await apiClient.store.changeToCod(orderId);
       await fetchOrders();
     } catch (err: any) {
       alert(err?.message || 'Could not change to COD');
