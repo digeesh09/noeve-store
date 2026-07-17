@@ -8,7 +8,7 @@ export interface ApiClientConfig {
 }
 
 export class NoeveApiClient {
-  constructor(private readonly config: ApiClientConfig) {}
+  constructor(public readonly config: ApiClientConfig) {}
 
   private async request<T>(
     path: string,
@@ -159,13 +159,16 @@ export class NoeveApiClient {
         body: JSON.stringify(body),
       }),
 
-    getOrders: (params?: PaginationQuery & { status?: string }, options?: RequestInit) => {
+    getOrders: (params?: PaginationQuery & { status?: string, paymentProvider?: string, paymentStatus?: string, deliveryDate?: string }, options?: RequestInit) => {
       const q = new URLSearchParams();
       if (params?.status) q.append('status', params.status);
+      if (params?.paymentProvider) q.append('paymentProvider', params.paymentProvider);
+      if (params?.paymentStatus) q.append('paymentStatus', params.paymentStatus);
+      if (params?.deliveryDate) q.append('deliveryDate', params.deliveryDate);
       if (params?.page) q.append('page', String(params.page));
       if (params?.pageSize) q.append('pageSize', String(params.pageSize));
       const qs = q.toString();
-      return this.request<Order[]>(qs ? `/admin/orders?${qs}` : '/admin/orders', options);
+      return this.request<PaginatedResponse<Order>>(qs ? `/admin/orders?${qs}` : '/admin/orders', options);
     },
     updateOrderStatus: (orderId: string, body: { status: string; note?: string }, options?: RequestInit) =>
       this.request<Order>(`/admin/orders/${orderId}/status`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),

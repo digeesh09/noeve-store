@@ -69,7 +69,31 @@ export class OrdersService {
   async listAll(query: Record<string, unknown>) {
     const { page, pageSize } = paginationQuerySchema.parse(query);
     const status = query.status as OrderStatus | undefined;
-    const where = status ? { status } : {};
+    
+    const paymentProvider = query.paymentProvider as string | undefined;
+    const paymentStatus = query.paymentStatus as string | undefined;
+    const deliveryDate = query.deliveryDate as string | undefined;
+
+    const where: any = {};
+    if (status) where.status = status;
+
+    if (paymentProvider || paymentStatus) {
+      where.payment = {};
+      if (paymentProvider) where.payment.provider = paymentProvider;
+      if (paymentStatus) where.payment.status = paymentStatus;
+    }
+
+    if (deliveryDate) {
+      const d = new Date(deliveryDate);
+      if (!isNaN(d.getTime())) {
+        const nextDay = new Date(d);
+        nextDay.setDate(nextDay.getDate() + 1);
+        where.deliveryDate = {
+          gte: d,
+          lt: nextDay
+        };
+      }
+    }
 
     const [orders, total] = await Promise.all([
       this.prisma.order.findMany({

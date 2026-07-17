@@ -328,7 +328,9 @@ message not shown as session expired and need to take to login
 - [x] 107. Add a new report Product Heat Map which will provide the heat map for a product sales against monthly / weekly orders. It will provide information on product sales against orders per month/ week.
        This will help to analyze the trend in the market and accordingly we can plan for trend and seasonal promotions.
 
-- [ ] 108. Add more informations into the order listing such as payment mode, status of payment, delivery date etc. Provide option to filter the orders based on the payment mode, status of payment, delivery date, status of order, etc.
+- [x] 108. Add more informations into the order listing such as payment mode, status of payment, delivery date etc. Provide option to filter the orders based on the payment mode, status of payment, delivery date, status of order, etc.
 
 - [ ] 109. We need option to track COD payments. How will it be done?
-       We will making COD through delivery partners such as BlueDart, Delhivery, Porter etc.
+       We will making COD through delivery partners such as BlueDart, Delhivery, Porter or through service aggregators.
+
+- [ ] 110. Order Listing in store also required some more fields in the listing.

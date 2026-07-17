@@ -46,12 +46,22 @@ export default function OrdersPage(): React.JSX.Element {
   const [openTickets, setOpenTickets] = useState<any[]>([]);
   
   const [filterStatus, setFilterStatus] = useState<string>(initialStatus);
+  const [filterPaymentMode, setFilterPaymentMode] = useState<string>(searchParams.get('paymentProvider') || '');
+  const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>(searchParams.get('paymentStatus') || '');
+  const [filterDeliveryDate, setFilterDeliveryDate] = useState<string>(searchParams.get('deliveryDate') || '');
 
   const load = useCallback(async () => {
     setError(null);
     try {
       const [res, ticketsRes] = await Promise.all([
-        fetchOrders(filterStatus || undefined, page),
+        fetchOrders(
+          filterStatus || undefined, 
+          page, 
+          20,
+          filterPaymentMode || undefined,
+          filterPaymentStatus || undefined,
+          filterDeliveryDate || undefined
+        ),
         fetchSupportTickets(1, 100).catch(() => ({ data: [] }))
       ]);
       setOrders(res.data);
@@ -68,19 +78,41 @@ export default function OrdersPage(): React.JSX.Element {
     load();
   }, [load]);
 
+  const applyFilters = (updates: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, val]) => {
+      if (val) {
+        params.set(key, val);
+      } else {
+        params.delete(key);
+      }
+    });
+    setPage(1);
+    router.replace(`/dashboard/orders?${params.toString()}`);
+  };
+
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setFilterStatus(val);
-    setPage(1);
-    
-    // Update URL without reloading page
-    const params = new URLSearchParams(searchParams.toString());
-    if (val) {
-      params.set('status', val);
-    } else {
-      params.delete('status');
-    }
-    router.replace(`/dashboard/orders?${params.toString()}`);
+    applyFilters({ status: val });
+  };
+  
+  const handlePaymentModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setFilterPaymentMode(val);
+    applyFilters({ paymentProvider: val });
+  };
+
+  const handlePaymentStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setFilterPaymentStatus(val);
+    applyFilters({ paymentStatus: val });
+  };
+
+  const handleDeliveryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setFilterDeliveryDate(val);
+    applyFilters({ deliveryDate: val });
   };
 
   const handleStatus = async (orderId: string, status: string) => {
@@ -173,6 +205,45 @@ export default function OrdersPage(): React.JSX.Element {
           </select>
         </div>
       </div>
+      
+      {/* Advanced Filters Bar */}
+      <div className="mt-4 flex flex-wrap gap-4 items-center bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-neutral-600">Payment Mode</label>
+          <select 
+            value={filterPaymentMode}
+            onChange={handlePaymentModeChange}
+            className="rounded-md border-neutral-300 py-1.5 pl-3 pr-8 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
+          >
+            <option value="">All Modes</option>
+            <option value="RAZORPAY">Razorpay (Online)</option>
+            <option value="COD">Cash on Delivery</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-neutral-600">Payment Status</label>
+          <select 
+            value={filterPaymentStatus}
+            onChange={handlePaymentStatusChange}
+            className="rounded-md border-neutral-300 py-1.5 pl-3 pr-8 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
+          >
+            <option value="">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="SUCCESS">Success</option>
+            <option value="FAILED">Failed</option>
+            <option value="REFUNDED">Refunded</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-neutral-600">Delivery Date</label>
+          <input 
+            type="date"
+            value={filterDeliveryDate}
+            onChange={handleDeliveryDateChange}
+            className="rounded-md border-neutral-300 py-1.5 px-3 text-sm shadow-sm focus:border-brand-primary focus:ring-brand-primary"
+          />
+        </div>
+      </div>
 
       {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
       {loading ? (
@@ -187,6 +258,8 @@ export default function OrdersPage(): React.JSX.Element {
                 <th className="px-4 py-3 font-medium">Order</th>
                 <th className="px-4 py-3 font-medium">Customer</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Payment</th>
+                <th className="px-4 py-3 font-medium">Delivery Date</th>
                 <th className="px-4 py-3 font-medium">Total</th>
                 <th className="px-4 py-3 font-medium">Actions</th>
               </tr>
@@ -230,6 +303,15 @@ export default function OrdersPage(): React.JSX.Element {
                       <span className="rounded-full bg-brand-accent-light px-2 py-0.5 text-xs font-medium text-brand-primary">
                         {order.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <div className="font-medium text-neutral-800">{order.payment?.provider === 'COD' ? 'COD' : 'Online'}</div>
+                      <div className={`text-xs ${order.payment?.status === 'SUCCESS' ? 'text-green-600' : 'text-orange-600'}`}>
+                        {order.payment?.status || 'PENDING'}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-neutral-600">
+                      {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString('en-IN') : '—'}
                     </td>
                     <td className="px-4 py-3 font-medium">
                       {formatPrice(order.totalCents, order.currency)}

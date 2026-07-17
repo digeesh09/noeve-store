@@ -951,7 +951,7 @@ export default function CheckoutPage(): React.JSX.Element {
             <h3>Payment Discontinued</h3>
             <p style={{ margin: '1rem 0' }}>Would you like to switch this order to Cash on Delivery?</p>
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <button onClick={() => handleConvertToCod(paymentFailedOrder.id)} className="btn btn--primary">
+              <button onClick={() => handleConvertToCod()} className="btn btn--primary">
                 Switch to COD
               </button>
               <button onClick={() => setPaymentFailedOrder(null)} className="btn btn--outline">

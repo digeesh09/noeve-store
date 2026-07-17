@@ -86,8 +86,15 @@ export interface PaginatedResponse<T> {
   };
 }
 
-export async function fetchOrders(status?: string, page = 1, pageSize = 20): Promise<PaginatedResponse<Order>> {
-  const res = await apiClient.admin.getOrders({ status, page, pageSize });
+export async function fetchOrders(
+  status?: string,
+  page = 1,
+  pageSize = 20,
+  paymentProvider?: string,
+  paymentStatus?: string,
+  deliveryDate?: string
+): Promise<PaginatedResponse<Order>> {
+  const res = await apiClient.admin.getOrders({ status, page, pageSize, paymentProvider, paymentStatus, deliveryDate });
   return { data: res.data as unknown as Order[], meta: res.meta! };
 }
 
