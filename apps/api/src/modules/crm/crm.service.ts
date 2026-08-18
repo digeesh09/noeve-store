@@ -55,7 +55,8 @@ export class CrmService {
         reviews: {
           take: 5,
           orderBy: { createdAt: 'desc' }
-        }
+        },
+        addresses: true
       }
     });
 
@@ -66,6 +67,14 @@ export class CrmService {
     const averageOrderValueCents = totalOrders > 0 ? lifetimeValueCents / totalOrders : 0;
 
     return {
+      customer: {
+        id: customer.id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email,
+        createdAt: customer.createdAt,
+        addresses: customer.addresses,
+      },
       lifetimeValueCents,
       totalOrders,
       averageOrderValueCents,

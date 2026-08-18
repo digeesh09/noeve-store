@@ -56,11 +56,15 @@ function TicketDrawer({
   onClose,
   onStatusChange,
   onReplyAdded,
+  onRefresh,
+  isRefreshing,
 }: {
   ticket: Ticket;
   onClose: () => void;
   onStatusChange: (id: string, status: string) => void;
   onReplyAdded: (id: string) => void;
+  onRefresh: () => void;
+  isRefreshing: boolean;
 }) {
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
@@ -130,7 +134,9 @@ function TicketDrawer({
             <h2 className="mt-1 truncate text-lg font-semibold text-neutral-900 flex items-center gap-2">
               {ticket.subject}
               {ticket.email.endsWith('@whatsapp.lead') && (
-                <MessageCircle className="h-4 w-4 text-green-500" title="WhatsApp Message" />
+                <span title="WhatsApp Message">
+                  <MessageCircle className="h-4 w-4 text-green-500" />
+                </span>
               )}
             </h2>
             <p className="text-sm text-neutral-500">
@@ -143,15 +149,27 @@ function TicketDrawer({
               </a>
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="ml-2 rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
-            aria-label="Close"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-50"
+              title="Refresh Ticket"
+            >
+              <svg className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+            <button
+              onClick={onClose}
+              className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+              aria-label="Close"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Conversation thread */}
@@ -284,19 +302,32 @@ export default function SupportAdminPage() {
 
   useEffect(() => {
     loadTickets();
+    const interval = setInterval(() => {
+      loadTickets(true);
+    }, 30000); // Auto-poll every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
-  const loadTickets = async () => {
-    setLoading(true);
+  const loadTickets = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await fetchSupportTickets(1, 100);
       setTickets(res.data);
+
+      setSelectedTicket((prev) => {
+        if (!prev) return prev;
+        const updated = res.data.find((x: Ticket) => x.id === prev.id);
+        return updated ? updated : prev;
+      });
       
       if (ticketIdParam) {
-        const t = res.data.find((x: Ticket) => x.id === ticketIdParam);
-        if (t && !selectedTicket) {
-          openTicket(t);
-        }
+        setSelectedTicket((prev) => {
+          if (!prev) {
+            const t = res.data.find((x: Ticket) => x.id === ticketIdParam);
+            if (t) openTicket(t);
+          }
+          return prev;
+        });
       }
     } catch (err) {
       console.error(err);
@@ -443,7 +474,9 @@ export default function SupportAdminPage() {
                       <div className="font-medium text-gray-900 flex items-center gap-2">
                         {t.name}
                         {t.email.endsWith('@whatsapp.lead') && (
-                          <MessageCircle className="h-4 w-4 text-green-500" title="WhatsApp Chat" />
+                          <span title="WhatsApp Chat">
+                            <MessageCircle className="h-4 w-4 text-green-500" />
+                          </span>
                         )}
                       </div>
                       <div className="text-xs text-gray-500">{t.email}</div>
@@ -478,6 +511,8 @@ export default function SupportAdminPage() {
           onClose={() => setSelectedTicket(null)}
           onStatusChange={handleStatusChange}
           onReplyAdded={handleReplyAdded}
+          onRefresh={() => openTicket(selectedTicket)}
+          isRefreshing={drawerLoading}
         />
       )}
     </div>

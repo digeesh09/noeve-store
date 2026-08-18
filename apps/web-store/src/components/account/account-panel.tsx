@@ -29,6 +29,7 @@ export function AccountPanel(): React.JSX.Element {
   const [inboxSubject, setInboxSubject] = useState('');
   const [inboxMessage, setInboxMessage] = useState('');
   const [activeTicket, setActiveTicket] = useState<any>(null);
+  const [refreshingTicket, setRefreshingTicket] = useState(false);
   const [replyMessage, setReplyMessage] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -805,14 +806,43 @@ export function AccountPanel(): React.JSX.Element {
                 </div>
                 <h2 style={{ fontSize: '1.3rem', margin: 0, color: 'var(--ink)' }}>{activeTicket.subject}</h2>
               </div>
-              <button 
-                onClick={() => { setActiveTicket(null); setReplyMessage(''); }}
-                style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--ink)', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                &times;
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  onClick={async () => {
+                    setRefreshingTicket(true);
+                    try {
+                      const { apiClient } = await import('@/lib/api');
+                      const res = await apiClient.store.getMySupportTickets();
+                      const updatedTickets = res.data || [];
+                      setInbox(updatedTickets);
+                      const updatedActive = updatedTickets.find((t: any) => t.id === activeTicket.id);
+                      if (updatedActive) setActiveTicket(updatedActive);
+                    } catch (err) {
+                      console.error(err);
+                    } finally {
+                      setRefreshingTicket(false);
+                    }
+                  }}
+                  disabled={refreshingTicket}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--ink)', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', opacity: refreshingTicket ? 0.5 : 1 }}
+                  title="Refresh Ticket"
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ animation: refreshingTicket ? 'spin 1s linear infinite' : 'none' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+                <button 
+                  onClick={() => { setActiveTicket(null); setReplyMessage(''); }}
+                  style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--ink)', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  title="Close Ticket"
+                >
+                  &times;
+                </button>
+              </div>
             </div>
 
             {/* Conversation Thread */}

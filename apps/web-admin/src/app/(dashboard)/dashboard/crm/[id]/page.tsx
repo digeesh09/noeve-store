@@ -26,7 +26,14 @@ export default function CustomerInsightsPage({ params }: { params: Promise<{ id:
         <Link href="/dashboard/crm" className="text-sm text-brand-primary hover:underline mb-2 inline-block">
           &larr; Back to Customers
         </Link>
-        <h1 className="text-2xl font-semibold text-neutral-900">Customer Insights</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900">
+          {insights.customer?.firstName} {insights.customer?.lastName}
+        </h1>
+        <div className="mt-1 flex items-center gap-4 text-sm text-neutral-500">
+          <p>{insights.customer?.email}</p>
+          <span>&bull;</span>
+          <p>Member since {new Date(insights.customer?.createdAt).toLocaleDateString()}</p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -49,6 +56,35 @@ export default function CustomerInsightsPage({ params }: { params: Promise<{ id:
           </p>
         </div>
       </div>
+
+      <section>
+        <h2 className="text-xl font-medium mb-4">Saved Addresses</h2>
+        {(!insights.customer?.addresses || insights.customer.addresses.length === 0) ? (
+          <div className="rounded-lg border border-neutral-200 bg-white p-6 text-sm text-neutral-500 text-center">
+            No saved addresses
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {insights.customer.addresses.map((addr: any) => (
+              <div key={addr.id} className="rounded-lg border border-neutral-200 bg-white p-4 relative">
+                {addr.isDefault && (
+                  <span className="absolute top-4 right-4 inline-flex items-center rounded-full bg-brand-primary/10 px-2.5 py-0.5 text-xs font-medium text-brand-primary">
+                    Default
+                  </span>
+                )}
+                <p className="font-medium text-neutral-900">{addr.name}</p>
+                <p className="text-sm text-neutral-600 mt-1">{addr.phone}</p>
+                <div className="text-sm text-neutral-500 mt-2">
+                  <p>{addr.streetLine1}</p>
+                  {addr.streetLine2 && <p>{addr.streetLine2}</p>}
+                  <p>{addr.city}, {addr.state} {addr.postalCode}</p>
+                  <p>{addr.country}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="grid gap-8 md:grid-cols-2">
         <section>

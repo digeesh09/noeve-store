@@ -316,8 +316,15 @@ export async function deleteReview(id: string) {
 }
 
 export async function fetchSupportTickets(page = 1, pageSize = 20): Promise<PaginatedResponse<any>> {
-  const res = await apiClient.admin.getSupportTickets({ page, pageSize });
-  return { data: res.data as unknown as any[], meta: res.meta! };
+  const token = getAccessToken();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/v1';
+  const res = await fetchWithAuth(`${API_URL}/admin/support?page=${page}&pageSize=${pageSize}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store'
+  });
+  if (!res.ok) throw new Error('Failed to fetch tickets');
+  const json = await res.json();
+  return { data: json.data, meta: json.meta };
 }
 
 export async function updateSupportTicketStatus(id: string, status: string) {

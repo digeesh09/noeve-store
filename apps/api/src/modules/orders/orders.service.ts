@@ -273,7 +273,7 @@ export class OrdersService {
   ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
-      include: { user: { select: { email: true } } },
+      include: { user: { select: { email: true } }, payment: true },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -282,6 +282,15 @@ export class OrdersService {
     const allowed = FULFILLMENT_TRANSITIONS[order.status] ?? [];
     if (!allowed.includes(status)) {
       throw new NotFoundException(`Cannot transition from ${order.status} to ${status}`);
+    }
+
+    if (status === OrderStatus.DELIVERED) {
+      if (order.payment?.status !== 'SUCCESS') {
+        throw new BadRequestException('Cannot mark order as DELIVERED unless payment is SUCCESS (collected or settled).');
+      }
+      if (!order.deliveryDate) {
+        throw new BadRequestException('Final Delivery Date must be updated before marking the order as DELIVERED.');
+      }
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {

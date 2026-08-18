@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { fetchOrders, fetchReportsData, type Order } from '@/lib/api';
+import { fetchOrders, fetchReportsData, fetchSupportTickets, type Order } from '@/lib/api';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [dailyRevenue, setDailyRevenue] = useState<any[]>([]);
   const [ordersByStatus, setOrdersByStatus] = useState<any[]>([]);
+  const [supportTickets, setSupportTickets] = useState<any[]>([]);
 
   const formatPrice = (cents: number, currency = 'INR') =>
     (cents / 100).toLocaleString('en-IN', {
@@ -22,8 +23,8 @@ export default function DashboardPage() {
       maximumFractionDigits: 0,
     });
 
-  const loadData = () => {
-    setLoading(true);
+  const loadData = (silent = false) => {
+    if (!silent) setLoading(true);
     Promise.all([
       fetchOrders().catch(() => ({ data: [] })),
       fetchReportsData('sales-summary').catch(() => null),
@@ -31,8 +32,9 @@ export default function DashboardPage() {
       fetchReportsData('recent-transactions').catch(() => []),
       fetchReportsData('daily-revenue').catch(() => []),
       fetchReportsData('orders-by-status').catch(() => []),
+      fetchSupportTickets(1, 100).catch(() => ({ data: [] })),
     ])
-      .then(([ordersRes, salesRes, productsRes, transactionsRes, dailyRes, statusRes]) => {
+      .then(([ordersRes, salesRes, productsRes, transactionsRes, dailyRes, statusRes, ticketsRes]) => {
         setOrders(ordersRes.data || []);
         setSalesSummary(salesRes?.data || salesRes);
         setTopProducts(
@@ -59,12 +61,17 @@ export default function DashboardPage() {
               ? statusRes
               : [],
         );
+        setSupportTickets(ticketsRes?.data || []);
       })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     loadData();
+    const interval = setInterval(() => {
+      loadData(true);
+    }, 30000); // Auto-poll every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const openOrders = orders.filter((o) => o.status === 'CONFIRMED').length;
@@ -77,6 +84,13 @@ export default function DashboardPage() {
     const today = new Date();
     return orderDate.toDateString() === today.toDateString();
   }).length;
+  
+  const openTickets = supportTickets.filter((t) => t.status === 'OPEN').length;
+  const unattendedList = supportTickets.filter(
+    (t) => t.status === 'OPEN' && (!t.replies || t.replies.length === 0 || !t.replies[t.replies.length - 1].isAdmin)
+  );
+  const unattendedTickets = unattendedList.length;
+  const firstUnattendedId = unattendedList[0]?.id;
 
   const stats = [
     {
@@ -93,6 +107,13 @@ export default function DashboardPage() {
       label: 'Shipped today',
       value: loading ? '—' : shippedToday,
       href: '/dashboard/orders?status=SHIPPED',
+    },
+    {
+      label: 'Open tickets',
+      value: loading ? '—' : openTickets,
+      subValue: loading ? undefined : unattendedTickets,
+      subHref: firstUnattendedId ? `/dashboard/support?ticketId=${firstUnattendedId}` : undefined,
+      href: '/dashboard/support',
     },
   ];
 
@@ -131,7 +152,7 @@ export default function DashboardPage() {
 
         <div className="flex justify-between items-center">
           <button
-            onClick={loadData}
+            onClick={() => loadData()}
             disabled={loading}
             className="p-2 rounded-full hover:bg-neutral-100 text-neutral-500 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 disabled:opacity-50"
             title="Refresh Data"
@@ -157,16 +178,29 @@ export default function DashboardPage() {
           <code className="rounded bg-neutral-100 px-1">/v1/admin/*</code> endpoints.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-4">
           {stats.map((stat) => (
-            <Link
+            <div
               key={stat.label}
-              href={stat.href}
-              className="block rounded-lg border border-neutral-200 bg-white p-6 hover:border-brand-primary hover:bg-neutral-50 transition-colors"
+              className="relative block rounded-lg border border-neutral-200 bg-white p-6 hover:border-brand-primary hover:bg-neutral-50 transition-colors"
             >
-              <p className="text-sm text-neutral-500">{stat.label}</p>
-              <p className="mt-2 text-3xl font-semibold text-neutral-900">{stat.value}</p>
-            </Link>
+              <Link href={stat.href} className="absolute inset-0" aria-label={`View ${stat.label}`} />
+              <div className="relative z-10 pointer-events-none">
+                <p className="text-sm text-neutral-500">{stat.label}</p>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-neutral-900">{stat.value}</span>
+                  {stat.subValue !== undefined && stat.subValue > 0 && (
+                    <Link
+                      href={stat.subHref || stat.href}
+                      className="text-sm font-semibold text-red-500 hover:text-red-600 pointer-events-auto transition-colors"
+                      title={`${stat.subValue} unattended tickets`}
+                    >
+                      ({stat.subValue} unattended)
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>

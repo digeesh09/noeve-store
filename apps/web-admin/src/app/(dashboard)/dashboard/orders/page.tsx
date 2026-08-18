@@ -50,8 +50,9 @@ export default function OrdersPage(): React.JSX.Element {
   const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>(searchParams.get('paymentStatus') || '');
   const [filterDeliveryDate, setFilterDeliveryDate] = useState<string>(searchParams.get('deliveryDate') || '');
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     setError(null);
+    if (!silent) setLoading(true);
     try {
       const [res, ticketsRes] = await Promise.all([
         fetchOrders(
@@ -72,10 +73,14 @@ export default function OrdersPage(): React.JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [page, filterStatus]);
+  }, [page, filterStatus, filterPaymentMode, filterPaymentStatus, filterDeliveryDate]);
 
   useEffect(() => {
     load();
+    const interval = setInterval(() => {
+      load(true);
+    }, 30000); // Auto-poll every 30 seconds
+    return () => clearInterval(interval);
   }, [load]);
 
   const applyFilters = (updates: Record<string, string>) => {
@@ -178,7 +183,7 @@ export default function OrdersPage(): React.JSX.Element {
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-semibold">Orders</h1>
             <button 
-              onClick={() => { setLoading(true); load(); }}
+              onClick={() => { load(); }}
               disabled={loading}
               className="p-2 rounded-full hover:bg-neutral-100 text-neutral-500 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 disabled:opacity-50"
               title="Refresh Orders"
