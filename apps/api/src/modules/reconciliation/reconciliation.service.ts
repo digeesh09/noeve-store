@@ -36,74 +36,81 @@ export class ReconciliationService {
       }
 
       const settledAmountCents = Math.round(parseFloat(settledAmountStr) * 100);
+      const result = await this.processSingleSettlement(orderNumber, settledAmountCents, partnerName, reference);
       
-      const order = await this.prisma.order.findUnique({
-        where: { orderNumber },
-        include: { codSettlement: true },
-      });
-
-      if (!order) {
-        results.notFound++;
-        continue;
-      }
-
-      const expectedAmountCents = order.totalCents;
-      let status: 'SETTLED_TO_BANK' | 'DISCREPANCY' = 'SETTLED_TO_BANK';
-      let discrepancyReason = null;
-
-      if (settledAmountCents < expectedAmountCents) {
-        status = 'DISCREPANCY';
-        discrepancyReason = `Short payment. Expected ${expectedAmountCents / 100}, got ${settledAmountCents / 100}`;
-        results.discrepancies++;
-      } else {
-        results.settled++;
-      }
-
-      await this.prisma.cODSettlement.upsert({
-        where: { orderId: order.id },
-        update: {
-          status,
-          settledAmountCents,
-          expectedAmountCents,
-          partnerName,
-          settlementReference: reference,
-          settledAt: new Date(),
-          discrepancyReason,
-        },
-        create: {
-          orderId: order.id,
-          status,
-          settledAmountCents,
-          expectedAmountCents,
-          partnerName,
-          settlementReference: reference,
-          settledAt: new Date(),
-          discrepancyReason,
-        },
-      });
-
-      if (status === 'SETTLED_TO_BANK') {
-        const existingPayment = await this.prisma.payment.findUnique({ where: { orderId: order.id } });
-        if (existingPayment) {
-          await this.prisma.payment.update({
-            where: { id: existingPayment.id },
-            data: { status: 'SUCCESS' },
-          });
-        } else {
-          await this.prisma.payment.create({
-            data: {
-              orderId: order.id,
-              amountCents: settledAmountCents,
-              status: 'SUCCESS',
-              provider: 'COD',
-            },
-          });
-        }
-      }
-
+      if (result.status === 'NOT_FOUND') results.notFound++;
+      if (result.status === 'SETTLED') results.settled++;
+      if (result.status === 'DISCREPANCY') results.discrepancies++;
+      
       results.totalProcessed++;
     }
 
     return results;
+  }
+
+  async processSingleSettlement(orderNumber: string, settledAmountCents: number, partnerName: string, reference: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: { codSettlement: true },
+    });
+
+    if (!order) {
+      return { status: 'NOT_FOUND' };
+    }
+
+    const expectedAmountCents = order.totalCents;
+    let status: 'SETTLED_TO_BANK' | 'DISCREPANCY' = 'SETTLED_TO_BANK';
+    let discrepancyReason = null;
+    let resultStatus = 'SETTLED';
+
+    if (settledAmountCents < expectedAmountCents) {
+      status = 'DISCREPANCY';
+      discrepancyReason = `Short payment. Expected ${expectedAmountCents / 100}, got ${settledAmountCents / 100}`;
+      resultStatus = 'DISCREPANCY';
+    }
+
+    await this.prisma.cODSettlement.upsert({
+      where: { orderId: order.id },
+      update: {
+        status,
+        settledAmountCents,
+        expectedAmountCents,
+        partnerName,
+        settlementReference: reference,
+        settledAt: new Date(),
+        discrepancyReason,
+      },
+      create: {
+        orderId: order.id,
+        status,
+        settledAmountCents,
+        expectedAmountCents,
+        partnerName,
+        settlementReference: reference,
+        settledAt: new Date(),
+        discrepancyReason,
+      },
+    });
+
+    if (status === 'SETTLED_TO_BANK') {
+      const existingPayment = await this.prisma.payment.findUnique({ where: { orderId: order.id } });
+      if (existingPayment) {
+        await this.prisma.payment.update({
+          where: { id: existingPayment.id },
+          data: { status: 'SUCCESS' },
+        });
+      } else {
+        await this.prisma.payment.create({
+          data: {
+            orderId: order.id,
+            amountCents: settledAmountCents,
+            status: 'SUCCESS',
+            provider: 'COD',
+          },
+        });
+      }
+    }
+    
+    return { status: resultStatus, orderId: order.id };
   }
 }

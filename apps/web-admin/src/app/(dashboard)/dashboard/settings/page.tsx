@@ -22,6 +22,7 @@ export default function SettingsPage() {
   const [facebookLink, setFacebookLink] = useState('');
   const [instagramLink, setInstagramLink] = useState('');
   const [codAllowed, setCodAllowed] = useState(false);
+  const [codReconciliationMode, setCodReconciliationMode] = useState<'MANUAL' | 'AUTOMATIC'>('MANUAL');
   const [storeState, setStoreState] = useState('');
   const [gstin, setGstin] = useState('');
 
@@ -46,6 +47,7 @@ export default function SettingsPage() {
       setFacebookLink(data.facebookLink || '');
       setInstagramLink(data.instagramLink || '');
       setCodAllowed(data.codAllowed || false);
+      setCodReconciliationMode(data.codReconciliationMode || 'MANUAL');
       setStoreState(data.storeState || 'Kerala');
       setGstin(data.gstin || '');
     } catch (err: any) {
@@ -73,6 +75,7 @@ export default function SettingsPage() {
         facebookLink: facebookLink || null,
         instagramLink: instagramLink || null,
         codAllowed,
+        codReconciliationMode,
         storeState: storeState || 'Kerala',
         gstin: gstin || null,
       });
@@ -251,6 +254,21 @@ export default function SettingsPage() {
             <label htmlFor="codAllowed" className="ml-2 block text-sm text-gray-900">
               Allow Cash on Delivery (COD)
             </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              COD Reconciliation Mode
+            </label>
+            <select
+              value={codReconciliationMode}
+              onChange={(e) => setCodReconciliationMode(e.target.value as 'MANUAL' | 'AUTOMATIC')}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black bg-white"
+            >
+              <option value="MANUAL">Manual (CSV Upload)</option>
+              <option value="AUTOMATIC">Automatic (Webhooks via Partners)</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">Choose whether to upload CSVs manually or let automated webhooks handle settlement via Delivery Partners.</p>
           </div>
         </div>
 

@@ -1,14 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
-import { uploadSettlementReport } from '@/lib/api';
-import { UploadCloud, FileText, CheckCircle, AlertCircle, HelpCircle, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { uploadSettlementReport, fetchSettings } from '@/lib/api';
+import { UploadCloud, FileText, CheckCircle, AlertCircle, HelpCircle, Download, Info } from 'lucide-react';
 
 export default function ReconciliationPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reconciliationMode, setReconciliationMode] = useState<'MANUAL' | 'AUTOMATIC'>('MANUAL');
+
+  useEffect(() => {
+    fetchSettings().then(settings => {
+      setReconciliationMode(settings.codReconciliationMode || 'MANUAL');
+    }).catch(() => {});
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -50,6 +57,18 @@ export default function ReconciliationPage() {
         <h1 className="text-2xl font-semibold text-neutral-900">COD Reconciliation</h1>
         <p className="text-neutral-500 mt-1">Upload settlement reports from delivery partners to reconcile cash collected.</p>
       </div>
+
+      {reconciliationMode === 'AUTOMATIC' && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg flex items-start gap-3">
+          <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium">Automatic Mode is Active</h3>
+            <p className="text-sm text-blue-700 mt-1">
+              Your COD settlements are currently being processed automatically via webhooks from delivery partners. You can still use the manual CSV upload below as a fallback.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white p-6 rounded-lg border border-neutral-200 shadow-sm">
         <h2 className="text-lg font-medium text-neutral-900 mb-4">Upload Settlement CSV</h2>

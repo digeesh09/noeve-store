@@ -357,6 +357,7 @@ model StoreSettings {
   facebookLink           String?  @map("facebook_link")
   instagramLink          String?  @map("instagram_link")
   codAllowed             Boolean  @default(false) @map("cod_allowed")
+  codReconciliationMode  String   @default("MANUAL") @map("cod_reconciliation_mode")
   shippingThresholdCents Int      @default(1500000) @map("shipping_threshold_cents")
   shippingRateCents      Int      @default(100000) @map("shipping_rate_cents") // Default Delivery Charge
   taxRatePercentage      Float    @default(0) @map("tax_rate_percentage")

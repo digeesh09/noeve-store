@@ -262,11 +262,14 @@ export interface StoreSettings {
   whatsappNumber?: string | null;
   facebookLink?: string | null;
   instagramLink?: string | null;
-  codAllowed?: boolean;
+  codAllowed: boolean;
+  codReconciliationMode: 'MANUAL' | 'AUTOMATIC';
   shippingThresholdCents: number;
   shippingRateCents: number;
   taxRatePercentage: number;
-  marqueeText?: string | null;
+  storeState: string;
+  gstin?: string;
+  marqueeText?: string;
   updatedAt: string;
 }
 

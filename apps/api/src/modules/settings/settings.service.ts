@@ -28,6 +28,7 @@ export class SettingsService {
     facebookLink?: string;
     instagramLink?: string;
     codAllowed?: boolean;
+    codReconciliationMode?: string;
     shippingThresholdCents?: number;
     shippingRateCents?: number;
     taxRatePercentage?: number;
