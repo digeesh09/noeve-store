@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { uploadSettlementReport } from '@/lib/api';
-import { UploadCloud, FileText, CheckCircle, AlertCircle, HelpCircle } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle, AlertCircle, HelpCircle, Download } from 'lucide-react';
 
 export default function ReconciliationPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -30,6 +30,18 @@ export default function ReconciliationPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadSample = () => {
+    const csvContent = "Order ID,Settled Amount,Partner,Reference\nNV-EXAMPLE1,150000,Delhivery,TXN-9981\nNV-EXAMPLE2,200000,BlueDart,TXN-9982\n";
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'sample_reconciliation.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -112,6 +124,15 @@ export default function ReconciliationPage() {
             <li><strong>Reference</strong> or <strong>Transaction ID</strong> (Optional)</li>
           </ul>
           <p>If the settled amount exactly matches the order total, the order payment status will be updated to SUCCESS automatically. If there is a short payment, it will be flagged as a discrepancy.</p>
+          <div className="mt-4">
+            <button
+              onClick={handleDownloadSample}
+              className="flex items-center gap-2 text-sm text-brand-primary hover:underline font-medium"
+            >
+              <Download className="w-4 h-4" />
+              Download Sample CSV
+            </button>
+          </div>
         </div>
       </div>
     </div>

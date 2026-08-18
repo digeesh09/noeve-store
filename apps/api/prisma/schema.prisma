@@ -145,6 +145,7 @@ model Product {
   categoryId         String        @map("category_id")
   basePriceCents     Int           @map("base_price_cents")
   currency           String        @default("INR")
+  hsnCode            String?       @map("hsn_code")
   material           String?
   purity             String?
   gemstone           String?
@@ -276,6 +277,9 @@ model OrderLine {
   quantity       Int
   unitPriceCents Int     @map("unit_price_cents")
   lineTotalCents Int     @map("line_total_cents")
+  cgstCents      Int     @default(0) @map("cgst_cents")
+  sgstCents      Int     @default(0) @map("sgst_cents")
+  igstCents      Int     @default(0) @map("igst_cents")
 
   order    Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
   rmaLines RMALine[]
@@ -356,6 +360,8 @@ model StoreSettings {
   shippingThresholdCents Int      @default(1500000) @map("shipping_threshold_cents")
   shippingRateCents      Int      @default(100000) @map("shipping_rate_cents") // Default Delivery Charge
   taxRatePercentage      Float    @default(0) @map("tax_rate_percentage")
+  storeState             String   @default("Kerala") @map("store_state")
+  gstin                  String?
   marqueeText            String?  @map("marquee_text")
   updatedAt              DateTime @updatedAt @map("updated_at")
 
@@ -581,4 +587,18 @@ model Comment {
   @@index([postId])
   @@index([userId])
   @@map("comments")
+}
+
+model TaxRule {
+  id              String   @id @default(uuid())
+  hsnCode         String   @unique @map("hsn_code")
+  description     String?
+  cgstPercentage  Float    @default(0) @map("cgst_percentage")
+  sgstPercentage  Float    @default(0) @map("sgst_percentage")
+  igstPercentage  Float    @default(0) @map("igst_percentage")
+  cessPercentage  Float    @default(0) @map("cess_percentage")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("tax_rules")
 }

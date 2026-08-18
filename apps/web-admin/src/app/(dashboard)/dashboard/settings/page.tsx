@@ -22,6 +22,8 @@ export default function SettingsPage() {
   const [facebookLink, setFacebookLink] = useState('');
   const [instagramLink, setInstagramLink] = useState('');
   const [codAllowed, setCodAllowed] = useState(false);
+  const [storeState, setStoreState] = useState('');
+  const [gstin, setGstin] = useState('');
 
   useEffect(() => {
     loadSettings();
@@ -44,6 +46,8 @@ export default function SettingsPage() {
       setFacebookLink(data.facebookLink || '');
       setInstagramLink(data.instagramLink || '');
       setCodAllowed(data.codAllowed || false);
+      setStoreState(data.storeState || 'Kerala');
+      setGstin(data.gstin || '');
     } catch (err: any) {
       setError(err.message || 'Failed to load settings');
     } finally {
@@ -69,6 +73,8 @@ export default function SettingsPage() {
         facebookLink: facebookLink || null,
         instagramLink: instagramLink || null,
         codAllowed,
+        storeState: storeState || 'Kerala',
+        gstin: gstin || null,
       });
       setSuccess('Settings updated successfully');
       await loadSettings();
@@ -214,7 +220,20 @@ export default function SettingsPage() {
                 <span className="text-gray-500 sm:text-sm">%</span>
               </div>
             </div>
-            <p className="mt-1 text-xs text-gray-500">The GST or tax rate applied during checkout.</p>
+            <p className="mt-1 text-xs text-gray-500">The default GST or tax rate applied during checkout if no HSN rule matches.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Store Registered State</label>
+              <input type="text" value={storeState} onChange={(e) => setStoreState(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black" placeholder="Kerala" />
+              <p className="mt-1 text-xs text-gray-500">Used for CGST/SGST vs IGST calculation.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN Number</label>
+              <input type="text" value={gstin} onChange={(e) => setGstin(e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black" placeholder="32AABCU9603R1ZM" />
+              <p className="mt-1 text-xs text-gray-500">Displayed on Tax Invoices.</p>
+            </div>
           </div>
         </div>
 

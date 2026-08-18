@@ -23,6 +23,7 @@ import {
   Settings,
   LogOut,
   PenTool,
+  Receipt,
 } from 'lucide-react';
 
 const navGroups = [
@@ -79,6 +80,7 @@ const navGroups = [
     items: [
       { href: '/dashboard/content', label: 'Content (CMS)', icon: PenTool },
       { href: '/dashboard/marketing', label: 'Marketing', icon: Megaphone },
+      { href: '/dashboard/taxes', label: 'Tax Rules', icon: Receipt },
       { href: '/dashboard/settings', label: 'Settings', icon: Settings },
     ],
   },

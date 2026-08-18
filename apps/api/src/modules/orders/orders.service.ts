@@ -73,9 +73,18 @@ export class OrdersService {
     const paymentProvider = query.paymentProvider as string | undefined;
     const paymentStatus = query.paymentStatus as string | undefined;
     const deliveryDate = query.deliveryDate as string | undefined;
+    const search = query.search as string | undefined;
 
     const where: any = {};
     if (status) where.status = status;
+
+    if (search) {
+      where.OR = [
+        { orderNumber: { contains: search, mode: 'insensitive' } },
+        { user: { email: { contains: search, mode: 'insensitive' } } },
+        { trackingNumber: { contains: search, mode: 'insensitive' } },
+      ];
+    }
 
     if (paymentProvider || paymentStatus) {
       where.payment = {};
@@ -198,13 +207,16 @@ export class OrdersService {
     // Items table header
     doc
       .fillColor('#444444')
-      .fontSize(10)
+      .fontSize(9)
       .font('Helvetica-Bold')
       .text('Item', 50, 230)
-      .text('SKU', 250, 230)
-      .text('Quantity', 350, 230)
-      .text('Price', 400, 230)
-      .text('Total', 480, 230)
+      .text('SKU', 180, 230)
+      .text('Qty', 260, 230)
+      .text('Price', 300, 230)
+      .text('CGST', 350, 230)
+      .text('SGST', 400, 230)
+      .text('IGST', 450, 230)
+      .text('Total', 500, 230)
       .moveDown();
 
     doc.strokeColor('#cccccc').lineWidth(1).moveTo(50, 245).lineTo(550, 245).stroke();
@@ -213,13 +225,16 @@ export class OrdersService {
     let y = 260;
     for (const line of order.lines) {
       doc
-        .fontSize(10)
+        .fontSize(8)
         .font('Helvetica')
-        .text(line.productName, 50, y, { width: 190 })
-        .text(line.sku, 250, y)
-        .text(line.quantity.toString(), 350, y)
-        .text((line.unitPriceCents / 100).toFixed(2), 400, y)
-        .text((line.lineTotalCents / 100).toFixed(2), 480, y);
+        .text(line.productName, 50, y, { width: 120 })
+        .text(line.sku, 180, y)
+        .text(line.quantity.toString(), 260, y)
+        .text((line.unitPriceCents / 100).toFixed(2), 300, y)
+        .text((line.cgstCents / 100).toFixed(2), 350, y)
+        .text((line.sgstCents / 100).toFixed(2), 400, y)
+        .text((line.igstCents / 100).toFixed(2), 450, y)
+        .text((line.lineTotalCents / 100).toFixed(2), 500, y);
       y += 20;
     }
 
@@ -367,8 +382,53 @@ export class OrdersService {
       }
     }
 
+    const storeSettings = await this.prisma.storeSettings.findFirst();
+    const defaultTaxRate = storeSettings ? storeSettings.taxRatePercentage / 100 : 0.18;
+    const storeState = storeSettings?.storeState || 'Kerala';
+
+    const userWithAddress = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { addresses: { where: { isDefault: true }, take: 1 } }
+    });
+    const destState = userWithAddress?.addresses?.[0]?.state || storeState;
+    const isInterState = destState.toLowerCase() !== storeState.toLowerCase();
+
+    const hsnCodes = [...new Set(cart.lines.map(l => l.product.hsnCode).filter(Boolean) as string[])];
+    const taxRules = await this.prisma.taxRule.findMany({ where: { hsnCode: { in: hsnCodes } } });
+    const taxRuleMap = new Map(taxRules.map(tr => [tr.hsnCode, tr]));
+
+    let taxCents = 0;
+
     const lines = cart.lines.map((line) => {
       const unitPriceCents = line.variant?.priceCents ?? line.product.basePriceCents;
+      const lineTotalCents = unitPriceCents * line.quantity;
+
+      let cgst = 0, sgst = 0, igst = 0;
+      const rule = line.product.hsnCode ? taxRuleMap.get(line.product.hsnCode) : null;
+
+      if (rule) {
+        if (isInterState) {
+          igst = Math.round(lineTotalCents * (rule.igstPercentage / 100));
+          taxCents += igst;
+        } else {
+          cgst = Math.round(lineTotalCents * (rule.cgstPercentage / 100));
+          sgst = Math.round(lineTotalCents * (rule.sgstPercentage / 100));
+          taxCents += (cgst + sgst);
+        }
+      } else {
+        const catTaxRate = line.product.category?.taxRatePercentage;
+        const rateToUse = catTaxRate !== null && catTaxRate !== undefined ? catTaxRate / 100 : defaultTaxRate;
+        const fallbackTax = Math.round(lineTotalCents * rateToUse);
+        taxCents += fallbackTax;
+        
+        if (isInterState) {
+          igst = fallbackTax;
+        } else {
+          cgst = Math.round(fallbackTax / 2);
+          sgst = fallbackTax - cgst;
+        }
+      }
+
       return {
         productId: line.productId,
         variantId: line.variantId,
@@ -376,26 +436,15 @@ export class OrdersService {
         sku: line.variant?.sku ?? line.product.slug,
         quantity: line.quantity,
         unitPriceCents,
-        lineTotalCents: unitPriceCents * line.quantity,
+        lineTotalCents,
+        cgstCents: cgst,
+        sgstCents: sgst,
+        igstCents: igst
       };
     });
 
     const subtotalCents = lines.reduce((sum, l) => sum + l.lineTotalCents, 0);
     const currency = cart.lines[0]?.product.currency ?? 'INR';
-
-    // Taxation & Shipping logic
-    const storeSettings = await this.prisma.storeSettings.findFirst();
-    const defaultTaxRate = storeSettings ? storeSettings.taxRatePercentage / 100 : 0.18;
-
-    let taxCents = 0;
-    for (const line of cart.lines) {
-      const unitPriceCents = line.variant?.priceCents ?? line.product.basePriceCents;
-      const lineTotalCents = unitPriceCents * line.quantity;
-      const catTaxRate = line.product.category?.taxRatePercentage;
-      const rateToUse =
-        catTaxRate !== null && catTaxRate !== undefined ? catTaxRate / 100 : defaultTaxRate;
-      taxCents += Math.round(lineTotalCents * rateToUse);
-    }
 
     // Shipping threshold from settings, default to 15000 INR
     const shippingThresholdCents = storeSettings ? storeSettings.shippingThresholdCents : 1500000;

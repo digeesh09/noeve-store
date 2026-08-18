@@ -243,12 +243,15 @@ export class CartService {
         lines: {
           include: {
             product: {
-              include: { images: { orderBy: { sortOrder: 'asc' }, take: 1 } },
+              include: { images: { orderBy: { sortOrder: 'asc' }, take: 1 }, category: true },
             },
             variant: true,
           },
           orderBy: { id: 'asc' },
         },
+        user: {
+          include: { addresses: { where: { isDefault: true }, take: 1 } }
+        }
       },
     });
 
@@ -256,8 +259,55 @@ export class CartService {
       throw new NotFoundException('Cart not found');
     }
 
+    const storeSettings = await this.prisma.storeSettings.findFirst();
+    const defaultTaxRate = storeSettings ? storeSettings.taxRatePercentage / 100 : 0.18;
+    const storeState = storeSettings?.storeState || 'Kerala';
+    const destState = cart.user?.addresses?.[0]?.state || storeState;
+    const isInterState = destState.toLowerCase() !== storeState.toLowerCase();
+
+    const hsnCodes = [...new Set(cart.lines.map(l => l.product.hsnCode).filter(Boolean) as string[])];
+    const taxRules = await this.prisma.taxRule.findMany({ where: { hsnCode: { in: hsnCodes } } });
+    const taxRuleMap = new Map(taxRules.map(tr => [tr.hsnCode, tr]));
+
+    let taxCents = 0;
+    let cgstCents = 0, sgstCents = 0, igstCents = 0;
+
     const lines = cart.lines.map((line) => {
       const unitPriceCents = line.variant?.priceCents ?? line.product.basePriceCents;
+      const lineTotalCents = unitPriceCents * line.quantity;
+
+      let lCgst = 0, lSgst = 0, lIgst = 0;
+      const rule = line.product.hsnCode ? taxRuleMap.get(line.product.hsnCode) : null;
+
+      if (rule) {
+        if (isInterState) {
+          lIgst = Math.round(lineTotalCents * (rule.igstPercentage / 100));
+          taxCents += lIgst;
+          igstCents += lIgst;
+        } else {
+          lCgst = Math.round(lineTotalCents * (rule.cgstPercentage / 100));
+          lSgst = Math.round(lineTotalCents * (rule.sgstPercentage / 100));
+          taxCents += (lCgst + lSgst);
+          cgstCents += lCgst;
+          sgstCents += lSgst;
+        }
+      } else {
+        const catTaxRate = line.product.category?.taxRatePercentage;
+        const rateToUse = catTaxRate !== null && catTaxRate !== undefined ? catTaxRate / 100 : defaultTaxRate;
+        const fallbackTax = Math.round(lineTotalCents * rateToUse);
+        taxCents += fallbackTax;
+        
+        if (isInterState) {
+          lIgst = fallbackTax;
+          igstCents += lIgst;
+        } else {
+          lCgst = Math.round(fallbackTax / 2);
+          lSgst = fallbackTax - lCgst;
+          cgstCents += lCgst;
+          sgstCents += lSgst;
+        }
+      }
+
       return {
         id: line.id,
         quantity: line.quantity,
@@ -268,13 +318,21 @@ export class CartService {
         sku: line.variant?.sku ?? line.product.slug,
         imageUrl: line.product.images[0]?.url ?? null,
         unitPriceCents,
-        lineTotalCents: unitPriceCents * line.quantity,
+        lineTotalCents,
         currency: line.product.currency,
+        cgstCents: lCgst,
+        sgstCents: lSgst,
+        igstCents: lIgst
       };
     });
 
     const subtotalCents = lines.reduce((sum, l) => sum + l.lineTotalCents, 0);
     const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
+
+    const shippingThresholdCents = storeSettings ? storeSettings.shippingThresholdCents : 1500000;
+    const shippingRateCentsFallback = storeSettings ? storeSettings.shippingRateCents : 100000;
+    const shippingCents = (subtotalCents > 0 && subtotalCents < shippingThresholdCents) ? shippingRateCentsFallback : 0;
+    const totalCents = subtotalCents + taxCents + shippingCents;
 
     return {
       data: {
@@ -282,6 +340,12 @@ export class CartService {
         sessionId: cart.sessionId,
         lines,
         subtotalCents,
+        taxCents,
+        shippingCents,
+        cgstCents,
+        sgstCents,
+        igstCents,
+        totalCents,
         itemCount,
         currency: lines[0]?.currency ?? 'INR',
       },

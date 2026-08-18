@@ -32,11 +32,30 @@ export class SettingsService {
     shippingRateCents?: number;
     taxRatePercentage?: number;
     marqueeText?: string;
+    storeState?: string;
+    gstin?: string;
   }): Promise<StoreSettings> {
     const settings = await this.getSettings();
     return this.prisma.storeSettings.update({
       where: { id: settings.id },
       data,
     });
+  }
+
+  async getTaxRules() {
+    return this.prisma.taxRule.findMany({ orderBy: { hsnCode: 'asc' } });
+  }
+
+  async createTaxRule(data: { hsnCode: string; description?: string; cgstPercentage: number; sgstPercentage: number; igstPercentage: number }) {
+    return this.prisma.taxRule.create({ data });
+  }
+
+  async updateTaxRule(id: string, data: Partial<{ hsnCode: string; description?: string; cgstPercentage: number; sgstPercentage: number; igstPercentage: number }>) {
+    return this.prisma.taxRule.update({ where: { id }, data });
+  }
+
+  async deleteTaxRule(id: string) {
+    await this.prisma.taxRule.delete({ where: { id } });
+    return { success: true };
   }
 }

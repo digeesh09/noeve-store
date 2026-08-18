@@ -43,6 +43,7 @@ export default function ProductsPage(): React.JSX.Element {
     careInstructions: '',
     sizeAndFit: '',
     shippingAndReturns: '',
+    hsnCode: '',
   });
 
   const [page, setPage] = useState(1);
@@ -86,6 +87,7 @@ export default function ProductsPage(): React.JSX.Element {
       careInstructions: product.careInstructions || '',
       sizeAndFit: product.sizeAndFit || '',
       shippingAndReturns: product.shippingAndReturns || '',
+      hsnCode: product.hsnCode || '',
     });
     setVariants(product.variants?.map((v: any) => ({ ...v, price: v.priceCents / 100 })) || []);
     setImages(product.images || []);
@@ -98,7 +100,7 @@ export default function ProductsPage(): React.JSX.Element {
     setVariants([]);
     setImages([]);
     setFormData({
-      name: '', slug: '', description: '', categoryId: categories[0]?.id || '', basePrice: 0, material: '', purity: '', gemstone: '', weightGrams: '', composition: '', careInstructions: '', sizeAndFit: '', shippingAndReturns: ''
+      name: '', slug: '', description: '', categoryId: categories[0]?.id || '', basePrice: 0, material: '', purity: '', gemstone: '', weightGrams: '', composition: '', careInstructions: '', sizeAndFit: '', shippingAndReturns: '', hsnCode: ''
     });
   };
 
@@ -118,6 +120,7 @@ export default function ProductsPage(): React.JSX.Element {
         careInstructions: formData.careInstructions || undefined,
         sizeAndFit: formData.sizeAndFit || undefined,
         shippingAndReturns: formData.shippingAndReturns || undefined,
+        hsnCode: formData.hsnCode || undefined,
         basePriceCents: Math.round(Number(formData.basePrice) * 100),
         weightGrams: formData.weightGrams ? Number(formData.weightGrams) : undefined,
         variants: variants.map(v => ({ ...v, priceCents: Math.round(Number(v.price) * 100), stockQuantity: Number(v.stockQuantity) })),
@@ -208,6 +211,10 @@ export default function ProductsPage(): React.JSX.Element {
             <div>
               <label className="block text-sm font-medium text-neutral-700">Price</label>
               <input required type="number" step="0.01" value={formData.basePrice} onChange={e => setFormData({...formData, basePrice: Number(e.target.value)})} className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700">HSN Code (GST)</label>
+              <input type="text" value={formData.hsnCode} onChange={e => setFormData({...formData, hsnCode: e.target.value})} placeholder="e.g. 711319" className="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm" />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-neutral-700 mb-1">Description</label>

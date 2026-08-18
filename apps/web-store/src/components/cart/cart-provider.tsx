@@ -37,6 +37,12 @@ const empty: Cart = {
   subtotalCents: 0,
   itemCount: 0,
   currency: 'INR',
+  taxCents: 0,
+  shippingCents: 0,
+  cgstCents: 0,
+  sgstCents: 0,
+  igstCents: 0,
+  totalCents: 0,
 };
 
 export function CartProvider({ children }: { children: ReactNode }): React.JSX.Element {

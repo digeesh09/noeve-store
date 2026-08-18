@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Body, UseGuards, Post, Delete, Param } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -38,9 +38,45 @@ export class SettingsController {
       shippingRateCents?: number;
       taxRatePercentage?: number;
       marqueeText?: string;
+      storeState?: string;
+      gstin?: string;
     }
   ) {
     const settings = await this.settingsService.updateSettings(body);
     return { data: settings };
+  }
+
+  @Get('admin/tax-rules')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async getTaxRules() {
+    const rules = await this.settingsService.getTaxRules();
+    return { data: rules };
+  }
+
+  @Post('admin/tax-rules')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async createTaxRule(@Body() body: { hsnCode: string; description?: string; cgstPercentage: number; sgstPercentage: number; igstPercentage: number }) {
+    const rule = await this.settingsService.createTaxRule(body);
+    return { data: rule };
+  }
+
+  @Patch('admin/tax-rules/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async updateTaxRule(
+    @Param('id') id: string,
+    @Body() body: { hsnCode?: string; description?: string; cgstPercentage?: number; sgstPercentage?: number; igstPercentage?: number }
+  ) {
+    const rule = await this.settingsService.updateTaxRule(id, body);
+    return { data: rule };
+  }
+
+  @Delete('admin/tax-rules/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async deleteTaxRule(@Param('id') id: string) {
+    return this.settingsService.deleteTaxRule(id);
   }
 }

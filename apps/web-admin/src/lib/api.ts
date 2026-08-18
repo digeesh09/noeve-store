@@ -92,9 +92,10 @@ export async function fetchOrders(
   pageSize = 20,
   paymentProvider?: string,
   paymentStatus?: string,
-  deliveryDate?: string
+  deliveryDate?: string,
+  search?: string
 ): Promise<PaginatedResponse<Order>> {
-  const res = await apiClient.admin.getOrders({ status, page, pageSize, paymentProvider, paymentStatus, deliveryDate });
+  const res = await apiClient.admin.getOrders({ status, page, pageSize, paymentProvider, paymentStatus, deliveryDate, search });
   return { data: res.data as unknown as Order[], meta: res.meta! };
 }
 
@@ -164,11 +165,12 @@ export interface Product {
   purity: string | null;
   gemstone: string | null;
   weightGrams: number | null;
-  composition?: string | null;
-  careInstructions?: string | null;
-  sizeAndFit?: string | null;
-  shippingAndReturns?: string | null;
-  createdAt: string;
+  composition?: string;
+  careInstructions?: string;
+  sizeAndFit?: string;
+  shippingAndReturns?: string;
+  hsnCode?: string;
+  createdAt?: string;
   variants?: ProductVariant[];
   images?: ProductImage[];
   reviews?: { rating: number }[];
@@ -467,4 +469,57 @@ export async function uploadSettlementReport(file: File) {
   }
   
   return res.json();
+}
+
+export interface TaxRule {
+  id: string;
+  hsnCode: string;
+  description: string | null;
+  cgstPercentage: number;
+  sgstPercentage: number;
+  igstPercentage: number;
+  createdAt: string;
+}
+
+export async function fetchTaxRules(): Promise<TaxRule[]> {
+  const token = getAccessToken();
+  const res = await fetchWithAuth(`${API_URL}/admin/tax-rules`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Failed to fetch tax rules');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function createTaxRule(data: Partial<TaxRule>): Promise<TaxRule> {
+  const token = getAccessToken();
+  const res = await fetchWithAuth(`${API_URL}/admin/tax-rules`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to create tax rule');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function updateTaxRule(id: string, data: Partial<TaxRule>): Promise<TaxRule> {
+  const token = getAccessToken();
+  const res = await fetchWithAuth(`${API_URL}/admin/tax-rules/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update tax rule');
+  const json = await res.json();
+  return json.data;
+}
+
+export async function deleteTaxRule(id: string): Promise<void> {
+  const token = getAccessToken();
+  const res = await fetchWithAuth(`${API_URL}/admin/tax-rules/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Failed to delete tax rule');
 }

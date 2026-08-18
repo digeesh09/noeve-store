@@ -11,6 +11,7 @@ export default function FulfillmentPage(): React.JSX.Element {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState('PROCESSING');
+  const [searchQuery, setSearchQuery] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   // Print Label state — we no longer use in-page DOM; we open a popup window.
@@ -27,7 +28,7 @@ export default function FulfillmentPage(): React.JSX.Element {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchOrders(statusFilter, page, 20);
+      const res = await fetchOrders(statusFilter, page, 20, undefined, undefined, undefined, searchQuery);
       setOrders(res.data);
       setTotalPages(res.meta.totalPages || 1);
     } catch (err) {
@@ -35,7 +36,7 @@ export default function FulfillmentPage(): React.JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, page]);
+  }, [statusFilter, page, searchQuery]);
 
   useEffect(() => {
     load();
@@ -207,7 +208,14 @@ export default function FulfillmentPage(): React.JSX.Element {
           <h1 className="text-2xl font-semibold">Fulfillment Center</h1>
           <p className="mt-2 text-sm text-neutral-600">Track and manage the pick-pack-ship workflow.</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
+          <input
+            type="text"
+            placeholder="Search Order / Email / Tracking"
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+            className="block rounded-md border-neutral-300 shadow-sm focus:border-brand-primary focus:ring-brand-primary sm:text-sm"
+          />
           <select 
             value={statusFilter} 
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}

@@ -123,6 +123,12 @@ export interface Cart {
   subtotalCents: number;
   itemCount: number;
   currency: string;
+  taxCents?: number;
+  shippingCents?: number;
+  cgstCents?: number;
+  sgstCents?: number;
+  igstCents?: number;
+  totalCents?: number;
 }
 
 export interface WishlistItem {

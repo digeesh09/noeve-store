@@ -74,12 +74,11 @@ export default function CheckoutPage(): React.JSX.Element {
     }
   }, [router]);
 
-  const taxRate = 0.18;
-  const taxCents = cart ? Math.round(cart.subtotalCents * taxRate) : 0;
-  const shippingCents = cart && cart.subtotalCents < 1500000 ? 100000 : 0;
+  const taxCents = cart?.taxCents || 0;
+  const shippingCents = cart?.shippingCents || 0;
   const discountCents = appliedPromo ? appliedPromo.discountCents : 0;
   const totalCents = cart
-    ? Math.max(0, cart.subtotalCents + taxCents + shippingCents - discountCents)
+    ? Math.max(0, (cart?.totalCents || 0) - discountCents)
     : 0;
 
   const handleApplyPromo = async () => {
@@ -659,15 +658,45 @@ export default function CheckoutPage(): React.JSX.Element {
               display: 'flex',
               justifyContent: 'space-between',
               fontSize: '.85rem',
-              marginBottom: '1rem',
+              marginBottom: '.5rem',
               color: 'rgba(33,29,25,.8)',
-              borderBottom: '1px solid rgba(33,29,25,.1)',
-              paddingBottom: '1rem',
             }}
           >
-            <span>Estimated Tax (18% GST)</span>
+            <span>Taxes & Fees</span>
             <span>{formatPrice(taxCents, cart.currency)}</span>
           </div>
+
+          {(cart?.cgstCents || cart?.sgstCents || cart?.igstCents) ? (
+            <div
+              style={{
+                fontSize: '.75rem',
+                color: 'rgba(33,29,25,.6)',
+                paddingBottom: '1rem',
+                marginBottom: '1rem',
+                borderBottom: '1px solid rgba(33,29,25,.1)',
+              }}
+            >
+              {cart?.igstCents ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>IGST</span>
+                  <span>{formatPrice(cart.igstCents, cart.currency)}</span>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>CGST</span>
+                    <span>{formatPrice(cart.cgstCents || 0, cart.currency)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>SGST</span>
+                    <span>{formatPrice(cart.sgstCents || 0, cart.currency)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <div style={{ borderBottom: '1px solid rgba(33,29,25,.1)', marginBottom: '1rem' }} />
+          )}
 
           {appliedPromo && (
             <div

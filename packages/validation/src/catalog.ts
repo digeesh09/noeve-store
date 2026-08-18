@@ -30,6 +30,7 @@ export const createProductSchema = z.object({
   sizeAndFit: z.string().max(2000, 'Size and fit description is too long').optional(),
   shippingAndReturns: z.string().max(2000, 'Shipping and returns description is too long').optional(),
   careInstructions: z.string().max(2000, 'Care instructions are too long').optional(),
+  hsnCode: z.string().max(20, 'HSN Code is too long').optional(),
   variants: z.array(productVariantSchema).optional(),
   images: z.array(productImageSchema).optional(),
 });
