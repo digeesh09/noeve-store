@@ -63,10 +63,11 @@ mindmap
       Reviews
     Sales
       Orders & Fulfillment
+      COD Reconciliation
       Promotions & Discounts
     Customers
       User Management
-      Support Inbox
+      Support Inbox (WhatsApp & Web)
     Configuration
       Global Settings
       CMS / Content
@@ -85,15 +86,21 @@ mindmap
   2. Update status from *Confirmed* to *Processing*.
   3. Once shipped, update status to *Shipped* and enter the Tracking Number and Carrier. This allows customers to track their shipment directly from their account.
 
-### 2.4 Customer Relationship Management (CRM) & Inbox
+### 2.4 COD Reconciliation
+- **Reconciliation Dashboard:** Under the "Sales" menu, navigate to "Reconciliation".
+- **Upload Settlements:** Upload CSV settlement reports provided by your delivery partners (e.g., Delhivery, BlueDart, Porter). The system will automatically map the Order IDs, verify the settled amounts, and update the COD order statuses to `SUCCESS` (Settled).
+- **Discrepancy Tracking:** Any short payments or mismatched amounts will be flagged for manual review, allowing your accounting team to track missing funds.
+
+### 2.5 Customer Relationship Management (CRM) & Omnichannel Inbox
 - **Support Inbox:** Navigate to the "Inbox" to view all support tickets created by customers. You can reply directly to their queries, and they will receive the updates in their store account.
+- **WhatsApp Integration:** The Inbox is fully integrated with WhatsApp. Messages sent by customers to your official WhatsApp Business number will appear as tickets here. Replies from the dashboard will be sent directly back to the customer's WhatsApp.
 - **Customer Insights:** View registered customer profiles, their total lifetime value (revenue), and order histories.
 
-### 2.5 Promotions and Marketing
+### 2.6 Promotions and Marketing
 - **Promotions:** Create active discount codes (e.g., `SUMMER20`) that offer percentage-based or flat-rate discounts. Set minimum order values and expiration dates.
 - **Content/CMS:** Manage the store's blog posts, mission statements, and other dynamic content directly from the dashboard.
 
-### 2.6 Global Settings Configuration
+### 2.7 Global Settings Configuration
 The "Settings" panel allows administrators to configure store-wide parameters dynamically:
 - **General Settings:** Update the Store Name, Contact Email, Support Phone, and WhatsApp numbers. These instantly reflect in the storefront's footer and PDF invoices.
 - **Social Media:** Configure links to Facebook, Instagram, etc.

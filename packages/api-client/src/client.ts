@@ -168,7 +168,7 @@ export class NoeveApiClient {
       if (params?.page) q.append('page', String(params.page));
       if (params?.pageSize) q.append('pageSize', String(params.pageSize));
       const qs = q.toString();
-      return this.request<PaginatedResponse<Order>>(qs ? `/admin/orders?${qs}` : '/admin/orders', options);
+      return this.request<Order[]>(qs ? `/admin/orders?${qs}` : '/admin/orders', options);
     },
     updateOrderStatus: (orderId: string, body: { status: string; note?: string }, options?: RequestInit) =>
       this.request<Order>(`/admin/orders/${orderId}/status`, { ...options, method: 'PATCH', body: JSON.stringify(body) }),

@@ -7,6 +7,7 @@ import {
   updateSupportTicketStatus,
   addSupportTicketReply,
 } from '@/lib/api';
+import { MessageCircle } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -126,8 +127,11 @@ function TicketDrawer({
                 {new Date(ticket.createdAt).toLocaleString()}
               </span>
             </div>
-            <h2 className="mt-1 truncate text-lg font-semibold text-neutral-900">
+            <h2 className="mt-1 truncate text-lg font-semibold text-neutral-900 flex items-center gap-2">
               {ticket.subject}
+              {ticket.email.endsWith('@whatsapp.lead') && (
+                <MessageCircle className="h-4 w-4 text-green-500" title="WhatsApp Message" />
+              )}
             </h2>
             <p className="text-sm text-neutral-500">
               {ticket.name}{' '}
@@ -436,7 +440,12 @@ export default function SupportAdminPage() {
                     className="cursor-pointer transition-colors hover:bg-violet-50"
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{t.name}</div>
+                      <div className="font-medium text-gray-900 flex items-center gap-2">
+                        {t.name}
+                        {t.email.endsWith('@whatsapp.lead') && (
+                          <MessageCircle className="h-4 w-4 text-green-500" title="WhatsApp Chat" />
+                        )}
+                      </div>
                       <div className="text-xs text-gray-500">{t.email}</div>
                     </td>
                     <td className="px-4 py-3">

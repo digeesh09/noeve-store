@@ -443,3 +443,21 @@ export async function updateBlog(id: string, data: any) {
   return res.json();
 }
 
+export async function uploadSettlementReport(file: File) {
+  const token = getAccessToken();
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const res = await fetchWithAuth(`${API_URL}/admin/reconciliation/upload`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to process settlement report');
+  }
+  
+  return res.json();
+}

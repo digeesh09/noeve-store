@@ -96,17 +96,17 @@ export default function DashboardPage() {
     },
   ];
 
-  const totalSalesCents = orders
-    .filter((o) => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
-    .reduce((acc, o) => acc + o.totalCents, 0);
-  const totalTaxCents = orders
-    .filter((o) => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
-    .reduce((acc, o) => acc + o.taxCents, 0);
+  // const totalSalesCents = orders
+  //   .filter((o) => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
+  //   .reduce((acc, o) => acc + o.totalCents, 0);
+  // const totalTaxCents = orders
+  //   .filter((o) => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
+  //   .reduce((acc, o) => acc + o.taxCents, 0);
 
-  const financialStats = [
-    { label: 'Total Sales Revenue', value: loading ? '—' : formatPrice(totalSalesCents) },
-    { label: 'Total Tax Collected (GST)', value: loading ? '—' : formatPrice(totalTaxCents) },
-  ];
+  // const financialStats = [
+  //   { label: 'Total Sales Revenue', value: loading ? '—' : formatPrice(totalSalesCents) },
+  //   { label: 'Total Tax Collected (GST)', value: loading ? '—' : formatPrice(totalTaxCents) },
+  // ];
 
   const maxRevenue = Math.max(...(dailyRevenue.map((d) => d.revenueCents) || [0]), 100000);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { fetchOrders, updateOrderStatus, type Order } from '@/lib/api';
 import { Pagination } from '@/components/Pagination';
 
@@ -15,8 +15,8 @@ export default function FulfillmentPage(): React.JSX.Element {
 
   // Print Label state — we no longer use in-page DOM; we open a popup window.
   // labelOrder kept only for triggering the QR canvas generation.
-  const [, setLabelOrder] = useState<Order | null>(null);
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  // const [, setLabelOrder] = useState<Order | null>(null);
+  // const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   
   // Tracking form state
   const [shippingOrderId, setShippingOrderId] = useState<string | null>(null);

@@ -62,6 +62,7 @@ const navGroups = [
     items: [
       { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
       { href: '/dashboard/fulfillment', label: 'Fulfillment', icon: Truck },
+      { href: '/dashboard/reconciliation', label: 'COD Reconciliation', icon: FileText },
       { href: '/dashboard/promotions', label: 'Promotions', icon: Percent },
     ],
   },

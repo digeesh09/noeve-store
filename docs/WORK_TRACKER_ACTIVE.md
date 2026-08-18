@@ -52,17 +52,28 @@
 
 Based on the unchecked items, the focus areas currently pending are:
 
-#### Microservices Integration (Task 57): Set up NestJS microservices boilerplate (TCP/Redis) and expose gRPC endpoints for custom business logic.
+#### 1. Microservices Integration (Task 57)
+- [ ] 57.1 Create NestJS microservice boilerplate using TCP/Redis transport.
+- [ ] 57.2 Define Protobuf (`.proto`) schemas for custom business logic.
+- [ ] 57.3 Expose gRPC endpoints and implement a sample handler in the `api` app.
 
-#### WhatsApp Commerce (Task 58): Implement a webhook controller via the Meta API to route incoming WA messages directly into the CRM Inbox system.
+#### 2. WhatsApp Commerce (Task 58)
+- [x] 58.1 Set up Meta App for WhatsApp Business API and configure webhook endpoint URL.
+- [x] 58.2 Create a `WebhookController` in `CrmModule` to receive and parse incoming WhatsApp messages.
+- [x] 58.3 Route parsed messages into the `Inbox` system and establish two-way communication capabilities.
 
-#### Blog Enhancements (Tasks 81, 82, 83):
+#### 3. Blog Enhancements (Tasks 81, 82, 83)
+- [ ] 81.1 Integrate image and video upload handlers for the React-Quill editor in the Web Admin.
+- [ ] 82.1 Update `Post` Prisma schema to include fields for `seoTitle`, `seoDescription`, `tags`, and `categories`.
+- [ ] 82.2 Build UI in Web Admin CMS for editing SEO meta tags and taxonomies.
+- [ ] 83.1 Add `Comment` model to Prisma schema (linked to `Post` and `User`).
+- [ ] 83.2 Create API endpoints for fetching, creating, and moderating blog comments.
+- [ ] 83.3 Implement comment section UI in the storefront `/blog/[slug]` page.
 
-- Add deep rich-text features (image/video uploads) beyond the basic React-Quill setup.
-- Implement SEO meta tags, tags, and category taxonomies for the blog.
-- Add comment support to blog posts.
-
-#### COD Reconciliation (Task 109): Define and build the system to track COD payments reconciled through delivery aggregators (like BlueDart, Delhivery, Porter).
+#### 4. COD Reconciliation (Task 109)
+- [x] 109.1 Design reconciliation workflow for Cash on Delivery payments via delivery partners (BlueDart, Delhivery, Porter).
+- [x] 109.2 Create API endpoint for uploading or parsing settlement reports from aggregators.
+- [x] 109.3 Add UI in the Web Admin dashboard to track and mark COD orders as "Settled" / "Reconciled".
 
 ## Pending and Active Works
 
@@ -377,7 +388,7 @@ message not shown as session expired and need to take to login
 
 - [x] 108. Add more informations into the order listing such as payment mode, status of payment, delivery date etc. Provide option to filter the orders based on the payment mode, status of payment, delivery date, status of order, etc.
 
-- [ ] 109. We need option to track COD payments. How will it be done?
+- [x] 109. We need option to track COD payments. How will it be done?
        We will making COD through delivery partners such as BlueDart, Delhivery, Porter or through service aggregators.
 
 - [x] 110. Order Listing in store also required some more fields in the listing.
