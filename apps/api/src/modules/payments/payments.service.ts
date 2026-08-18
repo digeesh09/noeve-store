@@ -221,4 +221,51 @@ export class PaymentsService {
 
     return { status: 'ok' };
   }
+
+  async refundPayment(orderId: string, reason?: string) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { orderId },
+      include: { order: true }
+    });
+    
+    if (!payment) {
+      throw new NotFoundException('Payment record not found for this order');
+    }
+
+    if (payment.status !== PaymentStatus.SUCCESS) {
+      throw new BadRequestException('Only successful payments can be refunded');
+    }
+
+    if (!this.isMockMode && this.razorpay && payment.providerPaymentId) {
+      try {
+        await this.razorpay.payments.refund(payment.providerPaymentId, {
+          amount: payment.amountCents,
+          notes: {
+            reason: reason || 'Customer requested refund',
+          }
+        });
+      } catch (err: any) {
+        this.logger.error('Razorpay refund failed', err);
+        throw new BadRequestException(err?.message || 'Refund failed at payment gateway');
+      }
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.payment.update({
+        where: { id: payment.id },
+        data: { status: PaymentStatus.REFUNDED },
+      });
+
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId: payment.orderId,
+          status: payment.order.status, // keep current status
+          note: `Payment refunded: ${reason || 'Admin action'}`,
+          createdBy: 'SYSTEM',
+        },
+      });
+    });
+
+    return { success: true };
+  }
 }

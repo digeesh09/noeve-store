@@ -17,6 +17,53 @@
 - When marking or moving completed items from active to completed, give details of the issues and the details of the resolutions.
 - When the work is not simple work, plan the work by documenting the details of the work and plan in a md document and continue. Ask me any question and clarifications you require before continue with the work. I ll review the plan document and help you finalize the work plan. Place the plan documents in the WorkPlan folder under docs.
 
+### ✅ Completed Milestones
+
+#### Payments & Fulfillment
+
+- Fully integrated Razorpay for web and mobile (Expo) storefronts, complete with webhook verification and payment status flows.
+- Built out the Fulfillment API pipeline (PICK, PACK, SHIP) and integrated it into both the Web Admin and Mobile Admin app.
+- Cash on Delivery (COD) functionality has been implemented and properly reflects in cart and checkout. Also added fallback options to convert failed online payments to COD.
+
+#### Architecture & Backend Infrastructure
+
+- Core API endpoints completed for CRUD operations across Inventory, Users, Promotions, and more.
+- Redis integration is in place for caching and session management.
+- Prisma schema expanded to include multi-warehouse locations, serialized inventory, B2B tiering, returns (RMA), and shipments.
+- OpenAPI documentation setup is active.
+
+#### Web & Mobile Applications
+
+- Web Admin Dashboard contains fully functioning modules for Inventory management, CRM (Customers), Settings, and CMS (Blogs).
+- Mobile Admin App covers Orders, Fulfillment, and Barcode Scanning.
+- Web Store features enhanced layout with a dynamic Mega Menu, rich UI for product filtering, reviews, PDF invoices generation (with professional templates including logo/company details), and a fully fleshed out Customer Portal.
+
+#### Advanced & B2B Features
+
+- Discount engine handles complex rules like "Buy 2 Get 1 Free".
+- Automated Abandoned Cart recovery via a cron job scheduling email alerts.
+- Multi-warehouse logic, B2B custom member-only catalogs (tier-based), digital product support, and dynamic delivery tracking.
+
+#### Analytics & Reports
+
+- A vast suite of analytical widgets and reports have been generated including Sales, Customers, Products, User Acquisition, "Top Customers by Revenue", Heat Maps, and more.
+
+### ⏳ Pending / Active Tasks
+
+Based on the unchecked items, the focus areas currently pending are:
+
+#### Microservices Integration (Task 57): Set up NestJS microservices boilerplate (TCP/Redis) and expose gRPC endpoints for custom business logic.
+
+#### WhatsApp Commerce (Task 58): Implement a webhook controller via the Meta API to route incoming WA messages directly into the CRM Inbox system.
+
+#### Blog Enhancements (Tasks 81, 82, 83):
+
+- Add deep rich-text features (image/video uploads) beyond the basic React-Quill setup.
+- Implement SEO meta tags, tags, and category taxonomies for the blog.
+- Add comment support to blog posts.
+
+#### COD Reconciliation (Task 109): Define and build the system to track COD payments reconciled through delivery aggregators (like BlueDart, Delhivery, Porter).
+
 ## Pending and Active Works
 
 - [x] 16. Cart Icon in the store header looks like dust bin. Can you improve it?
@@ -339,3 +386,7 @@ message not shown as session expired and need to take to login
        Add a weekly or monthly view for product heat map. You can switch to monthly or weekly view. By default monthly view should be shown.
        Provide filter for product name, category, start date, end date, etc. for product heat map. Currently although the tabular table is shown, no data is mapped. Same issue exists for Order Heat map for delivery date.
 - [x] 112. The order listing in my account in the store needs more fields to be displayed in the listing.
+- [x] 113. When the payment is pending or failed in the order, there is no option to re-initiate the paymetn in the order details in My Account.
+- [x] 114. When the payment is done and order is cancelled, there is no option to refund the amount in the order.
+
+- [x] 115. If the payment is done and order is delivered and due to some reason, customer want refund. How to handle?

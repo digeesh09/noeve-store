@@ -36,6 +36,7 @@ export function AccountPanel(): React.JSX.Element {
 
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
   const [changingToCod, setChangingToCod] = useState<string | null>(null);
+  const [payingOrder, setPayingOrder] = useState<string | null>(null);
   const router = useRouter();
   const { addItem } = useCart();
 
@@ -96,6 +97,77 @@ export function AccountPanel(): React.JSX.Element {
     if (loggedIn && tab === 'inbox') fetchInbox();
     if (loggedIn) fetchSettings();
   }, [loggedIn, tab]);
+
+  const handleReinitiatePayment = async (order: Order) => {
+    setPayingOrder(order.id);
+    try {
+      const { apiClient } = await import('@/lib/api');
+      const sessionRes = await apiClient.store.createPaymentSession({ orderId: order.id });
+      const session = sessionRes.data;
+
+      if (session.isMock) {
+        await apiClient.store.verifyPayment({
+          orderId: order.id,
+          razorpayOrderId: session.providerOrderId,
+          razorpayPaymentId: `pay_mock_${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+          razorpaySignature: 'mock_signature_verified',
+        });
+        await fetchOrders();
+        alert('Payment completed successfully!');
+        setPayingOrder(null);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => {
+        const options = {
+          key: session.keyId,
+          amount: session.amount,
+          currency: session.currency,
+          name: 'Noeve',
+          description: `Order ${order.orderNumber}`,
+          order_id: session.providerOrderId,
+          handler: async function (response: any) {
+            try {
+              await apiClient.store.verifyPayment({
+                orderId: order.id,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              });
+              await fetchOrders();
+              alert('Payment completed successfully!');
+            } catch (err: any) {
+              alert(err?.message || 'Payment verification failed');
+            } finally {
+              setPayingOrder(null);
+            }
+          },
+          prefill: {
+            name: user?.firstName ? `${user.firstName} ${user.lastName || ''}` : '',
+            email: user?.email || '',
+          },
+          theme: { color: '#6B2230' },
+          modal: {
+            ondismiss: function () {
+              setPayingOrder(null);
+            },
+          },
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      };
+      script.onerror = () => {
+        alert('Failed to load Razorpay script.');
+        setPayingOrder(null);
+      };
+      document.body.appendChild(script);
+    } catch (err: any) {
+      alert(err?.message || 'Could not initiate payment');
+      setPayingOrder(null);
+    }
+  };
 
   const handleChangeToCOD = async (orderId: string) => {
     setChangingToCod(orderId);
@@ -356,6 +428,15 @@ export function AccountPanel(): React.JSX.Element {
                       >
                         Need Help?
                       </button>
+                      {order.status === 'PENDING_PAYMENT' && (
+                        <button
+                          onClick={() => handleReinitiatePayment(order)}
+                          disabled={payingOrder === order.id}
+                          className="btn btn--primary"
+                        >
+                          {payingOrder === order.id ? 'Loading...' : 'Pay Now'}
+                        </button>
+                      )}
                       {order.status === 'PENDING_PAYMENT' && settings?.codAllowed && (
                         <button
                           onClick={() => handleChangeToCOD(order.id)}

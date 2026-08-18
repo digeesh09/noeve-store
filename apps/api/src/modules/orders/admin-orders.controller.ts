@@ -4,11 +4,15 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { OrdersService } from './orders.service';
+import { PaymentsService } from '../payments/payments.service';
 
 @Controller('admin/orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminOrdersController {
-  constructor(private orders: OrdersService) {}
+  constructor(
+    private orders: OrdersService,
+    private payments: PaymentsService,
+  ) {}
 
   @Get()
   @Roles(UserRole.ADMIN, UserRole.FULFILLMENT, UserRole.SUPPORT)
@@ -75,5 +79,14 @@ export class AdminOrdersController {
     @Body() body: { deliveryDate: string | null },
   ) {
     return this.orders.updateDeliveryDate(id, body.deliveryDate ? new Date(body.deliveryDate) : null);
+  }
+
+  @Post(':id/refund')
+  @Roles(UserRole.ADMIN)
+  refundOrder(
+    @Param('id') id: string,
+    @Body() body: { reason?: string },
+  ) {
+    return this.payments.refundPayment(id, body.reason);
   }
 }

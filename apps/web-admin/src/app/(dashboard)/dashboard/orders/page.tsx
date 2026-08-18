@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { fetchOrders, updateOrderStatus, fetchSupportTickets, type Order } from '@/lib/api';
+import { fetchOrders, updateOrderStatus, fetchSupportTickets, refundOrder, type Order } from '@/lib/api';
 import { Pagination } from '@/components/Pagination';
 import { useSearchParams, useRouter } from 'next/navigation';
 
@@ -122,6 +122,21 @@ export default function OrdersPage(): React.JSX.Element {
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Update failed');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const handleRefund = async (orderId: string) => {
+    if (!window.confirm('Are you sure you want to refund this order?')) return;
+    setUpdating(orderId);
+    try {
+      await refundOrder(orderId, 'Admin initiated refund');
+      await load();
+      alert('Order refunded successfully');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Refund failed');
+      alert(`Refund failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setUpdating(null);
     }
@@ -329,6 +344,16 @@ export default function OrdersPage(): React.JSX.Element {
                             → {status}
                           </button>
                         ))}
+                        {(order.status === 'CANCELLED' || order.status === 'DELIVERED') && order.payment?.status === 'SUCCESS' && (
+                          <button
+                            type="button"
+                            disabled={updating === order.id}
+                            onClick={(e) => { e.stopPropagation(); handleRefund(order.id); }}
+                            className="rounded border border-red-300 bg-red-50 text-red-700 px-2 py-1 text-xs hover:bg-red-100 disabled:opacity-50"
+                          >
+                            Refund
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

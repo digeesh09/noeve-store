@@ -119,6 +119,24 @@ export async function updateOrderDeliveryDate(orderId: string, deliveryDate: str
   return json.data as unknown as Order;
 }
 
+export async function refundOrder(orderId: string, reason?: string): Promise<any> {
+  const token = getAccessToken();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/v1';
+  const res = await fetchWithAuth(`${API_URL}/admin/orders/${orderId}/refund`, {
+    method: 'POST',
+    headers: { 
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ reason })
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to refund order');
+  }
+  return res.json();
+}
+
 export interface ProductImage {
   id: string;
   url: string;
